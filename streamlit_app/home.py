@@ -1,4 +1,11 @@
+import os
+import sys
+
 import streamlit as st
+
+# workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 
 
