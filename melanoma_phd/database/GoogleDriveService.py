@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 from datetime import datetime
+from typing import Dict
 
 from google.api_core import retry
 from google.oauth2 import service_account
@@ -11,6 +12,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
+from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.TimestampSaver import TimestampSaver
 
 # If modifying these scopes, delete the file token.pickle.
@@ -29,8 +31,8 @@ class GoogleDriveService:
     DATA_FOLDER = os.path.join(tempfile.gettempdir(), "data")
     TIMESTAMP_FILENAME = ".timestamp"
 
-    def __init__(self) -> None:
-        self._credentials = self.__load_credentials()
+    def __init__(self, config: AppConfig) -> None:
+        self._credentials = self.__load_credentials(config.google_service_account_info)
         self._service = build("drive", "v3", credentials=self._credentials)
 
     @retry.Retry(predicate=retry.if_exception_type(HttpError), on_error=retry_error_log)
@@ -63,12 +65,10 @@ class GoogleDriveService:
         else:
             logging.debug(f"Downloading skipped since '{filename}' file is up-to-date.")
 
-    def __load_credentials(self) -> Credentials:
+    def __load_credentials(self, account_service_info: Dict) -> Credentials:
         logging.debug(f"Loading Google Drive credentials")
-        script_path = os.path.dirname(os.path.abspath(__file__))
-        credentials_file = os.path.join(script_path, "service_account_file.json")
-        credentials = service_account.Credentials.from_service_account_file(
-            filename=credentials_file, scopes=SCOPES
+        credentials = service_account.Credentials.from_service_account_info(
+            info=account_service_info, scopes=SCOPES
         )
         return credentials
 

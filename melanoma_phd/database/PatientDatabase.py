@@ -14,7 +14,7 @@ class PatientDatabase:
         database_file_path = os.path.join(
             config.data_folder, self.DATABASE_FOLDER, self.DATABASE_FILE
         )
-        GoogleDriveService().download_excel_file_by_id(
+        GoogleDriveService(config=config).download_excel_file_by_id(
             file_id=config.get_setting("database/file_id"), filename=database_file_path
         )
         self._file = database_file_path
