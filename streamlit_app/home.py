@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 
 
-@st.experimental_memo(show_spinner="Loading the main app...")
+@st.experimental_singleton(show_spinner="Loading the main app...")
 def load_app() -> MelanomaPhdApp:
     return create_melanoma_phd_app()
 
