@@ -50,11 +50,11 @@ class GoogleDriveService:
         """
         folder = os.path.dirname(filename)
         timestamp_file = os.path.join(folder, self.TIMESTAMP_FILENAME)
+        modified_date = self.get_modified_date_file_by_id(file_id=file_id)
         download = True
         if os.path.exists(filename) and not force:
             if os.path.exists(timestamp_file):
                 download_date = TimestampSaver.load_date(timestamp_file)
-                modified_date = self.get_modified_date_file_by_id(file_id=file_id)
                 download = download_date < modified_date
             else:
                 logging.warning(f"'{filename}' file has no timestamp file!")
