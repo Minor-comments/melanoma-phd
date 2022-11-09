@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
 from melanoma_phd.database.GoogleDriveService import GoogleDriveService
@@ -51,7 +52,7 @@ class PatientDatabase:
     def __load_general_clinical_base(self) -> None:
         sheet_name = "BASE GENERAL CLÍNICA"
         dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
-        variables = [CategoricalVariable(name="SEXO", category_names={0: "Hombre", 1: "Mujer"})]
+        variables = [CategoricalVariable(name="SEXO", category_names={0.0: "Hombre", 1.0: "Mujer"})]
         self._general_clinical_base = DatabaseSheet(
             name=sheet_name, dataframe=dataframe, variables_to_analyze=variables
         )
