@@ -2,8 +2,11 @@
 black
 
 streamlit
-pandas
 openpyxl
+pandas >= 1.0
+plotly >= 4.8
+matplotlib
+
 
 # Google Drive API
 google-api-python-client
