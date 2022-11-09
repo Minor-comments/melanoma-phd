@@ -2,13 +2,14 @@ import os
 
 import pandas as pd
 from melanoma_phd.config.AppConfig import AppConfig
+from melanoma_phd.database.DatabaseSheet import DatabaseSheet
 from melanoma_phd.database.GoogleDriveService import GoogleDriveService
+from melanoma_phd.database.Variable import CategoricalVariable
 
 
 class PatientDatabase:
     DATABASE_FOLDER = "database"
     DATABASE_FILE = "patient_database.xlsx"
-    EXCEL_SHEET_NAMES = ["", "", "", "", "", ""]
 
     def __init__(self, config: AppConfig) -> None:
         database_file_path = os.path.join(
@@ -21,23 +22,23 @@ class PatientDatabase:
         self.__load_database()
 
     @property
-    def general_clinical_base(self) -> pd.DataFrame:
+    def general_clinical_database(self) -> DatabaseSheet:
         return self._general_clinical_base
 
     @property
-    def blood_parameters_base(self) -> pd.DataFrame:
+    def blood_parameters_database(self) -> DatabaseSheet:
         return self._blood_parameters_base
 
     @property
-    def lf_dna_populations_base(self) -> pd.DataFrame:
+    def lf_dna_populations_database(self) -> DatabaseSheet:
         return self._lf_dna_populations_base
 
     @property
-    def radiological_tests_base(self) -> pd.DataFrame:
+    def radiological_tests_database(self) -> DatabaseSheet:
         return self._radiological_tests_base
 
     @property
-    def ap_ampliation_base(self) -> pd.DataFrame:
+    def ap_ampliation_database(self) -> DatabaseSheet:
         return self._ap_ampliation_base
 
     def __load_database(self) -> None:
@@ -48,35 +49,47 @@ class PatientDatabase:
         self.__load_ap_ampliation_base()
 
     def __load_general_clinical_base(self) -> None:
-        self._general_clinical_base = pd.read_excel(
-            io=self._file, sheet_name="BASE GENERAL CLÍNICA"
+        sheet_name = "BASE GENERAL CLÍNICA"
+        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
+        variables = [CategoricalVariable(name="SEXO", category_names={0: "Hombre", 1: "Mujer"})]
+        self._general_clinical_base = DatabaseSheet(
+            name=sheet_name, dataframe=dataframe, variables_to_analyze=variables
         )
 
     def __load_blood_parameters_base(self) -> None:
-        self._blood_parameters_base = pd.read_excel(
-            io=self._file, sheet_name="BASE PARAMETROS SANGRE"
+        sheet_name = "BASE PARAMETROS SANGRE"
+        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
+        self._blood_parameters_base = DatabaseSheet(
+            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
         )
 
     def __load_lf_dna_populations_base(self) -> None:
-        lf_dna_populations_base = pd.read_excel(
-            io=self._file, sheet_name="BASE POBLACIONES LF-DNA (1-4)"
-        )
-        lf_dna_populations_base = lf_dna_populations_base.merge(
+        dataframe = pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (1-4)")
+        dataframe = dataframe.merge(
             right=pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (5-8)"),
             on="N. PACIENTE",
             how="inner",
         )
-        lf_dna_populations_base = lf_dna_populations_base.merge(
+        dataframe = dataframe.merge(
             right=pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (9y10)"),
             on="N. PACIENTE",
             how="inner",
         )
-        self._lf_dna_populations_base = lf_dna_populations_base
+        sheet_name = "BASE POBLACIONES LF-DNA"
+        self._lf_dna_populations_base = DatabaseSheet(
+            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
+        )
 
     def __load_radiological_tests_base(self) -> None:
-        self._radiological_tests_base = pd.read_excel(
-            io=self._file, sheet_name="BASE PRUEBAS RADIOLÓGICAS"
+        sheet_name = "BASE PRUEBAS RADIOLÓGICAS"
+        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
+        self._radiological_tests_base = DatabaseSheet(
+            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
         )
 
     def __load_ap_ampliation_base(self) -> None:
-        self._ap_ampliation_base = pd.read_excel(io=self._file, sheet_name="BASE AMPLIADA AP")
+        sheet_name = "BASE AMPLIADA AP"
+        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
+        self._ap_ampliation_base = DatabaseSheet(
+            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
+        )
