@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import TracebackType
 
 import streamlit as st
+
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 

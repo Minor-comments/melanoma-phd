@@ -1,7 +1,7 @@
-from enum import Enum
+from melanoma_phd.database.variable.CategoryEnum import CategoryEnum
 
 
-class TreatmentType(Enum):
+class TreatmentType(CategoryEnum):
     NO = (0, "NO")
     BRAF_MEK = (1, "BRAF+MEK")
     ANTI_PD1_BASED = (2, "anti-PD1 based")
@@ -11,12 +11,3 @@ class TreatmentType(Enum):
     ANTI_CTLA4_BASED = (6, "antiCTLA4 based")
     OTHER = (7, "Other")
     ANTI_PDL1_BASED = (8, "Anti-PDL1 based")
-
-    def __new__(cls, value, description):
-        entry = object.__new__(cls)
-        entry._value_ = value
-        entry.description = description
-        return entry
-
-    def __repr__(self):
-        return f"<{type(self).__name__}.{self.name}: ({self.value!r}, {self.description!r})>"

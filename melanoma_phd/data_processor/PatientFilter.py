@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from melanoma_phd.database.PopulationGroup import PopulationGroup
-from melanoma_phd.database.TreatmentType import TreatmentType
+from melanoma_phd.database.variable.PopulationGroup import PopulationGroup
+from melanoma_phd.database.variable.TreatmentType import TreatmentType
 
 
 @dataclass
