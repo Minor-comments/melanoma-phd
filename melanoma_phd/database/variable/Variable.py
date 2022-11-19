@@ -1,8 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict, List, Union
 
 import pandas as pd
+
+
+class VariableType(Enum):
+    SCALAR = "scalar"
+    CATEGORICAL = "categorical"
 
 
 @dataclass
@@ -34,16 +40,23 @@ class CategoricalVariable(BaseVariable):
         return self._category_name_values.get(value, str(value))
 
     def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        dataframe = dataframe[self.id].map(self._category_name_values)
-        counts = dataframe.value_counts()
-        percent = dataframe.value_counts(normalize=True)
+        series = dataframe[self.id].map(self._category_name_values)
+        counts = series.value_counts()
+        percent = series.value_counts(normalize=True)
         percent100 = percent.mul(100).round(1).astype(str) + "%"
         return pd.DataFrame({"counts": counts, "per": percent, "per100": percent100})
 
 
-class ScaleVarible(BaseVariable):
+class ScalarVarible(BaseVariable):
     def __init__(self, id: str, name: str) -> None:
         super().__init__(id=id, name=name)
+
+    def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        series = dataframe[self.id]
+        median = series.median()
+        mean = series.mean()
+        std_deviation = series.std()
+        return pd.DataFrame(data={"median": median, "mean": mean, "std": std_deviation}, index=[0])
 
 
 class BooleanVariable(CategoricalVariable):

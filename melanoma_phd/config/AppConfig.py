@@ -29,6 +29,11 @@ class AppConfig(JsonConfig):
         return __version__
 
     @property
+    def database_config(self) -> str:
+        folder_name = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(folder_name, self.get_setting("database/config_file"))
+
+    @property
     def google_service_account_info(self) -> Dict:
         project_id = os.environ.get("GOOGLE_SERVICE_ACCOUNT_PROJECT_ID", None)
         if project_id:

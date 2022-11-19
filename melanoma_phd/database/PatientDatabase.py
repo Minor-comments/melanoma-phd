@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import os
+from typing import Any, Dict, List
 
 import pandas as pd
+import yaml
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
 from melanoma_phd.database.GoogleDriveService import GoogleDriveService
-from melanoma_phd.database.variable.Variable import CategoricalVariable
+from melanoma_phd.database.variable.Variable import BaseVariable
+from melanoma_phd.database.variable.VariableFatory import VariableFactory
 
 
 class PatientDatabase:
@@ -19,82 +24,41 @@ class PatientDatabase:
         GoogleDriveService(config=config).download_excel_file_by_id(
             file_id=config.get_setting("database/file_id"), filename=database_file_path
         )
-        self._file = database_file_path
-        self.__load_database()
+        self.__load_database(database_file=database_file_path, config_file=config.database_config)
 
-    @property
-    def general_clinical_database(self) -> DatabaseSheet:
-        return self._general_clinical_base
-
-    @property
-    def blood_parameters_database(self) -> DatabaseSheet:
-        return self._blood_parameters_base
-
-    @property
-    def lf_dna_populations_database(self) -> DatabaseSheet:
-        return self._lf_dna_populations_base
-
-    @property
-    def radiological_tests_database(self) -> DatabaseSheet:
-        return self._radiological_tests_base
-
-    @property
-    def ap_ampliation_database(self) -> DatabaseSheet:
-        return self._ap_ampliation_base
-
-    def __load_database(self) -> None:
-        self.__load_general_clinical_base()
-        self.__load_blood_parameters_base()
-        self.__load_lf_dna_populations_base()
-        self.__load_radiological_tests_base()
-        self.__load_ap_ampliation_base()
-
-    def __load_general_clinical_base(self) -> None:
-        sheet_name = "BASE GENERAL CLÍNICA"
-        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
-        variables = [
-            CategoricalVariable(
-                id="SEXO", name="Sex", category_name_values={0.0: "Hombre", 1.0: "Mujer"}
+    def __load_database(self, database_file: str, config_file: str) -> None:
+        with open(config_file, mode="rt", encoding="utf-8") as file_stream:
+            yaml_dict = yaml.safe_load(file_stream)
+        self._common_section_variable_name = yaml_dict["common_section_variable"]
+        for section_config in yaml_dict["sections"]:
+            section_name = next(iter(section_config))
+            sheet = self.__load_database_sheet(
+                database_file=database_file, config=section_config[section_name]
             )
+            setattr(self.__class__, section_name, sheet)
+
+    def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
+        sheet_names = config["sheets"]
+        dataframe = None
+        for sheet_name in sheet_names:
+            sheet_dataframe = pd.read_excel(io=database_file, sheet_name=sheet_name)
+            if dataframe is not None:
+                dataframe = dataframe.merge(
+                    sheet_dataframe, on=self._common_section_variable_name, how="inner"
+                )
+            else:
+                dataframe = sheet_dataframe
+
+        variables_config = config["variables"]
+        variables = None
+        if variables_config:
+            variables = self.__load_sheet_variables(variables_config)
+        return DatabaseSheet(
+            name=config["name"], dataframe=dataframe, variables_to_analyze=variables
+        )
+
+    def __load_sheet_variables(self, config: List[Dict[Any, Any]]) -> List[BaseVariable]:
+        return [
+            VariableFactory().create(**list(variable_config.values())[0])
+            for variable_config in config
         ]
-        self._general_clinical_base = DatabaseSheet(
-            name=sheet_name, dataframe=dataframe, variables_to_analyze=variables
-        )
-
-    def __load_blood_parameters_base(self) -> None:
-        sheet_name = "BASE PARAMETROS SANGRE"
-        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
-        self._blood_parameters_base = DatabaseSheet(
-            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
-        )
-
-    def __load_lf_dna_populations_base(self) -> None:
-        dataframe = pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (1-4)")
-        dataframe = dataframe.merge(
-            right=pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (5-8)"),
-            on="N. PACIENTE",
-            how="inner",
-        )
-        dataframe = dataframe.merge(
-            right=pd.read_excel(io=self._file, sheet_name="BASE POBLACIONES LF-DNA (9y10)"),
-            on="N. PACIENTE",
-            how="inner",
-        )
-        sheet_name = "BASE POBLACIONES LF-DNA"
-        self._lf_dna_populations_base = DatabaseSheet(
-            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
-        )
-
-    def __load_radiological_tests_base(self) -> None:
-        sheet_name = "BASE PRUEBAS RADIOLÓGICAS"
-        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
-        self._radiological_tests_base = DatabaseSheet(
-            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
-        )
-
-    def __load_ap_ampliation_base(self) -> None:
-        sheet_name = "BASE AMPLIADA AP"
-        dataframe = pd.read_excel(io=self._file, sheet_name=sheet_name)
-        self._ap_ampliation_base = DatabaseSheet(
-            name=sheet_name, dataframe=dataframe, variables_to_analyze=[]
-        )

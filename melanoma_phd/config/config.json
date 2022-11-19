@@ -3,6 +3,7 @@
       "name": "dev"
     },
     "database": {
-        "file_id": "1NQo-IpW7qwZfM23A7uU5HimgT7GJsxYe"
+        "file_id": "1NQo-IpW7qwZfM23A7uU5HimgT7GJsxYe",
+        "config_file": "database_config.yaml"
     }
 }

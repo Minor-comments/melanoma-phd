@@ -1,0 +1,71 @@
+common_section_variable: "N. PACIENTE"
+sections:
+  - general_clinical_database:
+      name: "GENERAL CLÍNICA"
+      sheets:
+        - "BASE GENERAL CLÍNICA"
+      variables:
+        - age:
+            id: "EDAD (AÑOS)"
+            name: "Age"
+            type: scalar
+        - ttm_group:
+            id: "GRUPO TTM CORREGIDO"
+            name: "TTM group"
+            type: categorical
+            categories:
+              1: "RC con/sin BRAF/MEK"
+              2: ">2 años antiPD1 ttm continuado"
+              3: ">2a antiPD1 ttm STOP"
+              4: "Progresión"
+              5: ">6-12 meses ttm continuado"
+              6: "grupo NATERA"
+              7: "voluntarios sanos"
+        - gender:
+            id: "SEXO"
+            name: "Gender"
+            type: categorical
+            categories:
+              0: "Hombre"
+              1: "Mujer"
+
+        - current_ttm_group:
+            id: "TIPO TTM ACTUAL"
+            name: "Current TTM type"
+            type: categorical
+            categories:
+              0: "NO 1) BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+              8: "Anti-PDL1 based"
+
+  - blood_parameters_database:
+      name: "PARÁMETROS EN SANGRE"
+      sheets:
+        - "BASE PARAMETROS SANGRE"
+      variables:
+  
+  - lf_dna_populations_database:
+      name: "POBLACIONES LF-DNA"
+      sheets:
+        - "BASE POBLACIONES LF-DNA (1-4)"
+        - "BASE POBLACIONES LF-DNA (5-8)"
+        - "BASE POBLACIONES LF-DNA (9y10)"
+      variables:
+
+  - radiological_tests_database:
+      name: "PRUEBAS RADIOLÓGICAS"
+      sheets:
+        - "BASE PRUEBAS RADIOLÓGICAS"
+      variables:
+
+  - ap_ampliation_database:
+      name: "AMPLIADA AP"
+      sheets:
+        - "BASE AMPLIADA AP"
+      variables:
+
