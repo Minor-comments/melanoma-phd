@@ -3,7 +3,7 @@
       "name": "dev"
     },
     "database": {
-        "file_id": "1NQo-IpW7qwZfM23A7uU5HimgT7GJsxYe",
+        "drive_folder_id": "1rpWG3ObnFzloJ16C4IDo1jI5dQkyBHC5",
         "config_file": "database_config.yaml"
     }
 }

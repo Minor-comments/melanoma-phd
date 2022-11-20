@@ -1,14 +1,23 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List
+import re
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import yaml
+from packaging.version import Version
+from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.GoogleDriveService import GoogleDriveService
+from melanoma_phd.database.source.DriveFileRepository import (
+    DriveFileRepository,
+    DriveFileRepositoryConfig,
+    DriveVersionFile,
+)
+from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.Variable import BaseVariable
 from melanoma_phd.database.variable.VariableFatory import VariableFactory
 
@@ -16,15 +25,80 @@ from melanoma_phd.database.variable.VariableFatory import VariableFactory
 class PatientDatabase:
     DATABASE_FOLDER = "database"
     DATABASE_FILE = "patient_database.xlsx"
+    VERSION_REGEX = re.compile(r"versió\ +(?P<number>\d+)")
 
     def __init__(self, config: AppConfig) -> None:
         database_file_path = os.path.join(
             config.data_folder, self.DATABASE_FOLDER, self.DATABASE_FILE
         )
-        GoogleDriveService(config=config).download_excel_file_by_id(
-            file_id=config.get_setting("database/file_id"), filename=database_file_path
+        database_file = self.__download_latest_version_file(
+            google_service_account_info=config.google_service_account_info,
+            drive_folder_id=config.get_setting("database/drive_folder_id"),
+            database_file_path=database_file_path,
         )
-        self.__load_database(database_file=database_file_path, config_file=config.database_config)
+        self.__load_database(database_file=database_file, config_file=config.database_config)
+
+    def __download_latest_version_file(
+        self,
+        google_service_account_info: Dict[str, str],
+        drive_folder_id: str,
+        database_file_path: str,
+    ) -> str:
+        latest_version = self.__get_latest_version_file(
+            google_service_account_info=google_service_account_info, drive_folder_id=drive_folder_id
+        )
+        if latest_version is None:
+            raise RuntimeError("Latest database version file not found in Goolge Drive!")
+
+        database_file = self.__create_database_filename(
+            file_path=database_file_path, version=latest_version.version
+        )
+        self.__download_database_file(
+            google_service_account_info=google_service_account_info,
+            drive_file_id=latest_version.id,
+            database_file=database_file,
+        )
+        return database_file
+
+    def __get_latest_version_file(
+        self, google_service_account_info: Dict[str, str], drive_folder_id: str
+    ) -> DriveVersionFile:
+        config = DriveFileRepositoryConfig(
+            google_service_account_info=google_service_account_info,
+            drive_folder_id=drive_folder_id,
+            filter=lambda file_name: PatientDatabase.filter_database_file_version(
+                file_name=file_name
+            ),
+        )
+        return DriveFileRepository(config).get_latest_file_version()
+
+    @classmethod
+    def filter_database_file_version(cls, file_name: str) -> Optional[Version]:
+        match = cls.VERSION_REGEX.search(file_name)
+        if match:
+            return version_parse(match.group("number"))
+        else:
+            return None
+
+    def __download_database_file(
+        self,
+        google_service_account_info: Dict[str, str],
+        drive_file_id: str,
+        database_file: str,
+    ) -> None:
+        GoogleDriveService(
+            google_service_account_info=google_service_account_info
+        ).download_excel_file_by_id(file_id=drive_file_id, filename=database_file)
+
+    def __create_database_filename(self, file_path: str, version: Version) -> str:
+        file_path = Path(file_path)
+        database_file = str(
+            Path(
+                file_path.parent,
+                f"{file_path.stem}_{str(version)}{file_path.suffix}",
+            )
+        )
+        return database_file
 
     def __load_database(self, database_file: str, config_file: str) -> None:
         with open(config_file, mode="rt", encoding="utf-8") as file_stream:

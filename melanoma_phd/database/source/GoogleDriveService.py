@@ -3,8 +3,9 @@ import logging
 import os
 import shutil
 import tempfile
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List
 
 from google.api_core import retry
 from google.oauth2 import service_account
@@ -12,7 +13,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
-from melanoma_phd.config.AppConfig import AppConfig
+
 from melanoma_phd.database.TimestampSaver import TimestampSaver
 
 # If modifying these scopes, delete the file token.pickle.
@@ -23,6 +24,13 @@ def retry_error_log(error: Exception):
     logging.error(f"Google Drive service error: {error}. Retrying operation...")
 
 
+@dataclass
+class DriveFile:
+    id: str
+    name: str
+    modified_date: datetime
+
+
 class GoogleDriveService:
     """
     Google Drive service helper.
@@ -31,8 +39,8 @@ class GoogleDriveService:
     DATA_FOLDER = os.path.join(tempfile.gettempdir(), "data")
     TIMESTAMP_FILENAME = ".timestamp"
 
-    def __init__(self, config: AppConfig) -> None:
-        self._credentials = self.__load_credentials(config.google_service_account_info)
+    def __init__(self, google_service_account_info: Dict[str, str]) -> None:
+        self._credentials = self.__load_credentials(google_service_account_info)
         self._service = build("drive", "v3", credentials=self._credentials)
 
     @retry.Retry(predicate=retry.if_exception_type(HttpError), on_error=retry_error_log)
@@ -64,6 +72,26 @@ class GoogleDriveService:
             TimestampSaver.save_date(timestamp_file, modified_date)
         else:
             logging.debug(f"Downloading skipped since '{filename}' file is up-to-date.")
+
+    @retry.Retry(predicate=retry.if_exception_type(HttpError), on_error=retry_error_log)
+    def list_files(self, folder_id: str) -> List[DriveFile]:
+        response = (
+            self._service.files()
+            .list(q=f"'{folder_id}' in parents", fields="files(id, name, modifiedTime)")
+            .execute()
+        )
+        drive_files = []
+        for response_file in response["files"]:
+            drive_files.append(
+                DriveFile(
+                    id=response_file["id"],
+                    name=response_file["name"],
+                    modified_date=datetime.strptime(
+                        response_file["modifiedTime"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                    ),
+                )
+            )
+        return drive_files
 
     def __load_credentials(self, account_service_info: Dict) -> Credentials:
         logging.debug(f"Loading Google Drive credentials")

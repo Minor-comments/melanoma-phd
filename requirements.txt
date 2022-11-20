@@ -9,6 +9,7 @@ matplotlib
 
 # config
 pyyaml
+packaging
 
 # Google Drive API
 google-api-python-client
