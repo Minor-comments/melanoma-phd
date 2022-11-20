@@ -6,18 +6,26 @@ from typing import Callable, Dict, List
 
 from packaging.version import Version
 
-from melanoma_phd.database.source.GoogleDriveService import DriveFile, GoogleDriveService
+from melanoma_phd.database.source.GoogleDriveService import DriveFileInfo, GoogleDriveService
 
 
 @dataclass
-class DriveVersionFile:
+class DriveVersionFileInfo:
     id: str
     name: str
     modified_date: datetime
     version: Version
 
+    def __str__(self) -> str:
+        return (
+            f"version: {self.version}"
+            f"\nfilename: {self.name}"
+            f"\nmodified_date: {self.modified_date}"
+            f"\nid: {self.id}"
+        )
+
     @classmethod
-    def from_drive_file(cls, drive_file: DriveFile, version: Version) -> DriveVersionFile:
+    def from_drive_file(cls, drive_file: DriveFileInfo, version: Version) -> DriveVersionFileInfo:
         return cls(
             id=drive_file.id,
             name=drive_file.name,
@@ -40,7 +48,7 @@ class DriveFileRepository:
     def __init__(self, config: DriveFileRepositoryConfig) -> None:
         self._config = config
 
-    def get_file_versions(self) -> List[DriveVersionFile]:
+    def get_file_versions(self) -> List[DriveVersionFileInfo]:
         drive_service = GoogleDriveService(
             google_service_account_info=self._config.google_service_account_info
         )
@@ -49,11 +57,11 @@ class DriveFileRepository:
         for file in files:
             version = self._config.filter(file.name)
             if version:
-                file_versions.append(DriveVersionFile.from_drive_file(file, version=version))
+                file_versions.append(DriveVersionFileInfo.from_drive_file(file, version=version))
 
         return file_versions
 
-    def get_latest_file_version(self) -> DriveVersionFile:
+    def get_latest_file_version(self) -> DriveVersionFileInfo:
         latest_file_version = None
         drive_files = self.get_file_versions()
         for drive_file in drive_files:

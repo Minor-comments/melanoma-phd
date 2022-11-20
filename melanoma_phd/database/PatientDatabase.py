@@ -15,7 +15,7 @@ from melanoma_phd.database.DatabaseSheet import DatabaseSheet
 from melanoma_phd.database.source.DriveFileRepository import (
     DriveFileRepository,
     DriveFileRepositoryConfig,
-    DriveVersionFile,
+    DriveVersionFileInfo,
 )
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -28,15 +28,26 @@ class PatientDatabase:
     VERSION_REGEX = re.compile(r"versió\ +(?P<number>\d+)")
 
     def __init__(self, config: AppConfig) -> None:
+        self._config = config
+        self.__load()
+
+    @property
+    def file_info(self) -> DriveVersionFileInfo:
+        return self._file_info
+
+    def reload(self) -> None:
+        self.__load()
+
+    def __load(self) -> None:
         database_file_path = os.path.join(
-            config.data_folder, self.DATABASE_FOLDER, self.DATABASE_FILE
+            self._config.data_folder, self.DATABASE_FOLDER, self.DATABASE_FILE
         )
         database_file = self.__download_latest_version_file(
-            google_service_account_info=config.google_service_account_info,
-            drive_folder_id=config.get_setting("database/drive_folder_id"),
+            google_service_account_info=self._config.google_service_account_info,
+            drive_folder_id=self._config.get_setting("database/drive_folder_id"),
             database_file_path=database_file_path,
         )
-        self.__load_database(database_file=database_file, config_file=config.database_config)
+        self.__load_database(database_file=database_file, config_file=self._config.database_config)
 
     def __download_latest_version_file(
         self,
@@ -44,25 +55,27 @@ class PatientDatabase:
         drive_folder_id: str,
         database_file_path: str,
     ) -> str:
-        latest_version = self.__get_latest_version_file(
+        drive_version_info = self.__get_latest_version_file(
             google_service_account_info=google_service_account_info, drive_folder_id=drive_folder_id
         )
-        if latest_version is None:
+        if drive_version_info is None:
             raise RuntimeError("Latest database version file not found in Goolge Drive!")
 
+        self._file_info = drive_version_info
         database_file = self.__create_database_filename(
-            file_path=database_file_path, version=latest_version.version
+            file_path=database_file_path, version=drive_version_info.version
         )
         self.__download_database_file(
             google_service_account_info=google_service_account_info,
-            drive_file_id=latest_version.id,
+            drive_file_id=drive_version_info.id,
             database_file=database_file,
         )
+        self._file_info = drive_version_info
         return database_file
 
     def __get_latest_version_file(
         self, google_service_account_info: Dict[str, str], drive_folder_id: str
-    ) -> DriveVersionFile:
+    ) -> DriveVersionFileInfo:
         config = DriveFileRepositoryConfig(
             google_service_account_info=google_service_account_info,
             drive_folder_id=drive_folder_id,

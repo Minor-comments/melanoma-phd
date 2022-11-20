@@ -25,7 +25,7 @@ def retry_error_log(error: Exception):
 
 
 @dataclass
-class DriveFile:
+class DriveFileInfo:
     id: str
     name: str
     modified_date: datetime
@@ -74,7 +74,7 @@ class GoogleDriveService:
             logging.debug(f"Downloading skipped since '{filename}' file is up-to-date.")
 
     @retry.Retry(predicate=retry.if_exception_type(HttpError), on_error=retry_error_log)
-    def list_files(self, folder_id: str) -> List[DriveFile]:
+    def list_files(self, folder_id: str) -> List[DriveFileInfo]:
         response = (
             self._service.files()
             .list(q=f"'{folder_id}' in parents", fields="files(id, name, modifiedTime)")
@@ -83,7 +83,7 @@ class GoogleDriveService:
         drive_files = []
         for response_file in response["files"]:
             drive_files.append(
-                DriveFile(
+                DriveFileInfo(
                     id=response_file["id"],
                     name=response_file["name"],
                     modified_date=datetime.strptime(
