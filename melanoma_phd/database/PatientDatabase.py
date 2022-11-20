@@ -18,7 +18,7 @@ from melanoma_phd.database.source.DriveFileRepository import (
     DriveVersionFile,
 )
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
-from melanoma_phd.database.variable.Variable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.VariableFatory import VariableFactory
 
 
@@ -127,6 +127,12 @@ class PatientDatabase:
         variables = None
         if variables_config:
             variables = self.__load_sheet_variables(variables_config)
+
+        variables_config = config.get("dynamic_variables")
+        if variables_config:
+            variables.extend(
+                self.__load_sheet_dynamic_variables(config=variables_config, dataframe=dataframe)
+            )
         return DatabaseSheet(
             name=config["name"], dataframe=dataframe, variables_to_analyze=variables
         )
@@ -136,3 +142,13 @@ class PatientDatabase:
             VariableFactory().create(**list(variable_config.values())[0])
             for variable_config in config
         ]
+
+    def __load_sheet_dynamic_variables(
+        self, config: List[Dict[Any, Any]], dataframe: pd.DataFrame
+    ) -> List[BaseVariable]:
+        new_variables = []
+        for variable_config in config:
+            new_variable = VariableFactory().create_dynamic(**list(variable_config.values())[0])
+            dataframe = new_variable.add_variable_to_dataframe(dataframe)
+            new_variables.append(new_variable)
+        return new_variables

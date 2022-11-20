@@ -1,11 +1,15 @@
 # dev tools
 black
 
+# streamlit
 streamlit
 openpyxl
-pandas >= 1.0
 plotly >= 4.8
 matplotlib
+
+# data science
+pandas >= 1.0
+scikit-survival
 
 # config
 pyyaml

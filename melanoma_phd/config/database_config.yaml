@@ -42,6 +42,21 @@ sections:
               6: "antiCTLA4 based"
               7: "Other"
               8: "Anti-PDL1 based"
+      dynamic_variables:
+        - PFS:
+            class_name: "SurvivalVariable"
+            id: "PFS"
+            name: "Progress-free survival"
+            type: scalar
+            duration_variable_id: "PFS DURATION"
+            events_variable_id: "PROGRESIÓN EXTRACRANIAL"
+        - OS:
+            class_name: "SurvivalVariable"
+            id: "OS"
+            name: "Overall survival"
+            type: scalar
+            duration_variable_id: "OS DURATION"
+            events_variable_id: "EXITUS"
 
   - blood_parameters_database:
       name: "PARÁMETROS EN SANGRE"

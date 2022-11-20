@@ -3,7 +3,7 @@ from typing import List
 
 import pandas as pd
 
-from melanoma_phd.database.variable.Variable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 @dataclass
