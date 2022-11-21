@@ -1,4 +1,6 @@
 import pandas as pd
+from sksurv.nonparametric import SurvivalFunctionEstimator
+from sksurv.util import Surv
 
 from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
@@ -13,9 +15,13 @@ class SurvivalVariable(ScalarVariable, BaseDynamicVariable):
         self._events_variable_id = events_variable_id
 
     def add_variable_to_dataframe(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        # TODO: Add new column survival
-        # https://towardsdatascience.com/kaplan-meier-curve-explained-9c78a681faca
-        dataframe[self.id] = 0
+        estimator = SurvivalFunctionEstimator()
+        events = (dataframe[self._events_variable_id].dropna() != 0).to_numpy()
+        durations = dataframe[self._duration_variable_id].dropna().to_numpy()
+        estimator.fit(Surv.from_arrays(events, durations))
+        dataframe[self.id] = dataframe[self._duration_variable_id].map(
+            lambda value: estimator.predict_proba([value])[0], na_action="ignore"
+        )
         return dataframe
 
     def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:

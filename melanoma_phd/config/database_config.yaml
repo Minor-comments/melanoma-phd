@@ -1,4 +1,4 @@
-common_section_variable: "N. PACIENTE"
+index_variable: "N. PACIENTE"
 sections:
   - general_clinical_database:
       name: "GENERAL CLÍNICA"
@@ -9,6 +9,7 @@ sections:
             id: "EDAD (AÑOS)"
             name: "Age"
             type: scalar
+
         - ttm_group:
             id: "GRUPO TTM CORREGIDO"
             name: "TTM group"
@@ -21,6 +22,7 @@ sections:
               5: ">6-12 meses ttm continuado"
               6: "grupo NATERA"
               7: "voluntarios sanos"
+
         - gender:
             id: "SEXO"
             name: "Gender"
@@ -42,11 +44,23 @@ sections:
               6: "antiCTLA4 based"
               7: "Other"
               8: "Anti-PDL1 based"
+
+        - bor:
+            id: "BOR"
+            name: "Bor"
+            type: categorical
+            categories:
+                0: "SD"
+                1: "PR"
+                2: "CR"
+                3: "iuPD"
+                4: "PD" 
+
       dynamic_variables:
         - PFS:
             class_name: "SurvivalVariable"
             id: "PFS"
-            name: "Progress-free survival"
+            name: "Progression free survival"
             type: scalar
             duration_variable_id: "PFS DURATION"
             events_variable_id: "PROGRESIÓN EXTRACRANIAL"
@@ -83,4 +97,30 @@ sections:
       sheets:
         - "BASE AMPLIADA AP"
       variables:
+
+filters:
+  - ttm_group:
+      variables:
+        - ttm_group
+      input: 
+        type: multiselect
+        label: "TTM group"
+        options: $ttm_group.category_names
+
+  - current_ttm_group:
+      variables:
+        - current_ttm_group
+      input: 
+        type: multiselect
+        label: "Current TTM group"
+        options: $current_ttm_group.category_names
+
+  - bor:
+      variables:
+        - bor
+      input:
+        type: checkbox
+        label: "Bor"
+        options: $bor.category_names
+        
 

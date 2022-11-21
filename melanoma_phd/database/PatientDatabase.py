@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import re
 from pathlib import Path
@@ -91,6 +92,9 @@ class PatientDatabase:
         if match:
             return version_parse(match.group("number"))
         else:
+            logging.debug(
+                f"Skipping '{file_name}' as database version since has no defined version"
+            )
             return None
 
     def __download_database_file(
@@ -116,7 +120,7 @@ class PatientDatabase:
     def __load_database(self, database_file: str, config_file: str) -> None:
         with open(config_file, mode="rt", encoding="utf-8") as file_stream:
             yaml_dict = yaml.safe_load(file_stream)
-        self._common_section_variable_name = yaml_dict["common_section_variable"]
+        self._index_variable_name = yaml_dict["index_variable"]
         for section_config in yaml_dict["sections"]:
             section_name = next(iter(section_config))
             sheet = self.__load_database_sheet(
@@ -131,11 +135,13 @@ class PatientDatabase:
             sheet_dataframe = pd.read_excel(io=database_file, sheet_name=sheet_name)
             if dataframe is not None:
                 dataframe = dataframe.merge(
-                    sheet_dataframe, on=self._common_section_variable_name, how="inner"
+                    sheet_dataframe, on=self._index_variable_name, how="inner"
                 )
             else:
                 dataframe = sheet_dataframe
 
+        dataframe.set_index(keys=self._index_variable_name, inplace=True)
+        dataframe = dataframe[dataframe.index.notnull()]
         variables_config = config["variables"]
         variables = None
         if variables_config:

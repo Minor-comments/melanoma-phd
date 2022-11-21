@@ -135,5 +135,5 @@ melanoma_phd/config/service_account_file.json
 .DS_store
 
 # project temp files
-.timestamp*
+*.timestamp
 *.xlsx

@@ -57,7 +57,7 @@ class GoogleDriveService:
             force: True for skipping the downloading action when file on Drive has no changes.
         """
         folder = os.path.dirname(filename)
-        timestamp_file = os.path.join(folder, self.TIMESTAMP_FILENAME)
+        timestamp_file = os.path.join(folder, filename + self.TIMESTAMP_FILENAME)
         modified_date = self.get_modified_date_file_by_id(file_id=file_id)
         download = True
         if os.path.exists(filename) and not force:

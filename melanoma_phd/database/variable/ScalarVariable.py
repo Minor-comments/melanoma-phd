@@ -12,4 +12,9 @@ class ScalarVariable(BaseVariable):
         median = series.median()
         mean = series.mean()
         std_deviation = series.std()
-        return pd.DataFrame(data={"median": median, "mean": mean, "std": std_deviation}, index=[0])
+        min = series.min()
+        max = series.max()
+        return pd.DataFrame(
+            data={"median": median, "mean": mean, "std": std_deviation, "min": min, "max": max},
+            index=[0],
+        )
