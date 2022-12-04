@@ -10,7 +10,8 @@ from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be afte
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.MultiScalarFilter import MultiScalarFilter
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
+from melanoma_phd.database.filter.PatientDataFilterer import \
+    PatientDataFilterer
 from melanoma_phd.database.filter.ScalarFilter import ScalarFilter
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
@@ -40,7 +41,7 @@ def select_variables(app: AppLoader) -> List[BaseVariable]:
                 if st.checkbox(f"{variable.name} [{variable.id}]", key=st_variable_id):
                     selected_variables.append(variable)
     if not selected_variables:
-        selected_variables = app.database.variables
+        selected_variables = app.database.variables[:25]
     return selected_variables
 
 
