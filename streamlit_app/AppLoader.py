@@ -32,6 +32,6 @@ class AppLoader:
     ):
         pass
 
-    @st.experimental_singleton(show_spinner="Loading the main app...")
+    @st.experimental_singleton(show_spinner="Loading main application & database...")
     def __load_app(_self) -> MelanomaPhdApp:
         return create_melanoma_phd_app()

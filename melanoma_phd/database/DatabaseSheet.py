@@ -10,4 +10,4 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 class DatabaseSheet:
     name: str
     dataframe: pd.DataFrame
-    variables_to_analyze: List[BaseVariable]
+    variables: List[BaseVariable]

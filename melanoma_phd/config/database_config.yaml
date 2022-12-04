@@ -36,7 +36,8 @@ sections:
             name: "Current TTM type"
             type: categorical
             categories:
-              0: "NO 1) BRAF+MEK"
+              0: "NO"
+              1: "BRAF+MEK"
               2: "anti-PD1 based"
               3: "anti-PD1 monotherapy"
               4: "Triplete"
@@ -97,30 +98,5 @@ sections:
       sheets:
         - "BASE AMPLIADA AP"
       variables:
-
-filters:
-  - ttm_group:
-      variables:
-        - ttm_group
-      input: 
-        type: multiselect
-        label: "TTM group"
-        options: $ttm_group.category_names
-
-  - current_ttm_group:
-      variables:
-        - current_ttm_group
-      input: 
-        type: multiselect
-        label: "Current TTM group"
-        options: $current_ttm_group.category_names
-
-  - bor:
-      variables:
-        - bor
-      input:
-        type: checkbox
-        label: "Bor"
-        options: $bor.category_names
         
 

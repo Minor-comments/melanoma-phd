@@ -4,7 +4,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import yaml
@@ -30,11 +30,32 @@ class PatientDatabase:
 
     def __init__(self, config: AppConfig) -> None:
         self._config = config
+        self._index_variable_name = None
+        self._dataframe = None
+        self._sheets = []
         self.__load()
 
     @property
     def file_info(self) -> DriveVersionFileInfo:
         return self._file_info
+
+    @property
+    def sheets(self) -> List[DatabaseSheet]:
+        return self._sheets
+
+    @property
+    def dataframe(self) -> pd.DataFrame:
+        return self._dataframe
+
+    @property
+    def variables(self) -> List[BaseVariable]:
+        return [variable for sheet in self.sheets for variable in sheet.variables]
+
+    def get_variable(self, variable_id: str) -> BaseVariable:
+        for variable in self.variables:
+            if variable.id == variable_id:
+                return variable
+        raise ValueError(f"'{variable_id}' variable identifier not found!")
 
     def reload(self) -> None:
         self.__load()
@@ -127,6 +148,13 @@ class PatientDatabase:
                 database_file=database_file, config=section_config[section_name]
             )
             setattr(self.__class__, section_name, sheet)
+            self._sheets.append(sheet)
+            if self._dataframe is None:
+                self._dataframe = sheet.dataframe
+            else:
+                self._dataframe = self._dataframe.merge(
+                    sheet.dataframe, how="inner", validate="1:1"
+                )
 
     def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
         sheet_names = config["sheets"]
@@ -134,40 +162,47 @@ class PatientDatabase:
         for sheet_name in sheet_names:
             sheet_dataframe = pd.read_excel(io=database_file, sheet_name=sheet_name)
             if dataframe is not None:
-                dataframe = dataframe.merge(
-                    sheet_dataframe, on=self._index_variable_name, how="inner"
-                )
+                dataframe = dataframe.merge(sheet_dataframe, how="inner")
             else:
                 dataframe = sheet_dataframe
 
-        dataframe.set_index(keys=self._index_variable_name, inplace=True)
-        dataframe = dataframe[dataframe.index.notnull()]
+        dataframe = dataframe[dataframe[self._index_variable_name].notna()]
         variables_config = config["variables"]
-        variables = None
-        if variables_config:
-            variables = self.__load_sheet_variables(variables_config)
+        variables = self.__load_sheet_variables(dataframe, variables_config)
 
         variables_config = config.get("dynamic_variables")
         if variables_config:
-            variables.extend(
-                self.__load_sheet_dynamic_variables(config=variables_config, dataframe=dataframe)
+            dynamic_variables, dataframe = self.__load_sheet_dynamic_variables(
+                config=variables_config, dataframe=dataframe
             )
-        return DatabaseSheet(
-            name=config["name"], dataframe=dataframe, variables_to_analyze=variables
-        )
+            variables.extend(dynamic_variables)
+        return DatabaseSheet(name=config["name"], dataframe=dataframe, variables=variables)
 
-    def __load_sheet_variables(self, config: List[Dict[Any, Any]]) -> List[BaseVariable]:
-        return [
-            VariableFactory().create(**list(variable_config.values())[0])
-            for variable_config in config
-        ]
+    def __load_sheet_variables(
+        self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
+    ) -> List[BaseVariable]:
+        variables = {}
+        if config:
+            for variable in [
+                VariableFactory().create(dataframe=dataframe, **list(variable_config.values())[0])
+                for variable_config in config
+            ]:
+                variables[variable.id] = variable
+
+        for column in dataframe:
+            if column not in variables.keys():
+                variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
+                if variable:
+                    variables[variable.id] = variable
+        return list(variables.values())
 
     def __load_sheet_dynamic_variables(
         self, config: List[Dict[Any, Any]], dataframe: pd.DataFrame
-    ) -> List[BaseVariable]:
+    ) -> Tuple[List[BaseVariable], pd.DataFrame]:
         new_variables = []
         for variable_config in config:
-            new_variable = VariableFactory().create_dynamic(**list(variable_config.values())[0])
-            dataframe = new_variable.add_variable_to_dataframe(dataframe)
+            new_variable, dataframe = VariableFactory().create_dynamic(
+                dataframe=dataframe, **list(variable_config.values())[0]
+            )
             new_variables.append(new_variable)
-        return new_variables
+        return [new_variables, dataframe]

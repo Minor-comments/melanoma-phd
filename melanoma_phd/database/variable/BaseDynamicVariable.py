@@ -9,5 +9,10 @@ class BaseDynamicVariable:
     """
 
     @abstractmethod
-    def add_variable_to_dataframe(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+    def create_new_series(self, dataframe: pd.DataFrame) -> pd.Series:
         pass
+
+    @abstractmethod
+    def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
+        if self.id in dataframe.columns:
+            raise ValueError(f"'{self.id}' dynamic varible id already present in dataframe")
