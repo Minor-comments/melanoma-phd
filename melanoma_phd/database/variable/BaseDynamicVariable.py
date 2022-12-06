@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import pandas as pd
 
 
-class BaseDynamicVariable:
+class BaseDynamicVariable(ABC):
     """Class for defining just the dynamic variable interface that must be inherited by new child classes in conjunction with a static variable class.
     NOTE: This class do not inherit from `BaseClass` in order to avoid diamond inheritance problem.
     """

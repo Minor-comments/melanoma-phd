@@ -10,12 +10,10 @@ from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be afte
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.MultiScalarFilter import MultiScalarFilter
-from melanoma_phd.database.filter.PatientDataFilterer import \
-    PatientDataFilterer
-from melanoma_phd.database.filter.ScalarFilter import ScalarFilter
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from streamlit_app.filter.MultiSelectBinFilter import MultiSelectBinFilter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
-from streamlit_app.filter.RangeSliderFilter import RangeSliderFilter
 
 
 def reload_database(app: AppLoader) -> None:
@@ -47,12 +45,13 @@ def select_variables(app: AppLoader) -> List[BaseVariable]:
 
 def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
     with st.sidebar.form("Patients Filter"):
+        # TODO: Create filter factory from .yaml file
         filters = [
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
-            RangeSliderFilter(
-                MultiScalarFilter(
+            MultiSelectBinFilter(
+                filter=MultiScalarFilter(
                     name="Extraction time",
                     variables=[
                         app.database.get_variable("TIEMPO IT1"),
@@ -66,10 +65,18 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
                         app.database.get_variable("TIEMPO IT9"),
                         app.database.get_variable("TIEMPO IT10"),
                     ],
-                )
+                ),
+                bins={
+                    "0-2 months": "[0, 2]",
+                    "3-5 months": "[3, 5]",
+                    "6-8 months": "[6, 8]",
+                    "9-11 months": "[9, 11]",
+                    "12-14 months": "[12, 14]",
+                    "15-17 months": "[15, 17]",
+                    "18-20 months": "[18, 20]",
+                    "21-24 months": "[21, 24]",
+                },
             ),
-            RangeSliderFilter(ScalarFilter(app.database.get_variable("PFS DURATION"))),
-            RangeSliderFilter(ScalarFilter(app.database.get_variable("OS DURATION"))),
         ]
         for filter in filters:
             filter.select()
@@ -87,6 +94,7 @@ if __name__ == "__main__":
         st.subheader("Filtered data")
         with st.expander(f"Filtered dataframe"):
             df_result = PatientDataFilterer().filter(app.database, filters)
+            st.text(f"{len(df_result.index)} patients match with selected filters")
             st.dataframe(df_result)
 
         st.header("Descriptive Statistcs")

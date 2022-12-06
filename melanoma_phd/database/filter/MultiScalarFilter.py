@@ -1,5 +1,5 @@
 import functools
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -18,14 +18,19 @@ class MultiScalarFilter(BaseFilter):
     def name(self) -> str:
         return self._name
 
-    def filter(self, dataframe: pd.DataFrame, range: Tuple[int, int]) -> pd.DataFrame:
+    def filter(self, dataframe: pd.DataFrame, intervals: List[pd.Interval]) -> pd.DataFrame:
+        if not intervals:
+            return dataframe
         series_list = [
-            dataframe[variable.id].between(range[0], range[1]) for variable in self._variables
+            dataframe[variable.id].map(
+                lambda value: any([value in interval for interval in intervals])
+            )
+            for variable in self._variables
         ]
         series = functools.reduce(np.logical_or, series_list)
         return dataframe[series]
 
-    def range(self) -> Tuple[int, int]:
-        left_range = [variable.range[0] for variable in self._variables if variable.range]
-        right_range = [variable.range[1] for variable in self._variables if variable.range]
-        return (min(left_range), max(right_range))
+    def interval(self) -> pd.Interval:
+        left_interval = [variable.interval[0] for variable in self._variables if variable.interval]
+        right_interval = [variable.interval[1] for variable in self._variables if variable.interval]
+        return (min(left_interval), max(right_interval))

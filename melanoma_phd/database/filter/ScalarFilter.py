@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 import pandas as pd
 
 from melanoma_phd.database.filter.BaseFilter import BaseFilter
@@ -15,8 +13,8 @@ class ScalarFilter(BaseFilter):
     def name(self) -> str:
         return self._variable.name
 
-    def filter(self, dataframe: pd.DataFrame, range: Tuple[int, int]) -> pd.DataFrame:
-        return dataframe[dataframe[self._variable.id].between(range[0], range[1])]
+    def filter(self, dataframe: pd.DataFrame, interval: pd.Interval) -> pd.DataFrame:
+        return dataframe[dataframe[self._variable.id].map(lambda value: value in interval)]
 
-    def range(self) -> Tuple[int, int]:
-        return self._variable.range
+    def interval(self) -> pd.Interval:
+        return self._variable.interval
