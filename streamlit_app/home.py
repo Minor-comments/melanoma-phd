@@ -3,6 +3,7 @@ import sys
 from typing import List
 
 import streamlit as st
+from PersistentSessionState import PersistentSessionState
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -77,7 +78,9 @@ def select_variables(app: AppLoader) -> List[BaseVariable]:
             for database_sheet in app.database.sheets:
                 st.subheader(f"{database_sheet.name} variables")
                 for variable in database_sheet.variables:
-                    st_variable_id = f"{database_sheet.name}.{variable.id}"
+                    st_variable_id = PersistentSessionState.persist_key(
+                        f"{database_sheet.name}.{variable.id}"
+                    )
                     if st.checkbox(
                         f"{variable.name} [{variable.id}]",
                         key=st_variable_id,

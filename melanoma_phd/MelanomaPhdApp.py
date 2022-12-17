@@ -25,5 +25,9 @@ class MelanomaPhdApp:
         self._database = PatientDatabase(config)
 
     @property
+    def config(self) -> AppConfig:
+        return self._config
+
+    @property
     def database(self) -> PatientDatabase:
         return self._database
