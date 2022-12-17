@@ -29,20 +29,6 @@ def create_database_section(app: AppLoader) -> None:
         st.dataframe(app.database.dataframe)
 
 
-def select_variables(app: AppLoader) -> List[BaseVariable]:
-    selected_variables = []
-    st.subheader("Variables to select")
-    for database_sheet in app.database.sheets:
-        with st.expander(f"{database_sheet.name} variables"):
-            for variable in database_sheet.variables:
-                st_variable_id = f"{database_sheet.name}.{variable.id}"
-                if st.checkbox(f"{variable.name} [{variable.id}]", key=st_variable_id):
-                    selected_variables.append(variable)
-    if not selected_variables:
-        selected_variables = app.database.variables[:25]
-    return selected_variables
-
-
 def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
     with st.sidebar.form("Patients Filter"):
         # TODO: Create filter factory from .yaml file
@@ -84,11 +70,29 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
         return filters
 
 
+def select_variables(app: AppLoader) -> List[BaseVariable]:
+    selected_variables = []
+    with st.expander("Variables to select"):
+        with st.form(key="variable_selection_form"):
+            for database_sheet in app.database.sheets:
+                st.subheader(f"{database_sheet.name} variables")
+                for variable in database_sheet.variables:
+                    st_variable_id = f"{database_sheet.name}.{variable.id}"
+                    if st.checkbox(
+                        f"{variable.name} [{variable.id}]",
+                        key=st_variable_id,
+                    ):
+                        selected_variables.append(variable)
+            if st.form_submit_button("Display statistics"):
+                return selected_variables
+            else:
+                return []
+
+
 if __name__ == "__main__":
     st.title("Melanoma PHD Statistics")
     with AppLoader() as app:
         create_database_section(app)
-        selected_variables = select_variables(app)
 
         filters = select_filters(app)
         st.subheader("Filtered data")
@@ -97,6 +101,8 @@ if __name__ == "__main__":
             st.text(f"{len(df_result.index)} patients match with selected filters")
             st.dataframe(df_result)
 
+        st.subheader("Variable selection")
+        selected_variables = select_variables(app)
         st.header("Descriptive Statistcs")
         if selected_variables:
             for variable in selected_variables:
