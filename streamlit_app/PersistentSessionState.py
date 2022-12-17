@@ -37,7 +37,7 @@ class PersistentSessionState:
         }
 
     def __get_file_path(self, data_folder: str) -> Path:
-        return (Path(data_folder) / "streamlit" / "persistent_state" / ".json").resolve()
+        return (Path(data_folder) / "streamlit" / "persistent_state.json").resolve()
 
     def __get_disk_persistent_state(self, data_folder: str) -> Dict[str, Any]:
         persisten_state_file = self.__get_file_path(data_folder)
