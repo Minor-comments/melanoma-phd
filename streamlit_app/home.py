@@ -5,8 +5,6 @@ from typing import List
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
-from streamlit_app.latex.LaTeXArray import LaTeXArray
-
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
@@ -17,6 +15,7 @@ from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from streamlit_app.filter.MultiSelectBinFilter import MultiSelectBinFilter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
+from streamlit_app.latex.LaTeXArray import LaTeXArray
 
 
 def reload_database(app: AppLoader) -> None:
