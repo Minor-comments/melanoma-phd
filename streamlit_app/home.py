@@ -5,6 +5,8 @@ from typing import List
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
+from streamlit_app.latex.LaTeXArray import LaTeXArray
+
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
@@ -108,8 +110,11 @@ if __name__ == "__main__":
         selected_variables = select_variables(app)
         st.header("Descriptive Statistcs")
         if selected_variables:
+            variables_statistics = {}
             for variable in selected_variables:
-                st.text(variable.name)
-                st.dataframe(variable.descriptive_statistics(df_result))
+                variables_statistics[variable] = variable.descriptive_statistics(df_result)
+
+            latex_array = LaTeXArray(variables_statistics)
+            st.latex(latex_array.dumps())
         else:
             st.text("Select variables to analyze :)")

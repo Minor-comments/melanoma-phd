@@ -17,6 +17,9 @@ class BaseVariable(ABC):
         self.id = id
         self.name = name
 
+    def __hash__(self) -> int:
+        return hash(self.id)
+
     @abstractmethod
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         self._check_valid_id(dataframe)

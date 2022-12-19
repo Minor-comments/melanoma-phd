@@ -42,8 +42,8 @@ class CategoricalVariable(BaseVariable):
         series = dataframe[self.id].map(self._categories)
         counts = series.value_counts()
         percent = series.value_counts(normalize=True)
-        percent100 = percent.mul(100).round(1).astype(str) + "%"
-        return pd.DataFrame({"counts": counts, "per": percent, "per100": percent100})
+        percent100 = percent.mul(100).round(1)
+        return pd.DataFrame({"n": counts, "%": percent100})
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)
