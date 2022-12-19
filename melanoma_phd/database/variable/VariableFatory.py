@@ -4,7 +4,6 @@ import pandas as pd
 from pandas.core.dtypes.common import is_float_dtype, is_integer_dtype
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
-from melanoma_phd.database.variable.BinCategoricalVariable import BinCategoricalVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
@@ -19,7 +18,7 @@ class VariableFactory:
             VariableType.BOOLEAN.value: BooleanVariable,
         }
         # So far, use a known set of dyanmic variables to create
-        dynamic_classes = [SurvivalVariable, BinCategoricalVariable]
+        dynamic_classes = [SurvivalVariable]
         self._dynamic_classes = {}
         for dynamic_class in dynamic_classes:
             self._dynamic_classes[dynamic_class.__name__] = dynamic_class
