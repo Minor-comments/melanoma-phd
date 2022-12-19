@@ -13,14 +13,15 @@ class LaTeXArray:
 
     def __dump_variable(self, variable: BaseVariable, statistics: pd.DataFrame) -> str:
         """The array row as string from variable in LaTex syntax"""
-        name = variable.name + " [" + "|".join(list(statistics.columns)) + "]"
+        name = variable.name + " [" + " ".join(list(statistics.columns)) + "]"
+        name = self.__convert_special_chars(name)
         row = r"\text{" + name + r"}"
         if isinstance(variable, ScalarVariable):
             row = (
                 row
                 + " & & "
                 + r"\text{"
-                + "|".join(
+                + " ".join(
                     str(round(value, 2) if isinstance(value, float) else value)
                     for value in statistics.iloc[0, :]
                 )
@@ -36,13 +37,12 @@ class LaTeXArray:
                 + r"}"
                 + " & "
                 + r"\text{"
-                + "|".join(
+                + " ".join(
                     str(round(value, 2) if isinstance(value, float) else value)
                     for value in statistics.iloc[0, :]
                     if value
                 )
-                + r"}"
-                + r"\\ \hline"
+                + r"} \\"
             )
             for i in range(1, len(statistics.index)):
                 row = (
@@ -53,14 +53,14 @@ class LaTeXArray:
                     + r"}"
                     + " & "
                     + r"\text{"
-                    + "|".join(
+                    + " ".join(
                         str(round(value, 2) if isinstance(value, float) else value)
                         for value in statistics.iloc[i, :]
                         if value
                     )
-                    + r"}"
-                    + r"\\ \hline"
+                    + r"} \\"
                 )
+            row = row + r" \hline"
         return row
 
     def dumps(self) -> str:
@@ -75,7 +75,23 @@ class LaTeXArray:
                 ]
             )
             + r"""
-                 \\ \hline
                 \end{array}
                 """
         )
+
+    def __convert_special_chars(self, name: str) -> str:
+        special_chars = {
+            "\\": "\\textbackslash",
+            "&": "\&",
+            "%": "\%",
+            "$": "\$",
+            "#": "\#",
+            "_": "\_",
+            "{": "\{",
+            "}": "\}",
+            "~": "\\textasciitilde",
+            "^": "\\textasciicircum",
+        }
+        for special_char, conversion in special_chars.items():
+            name = name.replace(special_char, conversion)
+        return name
