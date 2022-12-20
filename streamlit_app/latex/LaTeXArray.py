@@ -16,6 +16,9 @@ class LaTeXArray:
         name = variable.name + " [" + " ".join(list(statistics.columns)) + "]"
         name = self.__convert_special_chars(name)
         row = r"\text{" + name + r"}"
+        if statistics.empty:
+            return row + r"& \text{NO DATA}\\ \hline"
+
         if isinstance(variable, ScalarVariable):
             row = (
                 row

@@ -55,7 +55,35 @@ sections:
                 1: "PR"
                 2: "CR"
                 3: "iuPD"
-                4: "PD" 
+                4: "PD"
+
+        - estadiaje_actual:
+            id: "ESTADIAJE ACTUAL (irresecable)"
+            name: "Estadiage actual (irresecable)"
+            type: categorical
+            categories:
+                1: "IA"
+                2: "IB"
+                3: "IIA"
+                4: "IIB"
+                5: "IIC"
+                6: "IIIA"
+                7: "IIIB"
+                8: "IIIC"
+                9: "IIID"
+                10: "IVA"
+                11: "IVB"
+                12: "IVC"
+                13: "IVD"
+
+        - ecog:
+            id: "ECOG ACTUAL"
+            name: "Ecog actual"
+            type: categorical
+            categories:
+                0: "0"
+                1: "1"
+                2: "2"
 
       dynamic_variables:
         - PFS:
