@@ -1,7 +1,12 @@
 from typing import Tuple
 
 import pandas as pd
-from pandas.core.dtypes.common import is_float_dtype, is_integer_dtype, is_string_dtype
+from pandas.core.dtypes.common import (
+    is_bool_dtype,
+    is_float_dtype,
+    is_integer_dtype,
+    is_string_dtype,
+)
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
@@ -47,8 +52,23 @@ class VariableFactory:
 
     def create_from_series(self, dataframe: pd.DataFrame, id: str) -> BaseVariable:
         series = dataframe[id]
+        create_boolean = lambda dataframe, id: self.create(
+            dataframe=dataframe,
+            id=id,
+            name=id,
+            type=VariableType.BOOLEAN.value,
+            categories={0: "No", 1: "Sí"},
+        )
         if is_float_dtype(series) or is_integer_dtype(series):
-            return self.create(dataframe=dataframe, id=id, name=id, type=VariableType.SCALAR.value)
+            if set(series.dropna().unique()) == set([0, 1]):
+                return create_boolean(
+                    dataframe=dataframe,
+                    id=id,
+                )
+            else:
+                return self.create(
+                    dataframe=dataframe, id=id, name=id, type=VariableType.SCALAR.value
+                )
         elif is_string_dtype(series):
             unique_values = list(series.dropna().unique())
             categories = dict(zip(unique_values, unique_values))
@@ -58,4 +78,9 @@ class VariableFactory:
                 name=id,
                 type=VariableType.CATEGORICAL.value,
                 categories=categories,
+            )
+        elif is_bool_dtype(series):
+            return create_boolean(
+                dataframe=dataframe,
+                id=id,
             )
