@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 import pandas as pd
 from pandas.core.dtypes.common import (
@@ -50,7 +50,7 @@ class VariableFactory:
         else:
             raise NameError(f"'{class_name}' dynamic variable class name not found!")
 
-    def create_from_series(self, dataframe: pd.DataFrame, id: str) -> BaseVariable:
+    def create_from_series(self, dataframe: pd.DataFrame, id: str) -> Optional[BaseVariable]:
         series = dataframe[id]
         create_boolean = lambda dataframe, id: self.create(
             dataframe=dataframe,

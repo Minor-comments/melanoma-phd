@@ -31,6 +31,268 @@ sections:
               0: "Hombre"
               1: "Mujer"
 
+        - enfermedad_autoinmune:
+            id: "ENFERMEDAD AUTOINMUNE"
+            name: "ENFERMEDAD AUTOINMUNE"
+            type: categorical
+            categories:
+              1: "Areumatoide"
+              2: "Espondilitis anquilosante"
+              3: "Vitiligen"
+
+        - tipo_enfermedad_autoinmune:
+            id: "TIPO ENFERMEDAD AUTOINMUNE"
+            name: "TIPO ENFERMEDAD AUTOINMUNE"
+            type: categorical
+            categories:
+              1: "Artritis reumatoide"
+              2: "Espondilitis anquilosante"
+              3: "Transplante renal"
+
+        - factor_inmunosupresor:
+            id: "FACTOR INMUNOSUPRESOR"
+            name: "FACTOR INMUNOSUPRESOR"
+            type: categorical
+            categories:
+              0: "ninguno"
+              1: "VIH"
+              2: "VHC"
+              3: "VHB"
+              4: "OTROS"
+
+        - comorbilidades:
+            id: "COMORBILIDADES"
+            name: "COMORBILIDADES"
+            type: categorical
+            categories:
+              0: "Ninguna"
+              1: "HTA"
+              2: "DM"
+              3: "asma"
+              4: "DLP"
+              5: "ACXFA"
+
+        - estadiaje_al_dx:
+            id: "ESTADIAJE AL DX (Todos son irresecables)"
+            name: "ESTADIAJE AL DX (irresecables)"
+            type: categorical
+            categories:
+              1: "IA"
+              2: "IB"
+              3: "IIA"
+              4: "IIB"
+              5: "IIC"
+              6: "IIIA"
+              7: "IIIB"
+              8: "IIIC"
+              9: "IIID"
+              10: "IVA"
+              11: "IVB"
+              12: "IVC"
+              13: "IVD"
+
+        - tipo_primario:
+            id: "TIPO PRIMARIO"
+            name: "TIPO PRIMARIO"
+            type: categorical
+            categories:
+              1: "cutaneo"
+              2: "mucosas"
+              3: "acral"
+              4: "uveal"
+              5: "desconocido"
+
+        - estadiaje_1a_recidiva:
+            id: "ESTADIAJE 1A RECIDIVA"
+            name: "ESTADIAJE 1A RECIDIVA"
+            type: categorical
+            categories:
+              1: IA
+              2: IB
+              3: IIA
+              4: IIB
+              5: IIC
+              6: IIIA
+              7: IIIB
+              8: IIIC
+              9: IIID
+              10: IVA
+              11: IVB
+              12: IVC
+              13: IVD
+
+        - estadiaje_actual:
+            id: "ESTADIAJE ACTUAL (irresecable)"
+            name: "Estadiage actual (irresecable)"
+            type: categorical
+            categories:
+              1: "IA"
+              2: "IB"
+              3: "IIA"
+              4: "IIB"
+              5: "IIC"
+              6: "IIIA"
+              7: "IIIB"
+              8: "IIIC"
+              9: "IIID"
+              10: "IVA"
+              11: "IVB"
+              12: "IVC"
+              13: "IVD"
+
+        - ecog:
+            id: "ECOG ACTUAL"
+            name: "Ecog actual"
+            type: categorical
+            categories:
+              0: "0"
+              1: "1"
+              2: "2"
+
+        - n_sitios_enfermedad_extracranial:
+            id: "N. SITIOS ENFERMEDAD EXTRACRANIAL"
+            name: "N. SITIOS ENFERMEDAD EXTRACRANIAL"
+            type: categorical
+            categories:
+              0: "<3"
+              1: ">=3"
+        
+        - n_lesiones_snc:
+            id: "N. LESIONES SNC"
+            name: "N. LESIONES SNC"
+            type: categorical
+            categories:
+              0: "<3"
+              1: ">=3"
+
+        - ttm_local_snc:
+            id: "TTM LOCAL SNC"
+            name: "TTM LOCAL SNC"
+            type: categorical
+            categories:
+              1: IQ+RDT llit quirurgic
+              2: RDTHolo
+
+        - type_ttm_previous_1:
+            id: "TIPO TTM PREVIO (1)"
+            name: "TIPO TTM PREVIO (1)"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - context_ttm_previous_1:
+            id: "CONTEXT TTM PREVIO (1)"
+            name: "CONTEXT TTM PREVIO (1)"
+            type: categorical
+            categories:
+              1: adjuvant
+              2: 1a linia sistemica
+              3: 2a linia sistemica 
+              4: QT LOCAL EN IRRESECABLE
+
+        - type_ttm_previous_2:
+            id: "TIPO TTM PREVIO (2)"
+            name: "TIPO TTM PREVIO (2)"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - context_ttm_previous_2:
+            id: "CONTEXT TTM PREVIO (2)"
+            name: "CONTEXT TTM PREVIO (2)"
+            type: categorical
+            categories:
+              1: adjuvant
+              2: 1a linia sistemica
+              3: 2a linia sistemica 
+              4: 3a linia sistemica
+              5: 4a linia sistemica
+              6: 5a linia sistemica
+
+        - type_ttm_previous_3:
+            id: "TIPO TTM PREVIO (3)"
+            name: "TIPO TTM PREVIO (3)"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - context_ttm_previous_3:
+            id: "CONTEXT TTM PREVIO (3)"
+            name: "CONTEXT TTM PREVIO (3)"
+            type: categorical
+            categories:
+              1: adjuvant
+              2: 1a linia sistemica
+              3: 2a linia sistemica
+
+        - type_ttm_previous_4:
+            id: "TIPO TTM PREVIO (4)"
+            name: "TIPO TTM PREVIO (4)"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - context_ttm_previous_4:
+            id: "CONTEXT TTM PREVIO (4)"
+            name: "CONTEXT TTM PREVIO (4)"
+            type: categorical
+            categories:
+              1: adjuvant
+              2: 1a linia sistemica
+              3: 2a linia sistemica
+
+        - type_ttm_previous_5:
+            id: "TIPO TTM PREVIO (5)"
+            name: "TIPO TTM PREVIO (5)"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - context_ttm_previous_5:
+            id: "CONTEXT TTM PREVIO (5)"
+            name: "CONTEXT TTM PREVIO (5)"
+            type: categorical
+            categories:
+              1: adjuvant
+              2: 1a linia sistemica
+              3: 2a linia sistemica
+
+
         - current_ttm_group:
             id: "TIPO TTM ACTUAL"
             name: "Current TTM type"
@@ -46,44 +308,322 @@ sections:
               7: "Other"
               8: "Anti-PDL1 based"
 
+        - mantenimiento:
+            id: "MANTENIMIENTO"
+            name: "MANTENIMIENTO"
+            type: categorical
+            categories:
+              0: Ninguno
+              1: nivolumab
+              2: otros
+
+        - irae_1:
+            id: "IRAEs (1)"
+            name: "IRAEs (1)"
+            type: categorical
+            categories:
+              0: Ninguno
+              1: Hepatitis
+              2: Colitis
+              3: Hipofisitis
+              4: hipertiroidismo
+              5: Nefritis
+              6: Neurológica
+              7: Suprarenal
+              8: Neumonitis
+              9: Otros
+              10: Derma
+              11: hipotiroidismo
+              12: Artritis
+              13: miositis
+              14: gastritis
+              15: encefalitis
+              16: PMR
+              17: pancreatitis
+              18: sarcoidosis
+              19: anemia
+              20: paralisi facial
+              21: ocular
+              22: diarrees
+              23: Hiperlipasemia/hiperamilasemia sin pancreatitis
+              24: miocarditis
+
+        - grado_irae_1:
+            id: "GRADO IRAE (1)"
+            name: "GRADO IRAE (1)"
+            type: categorical
+            categories:
+              1: "1"
+              2: "2"
+              3: "3"
+              4: "4"
+              5: "5"
+
+        - ttm_irae_1:
+            id: "TTM IRAE (1)"
+            name: "TTM IRAE (1)"
+            type: categorical
+            categories:
+              0: None
+              1: Steroids
+              2: Infliximab
+              3: MMF
+              4: Tacrolimus
+              5: Cyclosporine
+              6: Vedolizumab
+              7: Other
+
+        - irae_2:
+            id: "IRAE (2)"
+            name: "IRAE (2)"
+            type: categorical
+            categories:
+              0: Ninguno
+              1: Hepatitis
+              2: Colitis
+              3: Hipofisitis
+              4: hipertiroidismo
+              5: Nefritis
+              6: Neurológica
+              7: Suprarenal
+              8: Neumonitis
+              9: Otros
+              10: Derma
+              11: hipotiroidismo
+              12: Artritis
+              13: miositis
+              14: gastritis
+              15: encefalitis
+              16: PMR
+              17: Pancreatitis
+              18: Sarcoidosis
+              19: miositis
+              20: paralisi facial
+              21: Hematologico
+              22: Diarreas
+              23: Hiperlipasemia/hiperamil sin pancreatitis
+
+        - grado_irae_2:
+            id: "GRADO IRAE (2)"
+            name: "GRADO IRAE (2)"
+            type: categorical
+            categories:
+              1: "1"
+              2: "2"
+              3: "3"
+              4: "4"
+              5: "5"
+
+        - ttm_irae_2:
+            id: "TTM IRAE (2)"
+            name: "TTM IRAE (2)"
+            type: categorical
+            categories:
+              0: None
+              1: Steroids
+              2: Infliximab
+              3: MMF
+              4: Tacrolimus
+              5: Cyclosporine
+              6: Vedolizumab
+              7: Other
+
+        - irae_3:
+            id: "IRAE (3)"
+            name: "IRAE (3)"
+            type: categorical
+            categories:
+              0: Ninguno
+              1: Hepatitis
+              2: Colitis
+              3: Hipofisitis
+              4: hipertiroidismo
+              5: Nefritis
+              6: Neurológica
+              7: Suprarenal
+              8: Neumonitis
+              9: Otros
+              10: Derma
+              11: hipotiroidismo
+              12: Artritis
+              13: miositis
+              14: gastritis
+              15: encefalitis
+              16: PMR
+              17: Pancreatitis
+              18: Sarcoidosis
+
+        - grado_irae_3:
+            id: "GRADO IRAE (3)"
+            name: "GRADO IRAE (3)"
+            type: categorical
+            categories:
+              1: "1"
+              2: "2"
+              3: "3"
+              4: "4"
+              5: "5"
+
+        - ttm_irae_3:
+            id: "TTM IRAE (3)"
+            name: "TTM IRAE (3)"
+            type: categorical
+            categories:
+              0: None
+              1: Steroids
+              2: Infliximab
+              3: MMF
+              4: Tacrolimus
+              5: Cyclosporine
+              6: Vedolizumab
+              7: Other
+
+        - otros_trae:
+            id: "OTROS TRAE"
+            name: "OTROS TRAE"
+            type: categorical
+            categories:
+              0: "Ninguno"
+              1: "Tox ocular"
+              2: "EPP"
+              3: "rash"
+              4: "EPP + tox ocular"
+              5: "neutropenia"
+              6: "artralgias"
+              7: "tox cutania"
+              8: "artralgias + tox cutanea"
+              9: "rash + diarrea"
+              10: "Leucemia"
+              11: "TEP"
+              12: "reactivaión inf (TBC)"
+              13: "hepatitis vírica"
+              14: "hiperamiilasemia + hiperlipasemia"
+
+        - respuesta_inicial:
+            id: "RESPUESTA INICIAL"
+            name: "RESPUESTA INICIAL"
+            type: categorical
+            categories:
+              0: SD
+              1: PR
+              2: CR
+              3: iuPD
+              4: PD 
+
         - bor:
             id: "BOR"
             name: "Bor"
             type: categorical
             categories:
-                0: "SD"
-                1: "PR"
-                2: "CR"
-                3: "iuPD"
-                4: "PD"
+              0: "SD"
+              1: "PR"
+              2: "CR"
+              3: "iuPD"
+              4: "PD"
 
-        - estadiaje_actual:
-            id: "ESTADIAJE ACTUAL (irresecable)"
-            name: "Estadiage actual (irresecable)"
+        - respuesta_intracranial:
+            id: "RESPUESTA INTRACRANIAL"
+            name: "RESPUESTA INTRACRANIAL"
             type: categorical
             categories:
-                1: "IA"
-                2: "IB"
-                3: "IIA"
-                4: "IIB"
-                5: "IIC"
-                6: "IIIA"
-                7: "IIIB"
-                8: "IIIC"
-                9: "IIID"
-                10: "IVA"
-                11: "IVB"
-                12: "IVC"
-                13: "IVD"
+              0: SD
+              1: PR
+              2: CR
+              3: PD
 
-        - ecog:
-            id: "ECOG ACTUAL"
-            name: "Ecog actual"
+        - progresion_extracranial:
+            id: "PROGRESIÓN EXTRACRANIAL"
+            name: "PROGRESIÓN EXTRACRANIAL"
             type: categorical
             categories:
-                0: "0"
-                1: "1"
-                2: "2"
+              0: "No"
+              1: "Si"
+              2: "iuPD"
+              3: "oligoPD"
+
+        - 1L_post:
+            id: "1L POST"
+            name: "1L POST"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - 2L_post:
+            id: "2L POST"
+            name: "2L POST"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - 3L_post:
+            id: "3L POST"
+            name: "3L POST"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - 4L_post:
+            id: "4L POST"
+            name: "4L POST"
+            type: categorical
+            categories:
+              0: "NO"
+              1: "BRAF+MEK"
+              2: "anti-PD1 based"
+              3: "anti-PD1 monotherapy"
+              4: "Triplete"
+              5: "antiPD1+antiCTLA4"
+              6: "antiCTLA4 based"
+              7: "Other"
+
+        - estado_actual:
+            id: "ESTADO ACTUAL"
+            name: "ESTADO ACTUAL"
+            type: categorical
+            categories:
+              0: Vivo sin enfermedad
+              1: Vivo con enfermedad
+              2: Muerto sin enfermedad
+              3: Muerto con enfermedad
+              4: Pérdida seguimiento
+
+        - exitus:
+            id: "EXITUS"
+            name: "EXITUS"
+            type: categorical
+            categories:
+              0: "No"
+              1: "Rel mel"
+              2: "No rel mel"
+
+        - ldh_al_dx:
+            id: "LDH AL DX (SIMPLIF)"
+            name: "LDH AL DX (SIMPLIF)"
+            type: categorical
+            categories: 
+              0: dentro de la normalidad
+              1: superior al límite de la normalidad
 
       dynamic_variables:
         - PFS:

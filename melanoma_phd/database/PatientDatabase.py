@@ -206,20 +206,23 @@ class PatientDatabase:
     def __load_sheet_variables(
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
     ) -> List[BaseVariable]:
-        variables = {}
+        variables = []
+        config_variables = {}
         if config:
             for variable in [
                 VariableFactory().create(dataframe=dataframe, **list(variable_config.values())[0])
                 for variable_config in config
             ]:
-                variables[variable.id] = variable
+                config_variables[variable.id] = variable
 
         for column in dataframe:
-            if column not in variables.keys():
-                variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
-                if variable:
-                    variables[variable.id] = variable
-        return list(variables.values())
+            if column in config_variables.keys():
+                variables.append(config_variables[column])
+            else:
+                new_variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
+                if new_variable:
+                    variables.append(new_variable)
+        return variables
 
     def __load_sheet_dynamic_variables(
         self, config: List[Dict[Any, Any]], dataframe: pd.DataFrame
