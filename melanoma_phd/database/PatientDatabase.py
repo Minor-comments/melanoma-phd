@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -21,6 +22,13 @@ from melanoma_phd.database.source.DriveFileRepository import (
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.VariableFatory import VariableFactory
+
+
+@dataclass
+class IntegrityError:
+    source_sheet: str
+    target_sheet: str
+    column: str
 
 
 class PatientDatabase:
@@ -59,6 +67,23 @@ class PatientDatabase:
 
     def reload(self) -> None:
         self.__load()
+
+    def check_data_integrity(self) -> List[IntegrityError]:
+        errors = []
+        if not self.sheets:
+            return errors
+        first_sheet = self.sheets[0]
+        for sheet in self.sheets[1:]:
+            same_columns = first_sheet.dataframe.columns.intersection(sheet.dataframe.columns)
+            for column in same_columns:
+                if not first_sheet.dataframe[column].equals(sheet.dataframe[column]):
+                    errors.append(
+                        IntegrityError(
+                            source_sheet=first_sheet.name, target_sheet=sheet.name, column=column
+                        )
+                    )
+
+        return errors
 
     def __load(self) -> None:
         database_file_path = os.path.join(
