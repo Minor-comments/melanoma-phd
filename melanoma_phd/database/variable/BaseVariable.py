@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from typing import List, Optional, Union
 
 import pandas as pd
 
@@ -25,7 +26,11 @@ class BaseVariable(ABC):
         self._check_valid_id(dataframe)
 
     @abstractmethod
-    def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+    def descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+        group_by_id: Optional[Union[str, List[str]]] = None,
+    ) -> pd.DataFrame:
         pass
 
     @abstractmethod

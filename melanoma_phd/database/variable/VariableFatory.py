@@ -39,18 +39,25 @@ class VariableFactory:
             raise NameError(f"'{type}' variable type not supported!")
 
     def create_dynamic(
-        self, class_name: str, dataframe: pd.DataFrame, id: str, name: str, type: str, **kwargs
+        self,
+        class_name: str,
+        dataframe: pd.DataFrame,
+        id: str,
+        name: str,
+        type: str,
+        **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         if class_name in self._dynamic_classes:
             new_variable = self._dynamic_classes[class_name](id=id, name=name, **kwargs)
             assert isinstance(new_variable, self._static_classes[type])
             dataframe[new_variable.id] = new_variable.create_new_series(dataframe)
-            new_variable.init_from_dataframe(dataframe)
             return new_variable, dataframe
         else:
             raise NameError(f"'{class_name}' dynamic variable class name not found!")
 
-    def create_from_series(self, dataframe: pd.DataFrame, id: str) -> Optional[BaseVariable]:
+    def create_from_series(
+        self, dataframe: pd.DataFrame, id: str
+    ) -> Optional[BaseVariable]:
         series = dataframe[id]
         create_boolean = lambda dataframe, id: self.create(
             dataframe=dataframe,

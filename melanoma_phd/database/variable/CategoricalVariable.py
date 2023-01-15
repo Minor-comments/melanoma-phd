@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import pandas as pd
 
@@ -6,7 +6,9 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 class CategoricalVariable(BaseVariable):
-    def __init__(self, id: str, name: str, categories: Dict[Union[int, str], str]) -> None:
+    def __init__(
+        self, id: str, name: str, categories: Dict[Union[int, str], str]
+    ) -> None:
         super().__init__(id=id, name=name)
         self._categories = categories
 
@@ -38,9 +40,29 @@ class CategoricalVariable(BaseVariable):
     def get_category_values(self, names: List[str]) -> List[Union[int, float, str]]:
         return [self.get_category_value(name) for name in names]
 
-    def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+    def descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+        group_by_id: Optional[Union[str, List[str]]] = None,
+    ) -> pd.DataFrame:
         series = dataframe[self.id].map(self._categories)
-        counts = series.value_counts()
+        if group_by_id is None:
+            counts = series.value_counts()
+        else:
+            new_column = f"_tmp_{self.id}"
+            assert new_column not in dataframe.columns
+
+            group_by_ids = (
+                [group_by_id] if isinstance(group_by_id, str) else group_by_id
+            )
+            new_dataframe = dataframe[group_by_ids].copy()
+            new_dataframe[new_column] = dataframe[self.id].map(self._categories)
+            counts = (
+                new_dataframe.groupby(group_by_ids + [new_column])[new_column]
+                .size()
+                .unstack(fill_value=0)
+                .stack()
+            )
         percent = series.value_counts(normalize=True)
         percent100 = percent.mul(100).round(1)
         return pd.DataFrame({"n": counts, "%": percent100})

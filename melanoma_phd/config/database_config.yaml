@@ -647,30 +647,6 @@ sections:
             type: scalar
             duration_variable_id: "TFS DURATION"
             events_variable_id: "1L POST"
-        - PFS_ttm_group:
-            class_name: "SurvivalVariable"
-            id: "PFS"
-            name: "Progression free survival by TTM Group"
-            type: scalar
-            duration_variable_id: "PFS DURATION"
-            events_variable_id: "PROGRESIÓN EXTRACRANIAL"
-            group_by_id: "GRUPO TTM CORREGIDO"
-        - OS_ttm_group:
-            class_name: "SurvivalVariable"
-            id: "OS"
-            name: "Overall survival by TTM Group"
-            type: scalar
-            duration_variable_id: "OS DURATION"
-            events_variable_id: "EXITUS"
-            group_by_id: "GRUPO TTM CORREGIDO"
-        - TFS_ttm_group:
-            class_name: "SurvivalVariable"
-            id: "TFS"
-            name: "TFS by TTM Group" # TODO: set full name
-            type: scalar
-            duration_variable_id: "TFS DURATION"
-            events_variable_id: "1L POST"
-            group_by_id: "GRUPO TTM CORREGIDO"
 
   - blood_parameters_database:
       name: "PARÁMETROS EN SANGRE"

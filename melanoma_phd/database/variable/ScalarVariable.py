@@ -1,3 +1,4 @@
+from typing import List, Optional, Union
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -21,17 +22,32 @@ class ScalarVariable(BaseVariable):
     def interval(self) -> pd.Interval:
         return self._interval
 
-    def descriptive_statistics(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        series = dataframe[self.id].dropna()
-        median = series.median()
-        mean = series.mean()
-        std_deviation = series.std()
-        min = series.min()
-        max = series.max()
-        return pd.DataFrame(
-            data={"median": median, "mean": mean, "std": std_deviation, "min": min, "max": max},
-            index=[0],
-        )
+    def descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+        group_by_id: Optional[Union[str, List[str]]] = None,
+    ) -> pd.DataFrame:
+        if group_by_id is None:
+            series = dataframe[self.id].dropna()
+            median = series.median()
+            mean = series.mean()
+            std_deviation = series.std()
+            min = series.min()
+            max = series.max()
+            return pd.DataFrame(
+                data={
+                    "median": median,
+                    "mean": mean,
+                    "std": std_deviation,
+                    "min": min,
+                    "max": max,
+                },
+                index=[0],
+            )
+        else:
+            return dataframe.groupby(group_by_id)[self.id].agg(
+                ["median", "mean", "std", "min", "max"], dropna=True
+            )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)
