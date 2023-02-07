@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple, Type
 
 import pandas as pd
 from pandas.core.dtypes.common import (
@@ -6,6 +6,9 @@ from pandas.core.dtypes.common import (
     is_float_dtype,
     is_integer_dtype,
     is_string_dtype,
+)
+from melanoma.melanoma_phd.database.variable.BaseDynamicVariable import (
+    BaseDynamicVariable,
 )
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
@@ -17,14 +20,14 @@ from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable
 
 class VariableFactory:
     def __init__(self) -> None:
-        self._static_classes = {
+        self._static_classes: Dict[str, Type[BaseVariable]] = {
             VariableType.SCALAR.value: ScalarVariable,
             VariableType.CATEGORICAL.value: CategoricalVariable,
             VariableType.BOOLEAN.value: BooleanVariable,
         }
         # So far, use a known set of dyanmic variables to create
         dynamic_classes = [SurvivalVariable]
-        self._dynamic_classes = {}
+        self._dynamic_classes: Dict[str, Type[BaseDynamicVariable]] = {}
         for dynamic_class in dynamic_classes:
             self._dynamic_classes[dynamic_class.__name__] = dynamic_class
 
@@ -49,8 +52,10 @@ class VariableFactory:
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         if class_name in self._dynamic_classes:
             new_variable = self._dynamic_classes[class_name](id=id, name=name, **kwargs)
-            assert isinstance(new_variable, self._static_classes[type])
-            dataframe[new_variable.id] = new_variable.create_new_series(dataframe)
+            new_variable.init_from_dataframe(dataframe)
+            series = new_variable.create_new_series(dataframe)
+            if series is not None:
+                dataframe[new_variable.id] = series
             return new_variable, dataframe
         else:
             raise NameError(f"'{class_name}' dynamic variable class name not found!")

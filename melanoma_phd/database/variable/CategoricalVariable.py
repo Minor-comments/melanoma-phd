@@ -15,6 +15,10 @@ class CategoricalVariable(BaseVariable):
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
 
+    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
+        series = super().get_series(dataframe=dataframe)
+        return series.map(self._categories)
+
     @property
     def category_names(self) -> List[str]:
         return self._categories.values()
@@ -43,22 +47,27 @@ class CategoricalVariable(BaseVariable):
     def descriptive_statistics(
         self,
         dataframe: pd.DataFrame,
-        group_by_id: Optional[Union[str, List[str]]] = None,
+        group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
     ) -> pd.DataFrame:
-        series = dataframe[self.id].map(self._categories)
-        if group_by_id is None:
+        series = self.get_series(dataframe=dataframe)
+        if group_by is None:
             counts = series.value_counts()
         else:
             new_column = f"_tmp_{self.id}"
             assert new_column not in dataframe.columns
 
-            group_by_ids = (
-                [group_by_id] if isinstance(group_by_id, str) else group_by_id
+            group_by_list = (
+                [group_by] if isinstance(group_by, BaseVariable) else group_by
             )
-            new_dataframe = dataframe[group_by_ids].copy()
-            new_dataframe[new_column] = dataframe[self.id].map(self._categories)
+            new_dataframe_data = {
+                group_by_variable.id: group_by_variable.get_series(dataframe=dataframe)
+                for group_by_variable in group_by_list
+            }
+            new_dataframe_data[new_column] = series
+            new_dataframe = pd.DataFrame.from_dict(new_dataframe_data, orient="columns")
+            group_by_ids = list(new_dataframe_data.keys())
             counts = (
-                new_dataframe.groupby(group_by_ids + [new_column])[new_column]
+                new_dataframe.groupby(group_by_ids)[new_column]
                 .size()
                 .unstack(fill_value=0)
                 .stack()

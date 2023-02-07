@@ -625,7 +625,7 @@ sections:
               0: dentro de la normalidad
               1: superior al límite de la normalidad
 
-      dynamic_variables:
+      dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
         - PFS:
             class_name: "SurvivalVariable"
             id: "PFS"

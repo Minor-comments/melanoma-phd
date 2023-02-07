@@ -11,12 +11,15 @@ class ScalarVariable(BaseVariable):
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
-        series = dataframe[self.id].dropna().astype(int)
+        series = self.get_series(dataframe=dataframe).dropna().astype(int)
         self._interval = (
             pd.Interval(left=series.min(), right=series.max(), closed="both")
             if not series.empty
             else None
         )
+
+    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
+        return super().get_series(dataframe=dataframe)
 
     @property
     def interval(self) -> pd.Interval:
@@ -25,10 +28,10 @@ class ScalarVariable(BaseVariable):
     def descriptive_statistics(
         self,
         dataframe: pd.DataFrame,
-        group_by_id: Optional[Union[str, List[str]]] = None,
+        group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
     ) -> pd.DataFrame:
-        if group_by_id is None:
-            series = dataframe[self.id].dropna()
+        if group_by is None:
+            series = self.get_series(dataframe=dataframe).dropna()
             median = series.median()
             mean = series.mean()
             std_deviation = series.std()
@@ -45,7 +48,11 @@ class ScalarVariable(BaseVariable):
                 index=[0],
             )
         else:
-            return dataframe.groupby(group_by_id)[self.id].agg(
+            group_by_list = (
+                [group_by] if isinstance(group_by, BaseVariable) else group_by
+            )
+            group_by_data = [group_by_variable.get_series(dataframe=dataframe) for group_by_variable in group_by_list]
+            return dataframe.groupby(group_by_data)[self.id].agg(
                 ["median", "mean", "std", "min", "max"], dropna=True
             )
 
