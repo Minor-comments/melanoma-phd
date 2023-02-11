@@ -625,7 +625,7 @@ sections:
               0: dentro de la normalidad
               1: superior al límite de la normalidad
 
-      dynamic_variables:
+      dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
         - PFS:
             class_name: "SurvivalVariable"
             id: "PFS"
@@ -640,6 +640,13 @@ sections:
             type: scalar
             duration_variable_id: "OS DURATION"
             events_variable_id: "EXITUS"
+        - TFS:
+            class_name: "SurvivalVariable"
+            id: "TFS"
+            name: "TFS" # TODO: set full name
+            type: scalar
+            duration_variable_id: "TFS DURATION"
+            events_variable_id: "1L POST"
 
   - blood_parameters_database:
       name: "PARÁMETROS EN SANGRE"
