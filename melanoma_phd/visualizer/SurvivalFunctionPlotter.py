@@ -28,10 +28,10 @@ class SurvivalFunctionPlotter:
             )
 
         group_by_data = group_by.get_series(dataframe=dataframe) if group_by else None
-        group_by_id = group_by.id
+        group_by_id = group_by.id if group_by else None
 
         labels = self._survival_variable.get_labels(
-            dataframe=dataframe, group_by_data=group_by_data
+            group_by_data=group_by_data
         )
 
         fig = plt.figure(figsize=figsize)
