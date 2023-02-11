@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from melanoma.melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 class BaseDynamicVariable(BaseVariable):
@@ -17,7 +17,9 @@ class BaseDynamicVariable(BaseVariable):
         required_variables: Optional[List[BaseVariable]] = None,
     ) -> None:
         self._required_variables = required_variables if required_variables else []
-        self._required_ids = self.__extract_all_required_ids(required_ids)
+        self._required_ids = self.__extract_all_required_ids(
+            required_ids=required_ids, required_variables=required_variables
+        )
         super().__init__(id=id, name=name)
 
     @property
@@ -30,6 +32,9 @@ class BaseDynamicVariable(BaseVariable):
         pass
 
     def get_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
+        pass
+
+    def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         pass
 
     def _check_required_ids(self, dataframe: pd.DataFrame) -> None:

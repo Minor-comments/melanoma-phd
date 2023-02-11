@@ -6,7 +6,7 @@ from lifelines.statistics import logrank_test, StatisticalResult
 from lifelines.plotting import add_at_risk_counts
 from lifelines.utils import median_survival_times
 import numpy as np
-from melanoma.melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
 
@@ -20,6 +20,9 @@ class SurvivalVariable(BaseDynamicVariable):
         )
         self._duration_variable_id = duration_variable_id
         self._events_variable_id = events_variable_id
+
+    def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
+        super().init_from_dataframe(dataframe=dataframe)
 
     def create_new_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
         return super().create_new_series(dataframe=dataframe)
@@ -106,9 +109,7 @@ class SurvivalVariable(BaseDynamicVariable):
     def get_durations(self, dataframe: pd.DataFrame) -> np.ndarray:
         return dataframe[self._duration_variable_id].dropna().to_numpy()
 
-    def get_labels(
-        self, group_by_data: Optional[pd.Series] = None
-    ) -> List[Any]:
+    def get_labels(self, group_by_data: Optional[pd.Series] = None) -> List[Any]:
         if group_by_data is not None:
             labels = list(group_by_data.unique())
         else:

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from lifelines.statistics import StatisticalResult
 from lifelines.plotting import add_at_risk_counts
-from melanoma.melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma.melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable
 
 
 class SurvivalFunctionPlotter:
@@ -44,7 +44,10 @@ class SurvivalFunctionPlotter:
         plt.title(title)
 
         kaplan_meier_fitters = self._survival_variable.calculate_kaplan_meier_fitters(
-            dataframe=dataframe, group_by_data=group_by_data, group_by_id=group_by_id, alpha=alpha
+            dataframe=dataframe,
+            group_by_data=group_by_data,
+            group_by_id=group_by_id,
+            alpha=alpha,
         )
 
         for i, kaplan_meier_fitter in enumerate(kaplan_meier_fitters):

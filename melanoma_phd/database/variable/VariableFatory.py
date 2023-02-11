@@ -7,7 +7,7 @@ from pandas.core.dtypes.common import (
     is_integer_dtype,
     is_string_dtype,
 )
-from melanoma.melanoma_phd.database.variable.BaseDynamicVariable import (
+from melanoma_phd.database.variable.BaseDynamicVariable import (
     BaseDynamicVariable,
 )
 
