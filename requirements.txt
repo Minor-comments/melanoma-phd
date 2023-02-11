@@ -11,6 +11,7 @@ matplotlib
 # data science
 pandas >= 1.0
 scikit-survival
+lifelines
 
 # config
 pyyaml
