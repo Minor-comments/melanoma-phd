@@ -5,14 +5,14 @@ from typing import List, Optional, Type, Union
 
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
+
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.MultiScalarFilter import MultiScalarFilter
+from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from streamlit_app.filter.MultiSelectBinFilter import MultiSelectBinFilter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
-
-from melanoma_phd.database.PatientDatabase import PatientDatabase
-from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 
 
 def reload_database(app: AppLoader) -> None:
@@ -32,12 +32,8 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
     with st.sidebar.form("Patients Filter"):
         # TODO: Create filter factory from .yaml file
         filters = [
-            MultiSelectFilter(
-                CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))
-            ),
-            MultiSelectFilter(
-                CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))
-            ),
+            MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
+            MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
             MultiSelectBinFilter(
                 filter=MultiScalarFilter(
@@ -75,9 +71,7 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
 
 def select_variables(
     app: AppLoader,
-    variable_types: Optional[
-        Union[Type[BaseVariable], List[Type[BaseVariable]]]
-    ] = None,
+    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
 ) -> List[BaseVariable]:
     selected_variables = []
     if variable_types and isinstance(variable_types, Type):
@@ -88,8 +82,7 @@ def select_variables(
                 st.subheader(f"{database_sheet.name} variables")
                 for variable in database_sheet.variables:
                     if variable_types and not any(
-                        isinstance(variable, variable_type)
-                        for variable_type in variable_types
+                        isinstance(variable, variable_type) for variable_type in variable_types
                     ):
                         continue
                     st_variable_id = PersistentSessionState.persist_key(
@@ -108,7 +101,7 @@ def select_variables(
 
 class AppLoader:
     def __init__(self) -> None:
-        self._app = None
+        self._app: Optional[MelanomaPhdApp] = None
 
     @property
     def database(self) -> PatientDatabase:

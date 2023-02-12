@@ -5,13 +5,11 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
-from streamlit_app.AppLoader import (
-    AppLoader,  # isort: skip <- Force to be after workaround
-    create_database_section,
-    select_filters,
-    select_variables,
-)
+from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.filter.PatientDataFilterer import (
+    PatientDataFilterer,
+)  # isort: skip <- Force to be after workaround
+from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
 from streamlit_app.latex.LaTeXArray import LaTeXArray
 
 if __name__ == "__main__":
