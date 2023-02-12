@@ -2,16 +2,16 @@ import os
 import sys
 
 import streamlit as st
-from streamlit_app.AppLoader import (
-    create_database_section,
-    select_filters,
-    select_variables,
-)
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from streamlit_app.AppLoader import (
     AppLoader,
+)  # isort: skip <- Force to be after workaround
+from streamlit_app.AppLoader import (
+    create_database_section,
+    select_filters,
+    select_variables,
 )  # isort: skip <- Force to be after workaround
 
 from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
