@@ -5,18 +5,14 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from streamlit_app.AppLoader import (
-    AppLoader,
-)  # isort: skip <- Force to be after workaround
-from streamlit_app.AppLoader import (
+    AppLoader,  # isort: skip <- Force to be after workaround
     create_database_section,
     select_filters,
     select_variables,
-)  # isort: skip <- Force to be after workaround
-
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
+)
 from streamlit_app.latex.LaTeXArray import LaTeXArray
-
 
 if __name__ == "__main__":
     st.title("Melanoma PHD Statistics")
@@ -36,9 +32,7 @@ if __name__ == "__main__":
         if selected_variables:
             variables_statistics = {}
             for variable in selected_variables:
-                variables_statistics[variable] = variable.descriptive_statistics(
-                    df_result
-                )
+                variables_statistics[variable] = variable.descriptive_statistics(df_result)
 
             latex_array = LaTeXArray(variables_statistics)
             st.latex(latex_array.dumps())

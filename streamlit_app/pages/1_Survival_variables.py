@@ -4,24 +4,16 @@ import sys
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlotter
 from streamlit_app.AppLoader import (
-    AppLoader,
-)  # isort: skip <- Force to be after workaround
-from streamlit_app.AppLoader import (
+    AppLoader,  # isort: skip <- Force to be after workaround
     create_database_section,
     select_filters,
     select_variables,
-)  # isort: skip <- Force to be after workaround
-
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
-from melanoma_phd.database.variable.CategoricalVariable import (
-    CategoricalVariable,
 )
-from melanoma_phd.visualizer.SurvivalFunctionPlotter import (
-    SurvivalFunctionPlotter,
-)
-
 
 if __name__ == "__main__":
     st.title("Melanoma Survival variables")
@@ -54,19 +46,13 @@ if __name__ == "__main__":
         )
         st.header("Progression free survival (PFS)")
         st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("PFS")).plot(
-                **survival_plot_config
-            )
+            SurvivalFunctionPlotter(app.database.get_variable("PFS")).plot(**survival_plot_config)
         )
         st.header("Overall survival (OS)")
         st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("OS")).plot(
-                **survival_plot_config
-            )
+            SurvivalFunctionPlotter(app.database.get_variable("OS")).plot(**survival_plot_config)
         )
         st.header("TFS (TFS)")
         st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("TFS")).plot(
-                **survival_plot_config
-            )
+            SurvivalFunctionPlotter(app.database.get_variable("TFS")).plot(**survival_plot_config)
         )
