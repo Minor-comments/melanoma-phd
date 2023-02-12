@@ -6,7 +6,7 @@ mypy
 pandas-stubs
 
 # streamlit
-streamlit
+streamlit >= 1.18.1
 openpyxl
 plotly >= 4.8
 matplotlib
