@@ -1,3 +1,5 @@
+from collections import namedtuple
+from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple, Union
 from lifelines import KaplanMeierFitter
 import matplotlib.pyplot as plt
@@ -9,6 +11,12 @@ import numpy as np
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
+
+
+@dataclass
+class EventsDurations:
+    events: np.ndarray
+    durations: np.ndarray
 
 
 class SurvivalVariable(BaseDynamicVariable):
@@ -41,7 +49,7 @@ class SurvivalVariable(BaseDynamicVariable):
         group_by_data = group_by.get_series(dataframe=dataframe) if group_by else None
         group_by_id = group_by.id
 
-        labels = self.get_labels(dataframe=dataframe, group_by_data=group_by_data)
+        labels = self.get_labels(group_by_data=group_by_data)
         kaplan_meier_fitters = self.calculate_kaplan_meier_fitters(
             dataframe=dataframe, group_by_data=group_by_data, group_by_id=group_by_id
         )
@@ -79,35 +87,46 @@ class SurvivalVariable(BaseDynamicVariable):
         group_by_id: Optional[str] = None,
         alpha: float = 0.05,
     ) -> List[KaplanMeierFitter]:
-        labels = self.get_labels(dataframe=dataframe, group_by_data=group_by_data)
+        labels = self.get_labels(group_by_data=group_by_data)
         kaplan_meier_fitters: List[KaplanMeierFitter] = []
         for label in labels:
             label_mask = self.get_label_mask(
                 dataframe=dataframe, label=label, group_by_data=group_by_data
             )
-            durations = self.get_durations(dataframe=dataframe[label_mask])
-            events = self.get_events(dataframe=dataframe[label_mask])
+            events_durations = self.get_events_durations(
+                dataframe=dataframe[label_mask]
+            )
+            durations = events_durations.durations
+            events = events_durations.events
 
             shown_label = self.get_shown_label(
                 label=label, labels=labels, group_by_id=group_by_id
             )
 
-            kaplan_meier_fitter = KaplanMeierFitter()
-            kaplan_meier_fitters.append(
-                kaplan_meier_fitter.fit(
-                    durations=durations,
-                    event_observed=events,
-                    alpha=alpha,
-                    label=shown_label,
+            if len(durations) and len(events):
+                kaplan_meier_fitter = KaplanMeierFitter()
+                kaplan_meier_fitters.append(
+                    kaplan_meier_fitter.fit(
+                        durations=durations,
+                        event_observed=events,
+                        alpha=alpha,
+                        label=shown_label,
+                    )
                 )
-            )
         return kaplan_meier_fitters
 
-    def get_events(self, dataframe: pd.DataFrame) -> np.ndarray:
-        return (dataframe[self._events_variable_id].dropna() != 0).to_numpy()
+    def get_events_durations(self, dataframe: pd.DataFrame) -> EventsDurations:
+        durations = dataframe[self._duration_variable_id].dropna()
+        events = dataframe[self._events_variable_id].dropna() != 0
+        if len(durations) > len(events):
+            durations = durations.loc[events.index]
+        elif len(durations) < len(events):
+            events = events.loc[durations.index]
 
-    def get_durations(self, dataframe: pd.DataFrame) -> np.ndarray:
-        return dataframe[self._duration_variable_id].dropna().to_numpy()
+        return EventsDurations(
+            events=events.to_numpy(),
+            durations=durations.to_numpy(),
+        )
 
     def get_labels(self, group_by_data: Optional[pd.Series] = None) -> List[Any]:
         if group_by_data is not None:
@@ -146,8 +165,9 @@ class SurvivalVariable(BaseDynamicVariable):
             class1 = group_by_data == labels[0]
             class2 = group_by_data == labels[1]
 
-            durations = self.get_durations(dataframe=dataframe)
-            events = self.get_events(dataframe=dataframe)
+            events_durations = self.get_events_durations(dataframe=dataframe)
+            durations = events_durations.durations
+            events = events_durations.events
 
             output_logrank = logrank_test(
                 durations[class1],
