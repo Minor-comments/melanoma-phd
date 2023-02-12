@@ -31,6 +31,10 @@ class MultiScalarFilter(BaseFilter):
         return dataframe[series]
 
     def interval(self) -> pd.Interval:
-        left_interval = [variable.interval[0] for variable in self._variables if variable.interval]
-        right_interval = [variable.interval[1] for variable in self._variables if variable.interval]
-        return (min(left_interval), max(right_interval))
+        left_interval = [
+            variable.interval.left for variable in self._variables if variable.interval
+        ]
+        right_interval = [
+            variable.interval.right for variable in self._variables if variable.interval
+        ]
+        return pd.Interval(min(left_interval), max(right_interval))

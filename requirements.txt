@@ -2,6 +2,9 @@
 black
 mypy
 
+# type hints from third parties
+pandas-stubs
+
 # streamlit
 streamlit
 openpyxl

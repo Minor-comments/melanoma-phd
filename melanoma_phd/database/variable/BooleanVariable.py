@@ -8,7 +8,7 @@ class BooleanVariable(CategoricalVariable):
         self,
         id: str,
         name: str,
-        categories: Optional[Dict[Union[int, str], str]] = None,
+        categories: Optional[Dict[Union[int, float, str], str]] = None,
     ) -> None:
         categories = categories if categories else {0: "No", 1: "Yes"}
         super().__init__(id=id, name=name, categories=categories)

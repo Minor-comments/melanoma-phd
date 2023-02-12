@@ -1,4 +1,5 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
+
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -7,7 +8,7 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 class ScalarVariable(BaseVariable):
     def __init__(self, id: str, name: str) -> None:
         super().__init__(id=id, name=name)
-        self._interval: pd.Interval = None
+        self._interval: Optional[pd.Interval] = None
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
@@ -23,12 +24,15 @@ class ScalarVariable(BaseVariable):
 
     @property
     def interval(self) -> pd.Interval:
-        return self._interval
+        if self._interval:
+            return self._interval
+        raise ValueError(f"interval not defined in scalar variable '{self.id}'")
 
     def descriptive_statistics(
         self,
         dataframe: pd.DataFrame,
         group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
+        **kwargs: Any,
     ) -> pd.DataFrame:
         if group_by is None:
             series = self.get_series(dataframe=dataframe).dropna()
@@ -48,10 +52,11 @@ class ScalarVariable(BaseVariable):
                 index=[0],
             )
         else:
-            group_by_list = (
-                [group_by] if isinstance(group_by, BaseVariable) else group_by
-            )
-            group_by_data = [group_by_variable.get_series(dataframe=dataframe) for group_by_variable in group_by_list]
+            group_by_list = [group_by] if isinstance(group_by, BaseVariable) else group_by
+            group_by_data = [
+                group_by_variable.get_series(dataframe=dataframe)
+                for group_by_variable in group_by_list
+            ]
             return dataframe.groupby(group_by_data)[self.id].agg(
                 ["median", "mean", "std", "min", "max"], dropna=True
             )

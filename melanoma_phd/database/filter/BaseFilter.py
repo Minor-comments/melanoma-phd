@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
+from typing import Any
 
 import pandas as pd
 
@@ -9,5 +10,5 @@ class BaseFilter(ABC):
         pass
 
     @abstractmethod
-    def filter(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+    def filter(self, *args: Any, **kwargs: Any) -> pd.DataFrame:
         pass

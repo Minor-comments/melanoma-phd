@@ -1,16 +1,14 @@
-from collections import namedtuple
 from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple, Union
-from lifelines import KaplanMeierFitter
-import matplotlib.pyplot as plt
-import pandas as pd
-from lifelines.statistics import logrank_test, StatisticalResult
-from lifelines.plotting import add_at_risk_counts
-from lifelines.utils import median_survival_times
+from typing import Any, List, Optional, Union
+
 import numpy as np
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
+import pandas as pd
+from lifelines import KaplanMeierFitter
+from lifelines.statistics import StatisticalResult, logrank_test
+from lifelines.utils import median_survival_times
 
 from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 @dataclass
@@ -23,9 +21,7 @@ class SurvivalVariable(BaseDynamicVariable):
     def __init__(
         self, id: str, name: str, duration_variable_id: str, events_variable_id: str
     ) -> None:
-        super().__init__(
-            id=id, name=name, required_ids=[duration_variable_id, events_variable_id]
-        )
+        super().__init__(id=id, name=name, required_ids=[duration_variable_id, events_variable_id])
         self._duration_variable_id = duration_variable_id
         self._events_variable_id = events_variable_id
 
@@ -40,6 +36,7 @@ class SurvivalVariable(BaseDynamicVariable):
         dataframe: pd.DataFrame,
         group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
         alpha: float = 0.05,
+        **kwargs: Any,
     ) -> pd.DataFrame:
         if isinstance(group_by, list):
             raise NotImplementedError(
@@ -47,7 +44,7 @@ class SurvivalVariable(BaseDynamicVariable):
             )
 
         group_by_data = group_by.get_series(dataframe=dataframe) if group_by else None
-        group_by_id = group_by.id
+        group_by_id = group_by.id if group_by else None
 
         labels = self.get_labels(group_by_data=group_by_data)
         kaplan_meier_fitters = self.calculate_kaplan_meier_fitters(
@@ -93,15 +90,11 @@ class SurvivalVariable(BaseDynamicVariable):
             label_mask = self.get_label_mask(
                 dataframe=dataframe, label=label, group_by_data=group_by_data
             )
-            events_durations = self.get_events_durations(
-                dataframe=dataframe[label_mask]
-            )
+            events_durations = self.get_events_durations(dataframe=dataframe[label_mask])
             durations = events_durations.durations
             events = events_durations.events
 
-            shown_label = self.get_shown_label(
-                label=label, labels=labels, group_by_id=group_by_id
-            )
+            shown_label = self.get_shown_label(label=label, labels=labels, group_by_id=group_by_id)
 
             if len(durations) and len(events):
                 kaplan_meier_fitter = KaplanMeierFitter()
@@ -136,7 +129,7 @@ class SurvivalVariable(BaseDynamicVariable):
         return labels
 
     def get_label_mask(
-        self, dataframe: pd.DataFrame, label: Any, group_by_data: Optional[str] = None
+        self, dataframe: pd.DataFrame, label: Any, group_by_data: Optional[pd.Series] = None
     ) -> Union[pd.Series, List[bool]]:
         labels = self.get_labels(group_by_data=group_by_data)
         return (
@@ -148,16 +141,12 @@ class SurvivalVariable(BaseDynamicVariable):
     def get_shown_label(
         self, label: Any, labels: List[Any], group_by_id: Optional[str] = None
     ) -> str:
-        return (
-            f"{group_by_id}={label}"
-            if len(labels) > 1 and group_by_id is not None
-            else ""
-        )
+        return f"{group_by_id}={label}" if len(labels) > 1 and group_by_id is not None else ""
 
     def get_logrank_test_stats(
         self,
         dataframe: pd.DataFrame,
-        group_by_data: Optional[str] = None,
+        group_by_data: Optional[pd.Series] = None,
         alpha: float = 0.05,
     ) -> Optional[StatisticalResult]:
         labels = self.get_labels(group_by_data=group_by_data)

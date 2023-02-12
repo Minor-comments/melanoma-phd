@@ -29,10 +29,12 @@ class BaseDynamicVariable(BaseVariable):
     @abstractmethod
     def create_new_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
         self._check_required_ids(dataframe=dataframe)
-        pass
+        return None
 
-    def get_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
-        pass
+    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
+        raise NotImplementedError(
+            f"'get_series' method not implemented in dynamic variable '{self.id}'"
+        )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         pass

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
@@ -6,9 +6,7 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 class CategoricalVariable(BaseVariable):
-    def __init__(
-        self, id: str, name: str, categories: Dict[Union[int, str], str]
-    ) -> None:
+    def __init__(self, id: str, name: str, categories: Dict[Union[int, float, str], str]) -> None:
         super().__init__(id=id, name=name)
         self._categories = categories
 
@@ -21,11 +19,11 @@ class CategoricalVariable(BaseVariable):
 
     @property
     def category_names(self) -> List[str]:
-        return self._categories.values()
+        return list(self._categories.values())
 
     @property
     def category_values(self) -> List[str]:
-        return self._categories.keys()
+        return [str(key) for key in self._categories.keys()]
 
     def get_category_name(self, value: Union[int, float, str]) -> str:
         return self._categories.get(value, str(value))
@@ -48,6 +46,7 @@ class CategoricalVariable(BaseVariable):
         self,
         dataframe: pd.DataFrame,
         group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
+        **kwargs: Any,
     ) -> pd.DataFrame:
         series = self.get_series(dataframe=dataframe)
         if group_by is None:
@@ -56,9 +55,7 @@ class CategoricalVariable(BaseVariable):
             new_column = f"_tmp_{self.id}"
             assert new_column not in dataframe.columns
 
-            group_by_list = (
-                [group_by] if isinstance(group_by, BaseVariable) else group_by
-            )
+            group_by_list = [group_by] if isinstance(group_by, BaseVariable) else group_by
             new_dataframe_data = {
                 group_by_variable.id: group_by_variable.get_series(dataframe=dataframe)
                 for group_by_variable in group_by_list
@@ -66,11 +63,12 @@ class CategoricalVariable(BaseVariable):
             new_dataframe_data[new_column] = series
             new_dataframe = pd.DataFrame.from_dict(new_dataframe_data, orient="columns")
             group_by_ids = list(new_dataframe_data.keys())
-            counts = (
+            counts = cast(
+                pd.Series,
                 new_dataframe.groupby(group_by_ids)[new_column]
                 .size()
                 .unstack(fill_value=0)
-                .stack()
+                .stack(),
             )
         percent = series.value_counts(normalize=True)
         percent100 = percent.mul(100).round(1)

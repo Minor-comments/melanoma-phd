@@ -7,10 +7,8 @@ from pandas.core.dtypes.common import (
     is_integer_dtype,
     is_string_dtype,
 )
-from melanoma_phd.database.variable.BaseDynamicVariable import (
-    BaseDynamicVariable,
-)
 
+from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -60,9 +58,7 @@ class VariableFactory:
         else:
             raise NameError(f"'{class_name}' dynamic variable class name not found!")
 
-    def create_from_series(
-        self, dataframe: pd.DataFrame, id: str
-    ) -> Optional[BaseVariable]:
+    def create_from_series(self, dataframe: pd.DataFrame, id: str) -> Optional[BaseVariable]:
         series = dataframe[id]
         create_boolean = lambda dataframe, id: self.create(
             dataframe=dataframe,
@@ -96,3 +92,4 @@ class VariableFactory:
                 dataframe=dataframe,
                 id=id,
             )
+        return None

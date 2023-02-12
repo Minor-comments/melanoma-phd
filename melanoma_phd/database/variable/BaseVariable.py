@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import pandas as pd
 
@@ -28,16 +28,15 @@ class BaseVariable(ABC):
         self._check_valid_id(dataframe)
 
     @abstractmethod
-    def get_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
+    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         return dataframe[self.id]
 
     @abstractmethod
     def descriptive_statistics(
         self,
         dataframe: pd.DataFrame,
-        group_by_id: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
-        *args,
-        **kwargs,
+        group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
+        **kwargs: Any,
     ) -> pd.DataFrame:
         pass
 

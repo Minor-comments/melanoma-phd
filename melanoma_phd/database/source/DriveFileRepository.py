@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import datetime
 from dataclasses import dataclass
-from typing import Callable, Dict, List
+from datetime import datetime
+from typing import Callable, Dict, List, Optional
 
 from packaging.version import Version
 
@@ -61,7 +61,7 @@ class DriveFileRepository:
 
         return file_versions
 
-    def get_latest_file_version(self) -> DriveVersionFileInfo:
+    def get_latest_file_version(self) -> Optional[DriveVersionFileInfo]:
         latest_file_version = None
         drive_files = self.get_file_versions()
         for drive_file in drive_files:

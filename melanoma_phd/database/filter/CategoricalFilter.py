@@ -15,7 +15,7 @@ class CategoricalFilter(BaseFilter):
     def name(self) -> str:
         return self._variable.name
 
-    def filter(self, dataframe: pd.DataFrame, options: str) -> pd.DataFrame:
+    def filter(self, dataframe: pd.DataFrame, options: List[str]) -> pd.DataFrame:
         return (
             dataframe[
                 dataframe[self._variable.id].isin(self._variable.get_category_values(options))
