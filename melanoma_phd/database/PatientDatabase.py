@@ -56,6 +56,13 @@ class PatientDatabase:
         return self._dataframe
 
     @property
+    def patient_ids(self) -> List[int]:
+        return list(self.dataframe[self._index_variable_name])
+
+    def get_patient_dataframe(self, patient_id: int) -> pd.DataFrame:
+        return self.dataframe.loc[patient_id]
+
+    @property
     def variables(self) -> List[BaseVariable]:
         return [variable for sheet in self.sheets for variable in sheet.variables]
 
@@ -180,6 +187,7 @@ class PatientDatabase:
                 self._dataframe = self._dataframe.merge(
                     sheet.dataframe, how="inner", validate="1:1"
                 )
+        self._dataframe.set_index(self._index_variable_name)
 
     def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
         sheet_names = config["sheets"]
