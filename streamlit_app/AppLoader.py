@@ -32,8 +32,12 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
     with st.sidebar.form("Patients Filter"):
         # TODO: Create filter factory from .yaml file
         filters = [
-            MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
-            MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
+            MultiSelectFilter(
+                CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))
+            ),
+            MultiSelectFilter(
+                CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))
+            ),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
             MultiSelectBinFilter(
                 filter=MultiScalarFilter(
@@ -71,7 +75,9 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
 
 def select_variables(
     app: AppLoader,
-    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
+    variable_types: Optional[
+        Union[Type[BaseVariable], List[Type[BaseVariable]]]
+    ] = None,
 ) -> List[BaseVariable]:
     selected_variables = []
     if variable_types and isinstance(variable_types, Type):
@@ -82,7 +88,8 @@ def select_variables(
                 st.subheader(f"{database_sheet.name} variables")
                 for variable in database_sheet.variables:
                     if variable_types and not any(
-                        isinstance(variable, variable_type) for variable_type in variable_types
+                        isinstance(variable, variable_type)
+                        for variable_type in variable_types
                     ):
                         continue
                     st_variable_id = PersistentSessionState.persist_key(
@@ -126,5 +133,5 @@ class AppLoader:
         pass
 
     @st.cache_resource(show_spinner="Loading main application & database...")
-    def __load_app() -> MelanomaPhdApp:
+    def __load_app(_self) -> MelanomaPhdApp:
         return create_melanoma_phd_app()
