@@ -8,17 +8,16 @@ import streamlit as st
 
 
 class PersistentSessionState:
-
     _PERSISTENT_STATE_KEY_PREFIX = f"PERSISTENT_"
 
     def __init__(self):
         pass
 
     @classmethod
-    def persist_key(cls, key: str):
+    def persist_key(cls, key: str) -> str:
         return cls._PERSISTENT_STATE_KEY_PREFIX + key
 
-    def load(self, data_folder: str):
+    def load(self, data_folder: str) -> None:
         current_persistent_dict = self.__get_current_persistent_dict()
         if data_folder:
             loaded_persistent_dict = self.__get_disk_persistent_state(data_folder=data_folder)
@@ -29,7 +28,7 @@ class PersistentSessionState:
             )
         st.session_state.update(current_persistent_dict)
 
-    def __get_current_persistent_dict(self):
+    def __get_current_persistent_dict(self) -> Dict[str, Any]:
         return {
             key: value
             for key, value in st.session_state.items()
@@ -55,7 +54,7 @@ class PersistentSessionState:
 
     def __save_disk_persistent_state(
         self, current_persistent_dict: Dict[str, Any], data_folder: str
-    ):
+    ) -> None:
         persisten_state_file = self.__get_file_path(data_folder)
         try:
             os.makedirs(os.path.dirname(persisten_state_file), exist_ok=True)

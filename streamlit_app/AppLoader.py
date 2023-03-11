@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
+from datetime import datetime
 from types import TracebackType
-from typing import List, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
@@ -32,12 +34,8 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
     with st.sidebar.form("Patients Filter"):
         # TODO: Create filter factory from .yaml file
         filters = [
-            MultiSelectFilter(
-                CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))
-            ),
-            MultiSelectFilter(
-                CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))
-            ),
+            MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
+            MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
             MultiSelectBinFilter(
                 filter=MultiScalarFilter(
@@ -73,37 +71,58 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
         return filters
 
 
+def selected_variables_to_file(selected_variables_ids: List[str]) -> bytes:
+    return json.dumps({"selected_variables_ids": selected_variables_ids}).encode("utf-8")
+
+
+def select_variables_from_file(file_contents: str) -> None:
+    file_json = json.loads(file_contents)
+    for variable_id in file_json["selected_variables_ids"]:
+        st.session_state[variable_id] = True
+
+
 def select_variables(
     app: AppLoader,
-    variable_types: Optional[
-        Union[Type[BaseVariable], List[Type[BaseVariable]]]
-    ] = None,
+    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
 ) -> List[BaseVariable]:
     selected_variables = []
     if variable_types and isinstance(variable_types, Type):
         variable_types = [variable_types]
+    uploaded_file = st.file_uploader(label="Upload a variable selection ⬆️", type=["json"])
+    if uploaded_file:
+        file_contents = uploaded_file.getvalue().decode("utf-8")
+        select_variables_from_file(file_contents)
     with st.expander("Variables to select"):
         with st.form(key="variable_selection_form"):
+            selected_variables_ids = []
             for database_sheet in app.database.sheets:
                 st.subheader(f"{database_sheet.name} variables")
                 for variable in database_sheet.variables:
                     if variable_types and not any(
-                        isinstance(variable, variable_type)
-                        for variable_type in variable_types
+                        isinstance(variable, variable_type) for variable_type in variable_types
                     ):
                         continue
                     st_variable_id = PersistentSessionState.persist_key(
                         f"{database_sheet.name}.{variable.id}"
                     )
                     if st.checkbox(
-                        f"{variable.name} [{variable.id}]",
+                        label=f"{variable.name} [{variable.id}]",
                         key=st_variable_id,
                     ):
                         selected_variables.append(variable)
-            if st.form_submit_button("Display statistics"):
-                return selected_variables
+                        selected_variables_ids.append(st_variable_id)
+            if st.form_submit_button("Display statistics 📊"):
+                data_to_save = selected_variables_to_file(selected_variables_ids)
             else:
-                return []
+                selected_variables = []
+        if selected_variables:
+            file_name = (
+                "variable_selection_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".json"
+            )
+            st.download_button(
+                label="Download variable selection ⬇️ ", data=data_to_save, file_name=file_name
+            )
+        return selected_variables
 
 
 class AppLoader:

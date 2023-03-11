@@ -22,5 +22,5 @@ git-secret reveal
 
 - Run application:
 ```bash
-python -m streamlit run melanoma-phd/webpage_ui/home.py --logger.level=info
+python -m streamlit run streamlit_app/home.py --logger.level=info
 ```
