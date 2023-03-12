@@ -1,5 +1,7 @@
 import os
 import sys
+from itertools import islice
+from typing import Any, Tuple
 
 import streamlit as st
 
@@ -14,6 +16,13 @@ from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariab
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
 from streamlit_app.latex.LaTeXArray import LaTeXArray
+
+
+def batched(iterable, chunk_size) -> Tuple[Any]:
+    iterator = iter(iterable)
+    while chunk := tuple(islice(iterator, chunk_size)):
+        yield chunk
+
 
 if __name__ == "__main__":
     st.title("Melanoma PHD Statistics")
@@ -33,11 +42,12 @@ if __name__ == "__main__":
         )
         st.header("Descriptive Statistcs")
         if selected_variables:
-            variables_statistics = {}
-            for variable in selected_variables:
-                variables_statistics[variable] = variable.descriptive_statistics(df_result)
+            for selected_variables_chunk in batched(selected_variables, 50):
+                variables_statistics = {}
+                for variable in selected_variables_chunk:
+                    variables_statistics[variable] = variable.descriptive_statistics(df_result)
 
-            latex_array = LaTeXArray(variables_statistics)
-            st.latex(latex_array.dumps())
+                latex_array = LaTeXArray(variables_statistics)
+                st.latex(latex_array.dumps())
         else:
             st.text("Select variables to analyze :)")
