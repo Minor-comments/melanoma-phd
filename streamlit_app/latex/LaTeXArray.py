@@ -25,8 +25,11 @@ class LaTeXArray:
                 + " & & "
                 + r"\text{"
                 + " ".join(
-                    str(round(value, 2) if isinstance(value, float) else value)
-                    for value in statistics.iloc[0, :]
+                    [
+                        str(round(value, 2) if isinstance(value, float) else value)
+                        for value in statistics.iloc[0, :]
+                        if value
+                    ]
                 )
                 + r"}"
                 + r"\\ \hline"
@@ -36,15 +39,11 @@ class LaTeXArray:
                 row
                 + " & "
                 + r"\text{"
-                + statistics.index[0]
+                + str(statistics.index[0])
                 + r"}"
                 + " & "
                 + r"\text{"
-                + " ".join(
-                    str(round(value, 2) if isinstance(value, float) else value)
-                    for value in statistics.iloc[0, :]
-                    if value
-                )
+                + " ".join([str(round(value, 2)) for value in statistics.iloc[0, :] if value])
                 + r"} \\"
             )
             for i in range(1, len(statistics.index)):
@@ -52,14 +51,16 @@ class LaTeXArray:
                     row
                     + "& "
                     + r"\text{"
-                    + statistics.index[i]
+                    + str(statistics.index[i])
                     + r"}"
                     + " & "
                     + r"\text{"
                     + " ".join(
-                        str(round(value, 2) if isinstance(value, float) else value)
-                        for value in statistics.iloc[i, :]
-                        if value
+                        [
+                            str(round(value, 2) if isinstance(value, float) else value)
+                            for value in statistics.iloc[i, :]
+                            if value
+                        ]
                     )
                     + r"} \\"
                 )

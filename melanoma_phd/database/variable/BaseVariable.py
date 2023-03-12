@@ -12,6 +12,7 @@ class VariableType(Enum):
     SCALAR = "scalar"
     CATEGORICAL = "categorical"
     BOOLEAN = "boolean"
+    DATETIME = "datetime"
 
 
 @dataclass

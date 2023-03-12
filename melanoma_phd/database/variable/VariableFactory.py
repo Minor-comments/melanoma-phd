@@ -3,6 +3,8 @@ from typing import Dict, Optional, Tuple, Type
 import pandas as pd
 from pandas.core.dtypes.common import (
     is_bool_dtype,
+    is_datetime64_any_dtype,
+    is_datetime64tz_dtype,
     is_float_dtype,
     is_integer_dtype,
     is_string_dtype,
@@ -12,6 +14,7 @@ from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariab
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable
 
@@ -22,6 +25,7 @@ class VariableFactory:
             VariableType.SCALAR.value: ScalarVariable,
             VariableType.CATEGORICAL.value: CategoricalVariable,
             VariableType.BOOLEAN.value: BooleanVariable,
+            VariableType.DATETIME.value: DateTimeVariable,
         }
         # So far, use a known set of dyanmic variables to create
         dynamic_classes = [SurvivalVariable]
@@ -67,7 +71,11 @@ class VariableFactory:
             type=VariableType.BOOLEAN.value,
             categories={0: "No", 1: "Sí"},
         )
-        if is_float_dtype(series) or is_integer_dtype(series):
+        if is_datetime64_any_dtype(series) or is_datetime64tz_dtype(series):
+            return self.create(
+                dataframe=dataframe, id=id, name=id, type=VariableType.DATETIME.value
+            )
+        elif is_float_dtype(series) or is_integer_dtype(series):
             if set(series.dropna().unique()) == set([0, 1]):
                 return create_boolean(
                     dataframe=dataframe,

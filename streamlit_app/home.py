@@ -9,6 +9,9 @@ from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be afte
 from melanoma_phd.database.filter.PatientDataFilterer import (
     PatientDataFilterer,
 )  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
 from streamlit_app.latex.LaTeXArray import LaTeXArray
 
@@ -25,7 +28,9 @@ if __name__ == "__main__":
             st.dataframe(df_result)
 
         st.subheader("Variable selection")
-        selected_variables = select_variables(app)
+        selected_variables = select_variables(
+            app, variable_types=[ScalarVariable, CategoricalVariable, BooleanVariable]
+        )
         st.header("Descriptive Statistcs")
         if selected_variables:
             variables_statistics = {}
