@@ -17,8 +17,9 @@ class VariableType(Enum):
 @dataclass
 class BaseVariable(ABC):
     def __init__(self, id: str, name: str) -> None:
-        self.id = id
-        self.name = name
+        self.id: str = id
+        self.name: str = name
+        self.unique_id: Optional[str] = None
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -26,6 +27,7 @@ class BaseVariable(ABC):
     @abstractmethod
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         self._check_valid_id(dataframe)
+        self.unique_id = f"{dataframe.name}.{self.id}"
 
     @abstractmethod
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:

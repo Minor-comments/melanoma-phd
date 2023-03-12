@@ -15,6 +15,7 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from streamlit_app.filter.MultiSelectBinFilter import MultiSelectBinFilter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
+from streamlit_app.VariableSelector import VariableSelector
 
 
 def reload_database(app: AppLoader) -> None:
@@ -71,48 +72,35 @@ def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
         return filters
 
 
-def selected_variables_to_file(selected_variables_ids: List[str]) -> bytes:
-    return json.dumps({"selected_variables_ids": selected_variables_ids}).encode("utf-8")
-
-
-def select_variables_from_file(file_contents: str) -> None:
-    file_json = json.loads(file_contents)
-    for variable_id in file_json["selected_variables_ids"]:
-        st.session_state[variable_id] = True
-
-
 def select_variables(
     app: AppLoader,
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
 ) -> List[BaseVariable]:
-    selected_variables = []
-    if variable_types and isinstance(variable_types, Type):
-        variable_types = [variable_types]
     uploaded_file = st.file_uploader(label="Upload a variable selection ⬆️", type=["json"])
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
-        select_variables_from_file(file_contents)
+        VariableSelector.select_variables_from_file(file_contents)
+    selected_variables = []
     with st.expander("Variables to select"):
+        selector = VariableSelector(app.database)
+        variables_to_select = selector.get_variables_to_select(variable_types)
+        st.checkbox(
+            label="Select All variables",
+            key="select_all_variables",
+            on_change=lambda: selector.select_variables(variables_to_select)
+            if st.session_state["select_all_variables"]
+            else selector.deselect_variables(variables_to_select),
+        )
         with st.form(key="variable_selection_form"):
-            selected_variables_ids = []
-            for database_sheet in app.database.sheets:
-                st.subheader(f"{database_sheet.name} variables")
-                for variable in database_sheet.variables:
-                    if variable_types and not any(
-                        isinstance(variable, variable_type) for variable_type in variable_types
-                    ):
-                        continue
-                    st_variable_id = PersistentSessionState.persist_key(
-                        f"{database_sheet.name}.{variable.id}"
-                    )
-                    if st.checkbox(
-                        label=f"{variable.name} [{variable.id}]",
-                        key=st_variable_id,
-                    ):
-                        selected_variables.append(variable)
-                        selected_variables_ids.append(st_variable_id)
+            for variable in variables_to_select:
+                st_variable_id = VariableSelector.get_variable_persistent_key(variable)
+                if st.checkbox(
+                    label=f"{variable.name} [{variable.id}]",
+                    key=st_variable_id,
+                ):
+                    selected_variables.append(variable)
             if st.form_submit_button("Display statistics 📊"):
-                data_to_save = selected_variables_to_file(selected_variables_ids)
+                data_to_save = VariableSelector.selected_variables_to_file(selected_variables)
             else:
                 selected_variables = []
         if selected_variables:

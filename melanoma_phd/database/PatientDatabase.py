@@ -14,14 +14,12 @@ from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.source.DriveFileRepository import (
-    DriveFileRepository,
-    DriveFileRepositoryConfig,
-    DriveVersionFileInfo,
-)
+from melanoma_phd.database.source.DriveFileRepository import (DriveFileRepository,
+                                                              DriveFileRepositoryConfig,
+                                                              DriveVersionFileInfo)
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.VariableFatory import VariableFactory
+from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
 
 @dataclass
@@ -37,10 +35,10 @@ class PatientDatabase:
     VERSION_REGEX = re.compile(r"versió\ +(?P<number>\d+)")
 
     def __init__(self, config: AppConfig) -> None:
-        self._config = config
-        self._index_variable_name = None
-        self._dataframe = None
-        self._sheets = []
+        self._config: AppConfig = config
+        self._index_variable_name: Optional[str] = None
+        self._dataframe: Optional[pd.DataFrame] = None
+        self._sheets: List[DatabaseSheet] = []
         self.__load()
 
     @property
@@ -69,7 +67,7 @@ class PatientDatabase:
         self.__load()
 
     def check_data_integrity(self) -> List[IntegrityError]:
-        errors = []
+        errors: List[IntegrityError] = []
         if not self.sheets:
             return errors
         first_sheet = self.sheets[0]
@@ -154,11 +152,11 @@ class PatientDatabase:
         ).download_excel_file_by_id(file_id=drive_file_id, filename=database_file)
 
     def __create_database_filename(self, file_path: str, version: Version) -> str:
-        file_path = Path(file_path)
+        path = Path(file_path)
         database_file = str(
             Path(
-                file_path.parent,
-                f"{file_path.stem}_{str(version)}{file_path.suffix}",
+                path.parent,
+                f"{path.stem}_{str(version)}{path.suffix}",
             )
         )
         return database_file
@@ -182,6 +180,7 @@ class PatientDatabase:
                 )
 
     def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
+        databae_sheet_name = config["name"]
         sheet_names = config["sheets"]
         dataframe = None
         for sheet_name in sheet_names:
@@ -192,6 +191,7 @@ class PatientDatabase:
                 dataframe = sheet_dataframe
 
         dataframe = dataframe[dataframe[self._index_variable_name].notna()]
+        dataframe.name = databae_sheet_name
         variables_config = config["variables"]
         variables = self.__load_sheet_variables(dataframe, variables_config)
 
@@ -201,7 +201,7 @@ class PatientDatabase:
                 config=variables_config, dataframe=dataframe
             )
             variables.extend(dynamic_variables)
-        return DatabaseSheet(name=config["name"], dataframe=dataframe, variables=variables)
+        return DatabaseSheet(name=databae_sheet_name, dataframe=dataframe, variables=variables)
 
     def __load_sheet_variables(
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
