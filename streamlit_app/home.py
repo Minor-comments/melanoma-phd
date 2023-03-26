@@ -2,12 +2,10 @@ import os
 import sys
 from datetime import datetime
 from itertools import islice
-from typing import Any, Dict, Iterable, Iterator
+from typing import Any, Dict, Iterator
 
 import pandas as pd
 import streamlit as st
-
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,6 +13,7 @@ from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be afte
 from melanoma_phd.database.filter.PatientDataFilterer import (
     PatientDataFilterer,
 )  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
