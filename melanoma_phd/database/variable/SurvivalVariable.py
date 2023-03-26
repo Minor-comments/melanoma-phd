@@ -7,8 +7,31 @@ from lifelines import KaplanMeierFitter
 from lifelines.statistics import StatisticalResult, logrank_test
 from lifelines.utils import median_survival_times
 
-from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariable
+from melanoma_phd.database.variable.BaseDynamicVariable import (
+    BaseDynamicVariable,
+    BaseDynamicVariableConfig,
+)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+
+
+class SurvivalVariableConfig(BaseDynamicVariableConfig):
+    def __init__(
+        self,
+        id: str,
+        name: str,
+        duration_variable_id: str,
+        events_variable_id: str,
+        selectable: bool = True,
+    ) -> None:
+        super().__init__(
+            id=id,
+            name=name,
+            selectable=selectable,
+            required_ids=[duration_variable_id, events_variable_id],
+        )
+        self.duration_variable_id = duration_variable_id
+        self.events_variable_id = events_variable_id
 
 
 @dataclass
@@ -18,12 +41,10 @@ class EventsDurations:
 
 
 class SurvivalVariable(BaseDynamicVariable):
-    def __init__(
-        self, id: str, name: str, duration_variable_id: str, events_variable_id: str
-    ) -> None:
-        super().__init__(id=id, name=name, required_ids=[duration_variable_id, events_variable_id])
-        self._duration_variable_id = duration_variable_id
-        self._events_variable_id = events_variable_id
+    def __init__(self, config: SurvivalVariableConfig) -> None:
+        super().__init__(config=config)
+        self._duration_variable_id = config.duration_variable_id
+        self._events_variable_id = config.events_variable_id
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)

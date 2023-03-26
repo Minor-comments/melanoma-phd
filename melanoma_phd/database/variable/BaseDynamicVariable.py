@@ -1,9 +1,17 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import List, Optional
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+
+
+@dataclass
+class BaseDynamicVariableConfig(BaseVariableConfig):
+    required_ids: Optional[List[str]] = None
+    required_variables: Optional[List[BaseVariable]] = None
 
 
 class BaseDynamicVariable(BaseVariable):
@@ -11,16 +19,13 @@ class BaseDynamicVariable(BaseVariable):
 
     def __init__(
         self,
-        id: str,
-        name: str,
-        required_ids: Optional[List[str]] = None,
-        required_variables: Optional[List[BaseVariable]] = None,
+        config: BaseDynamicVariableConfig,
     ) -> None:
-        self._required_variables = required_variables if required_variables else []
+        self._required_variables = config.required_variables if config.required_variables else []
         self._required_ids = self.__extract_all_required_ids(
-            required_ids=required_ids, required_variables=required_variables
+            required_ids=config.required_ids, required_variables=config.required_variables
         )
-        super().__init__(id=id, name=name)
+        super().__init__(config=config)
 
     @property
     def required_ids(self) -> List[str]:

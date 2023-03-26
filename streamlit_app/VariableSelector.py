@@ -22,7 +22,7 @@ class VariableSelector:
             for variable in database_sheet.variables:
                 if variable_types and not any(
                     isinstance(variable, variable_type) for variable_type in variable_types
-                ):
+                ) or not variable.selectable:
                     continue
                 variables_to_select.append(variable)
         return variables_to_select

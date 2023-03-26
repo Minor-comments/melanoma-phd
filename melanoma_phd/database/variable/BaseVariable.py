@@ -7,6 +7,8 @@ from typing import Any, List, Optional, Union
 
 import pandas as pd
 
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+
 
 class VariableType(Enum):
     SCALAR = "scalar"
@@ -17,9 +19,10 @@ class VariableType(Enum):
 
 @dataclass
 class BaseVariable(ABC):
-    def __init__(self, id: str, name: str) -> None:
-        self.id: str = id
-        self.name: str = name
+    def __init__(self, config: BaseVariableConfig) -> None:
+        self.id: str = config.id
+        self.name: str = config.name
+        self.selectable: bool = config.selectable
         self.unique_id: Optional[str] = None
 
     def __hash__(self) -> int:

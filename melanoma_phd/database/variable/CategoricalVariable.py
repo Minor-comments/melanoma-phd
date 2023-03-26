@@ -1,17 +1,28 @@
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+
+
+@dataclass
+class CategoricalVariableConfig(BaseVariableConfig):
+    categories: Optional[Dict[Union[int, float, str], str]] = None
 
 
 class CategoricalVariable(BaseVariable):
-    def __init__(self, id: str, name: str, categories: Dict[Union[int, float, str], str]) -> None:
-        super().__init__(id=id, name=name)
-        self._categories = categories
+    def __init__(self, config: CategoricalVariableConfig) -> None:
+        super().__init__(config=config)
+        self._categories = config.categories
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
+        if not self._categories:
+            series = super().get_series(dataframe=dataframe)
+            unique_values = list(series.dropna().unique())
+            self._categories = dict(zip(unique_values, unique_values))
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         series = super().get_series(dataframe=dataframe)

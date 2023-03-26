@@ -5,6 +5,18 @@ sections:
       sheets:
         - "BASE GENERAL CLÍNICA"
       variables:
+        - n. patient:
+            id: "N. PACIENTE"
+            name: "N. PACIENTE"
+            type: categorical
+            selectable: false
+
+        - n. historic:
+            id: "N. HISTORIA"
+            name: "N. HISTORIA"
+            type: categorical
+            selectable: false
+
         - age:
             id: "EDAD (AÑOS)"
             name: "Age"
@@ -627,24 +639,21 @@ sections:
 
       dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
         - PFS:
-            class_name: "SurvivalVariable"
+            type: "SurvivalVariable"
             id: "PFS"
             name: "Progression free survival"
-            type: scalar
             duration_variable_id: "PFS DURATION"
             events_variable_id: "PROGRESIÓN EXTRACRANIAL"
         - OS:
-            class_name: "SurvivalVariable"
+            type: "SurvivalVariable"
             id: "OS"
             name: "Overall survival"
-            type: scalar
             duration_variable_id: "OS DURATION"
             events_variable_id: "EXITUS"
         - TFS:
-            class_name: "SurvivalVariable"
+            type: "SurvivalVariable"
             id: "TFS"
             name: "TFS" # TODO: set full name
-            type: scalar
             duration_variable_id: "TFS DURATION"
             events_variable_id: "1L POST"
 
