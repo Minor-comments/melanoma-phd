@@ -36,6 +36,7 @@ class ScalarVariable(BaseVariable):
     ) -> pd.DataFrame:
         if group_by is None:
             series = self.get_series(dataframe=dataframe).dropna()
+            count = series.count()
             median = series.median()
             mean = series.mean()
             std_deviation = series.std()
@@ -43,6 +44,7 @@ class ScalarVariable(BaseVariable):
             max = series.max()
             return pd.DataFrame(
                 data={
+                    "n": count,
                     "median": median,
                     "mean": mean,
                     "std": std_deviation,
