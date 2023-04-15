@@ -18,12 +18,21 @@ class VariableSelector:
         if variable_types and isinstance(variable_types, Type):
             variable_types = [variable_types]
         variables_to_select = []
-        for database_sheet in self._database.sheets:
-            for variable in database_sheet.variables:
-                if variable_types and not any(
-                    isinstance(variable, variable_type) for variable_type in variable_types
-                ) or not variable.selectable:
-                    continue
+        for variable in self._database.variables:
+            if all(
+                [
+                    variable.selectable,
+                    any(
+                        [
+                            not variable_types,
+                            any(
+                                isinstance(variable, variable_type)
+                                for variable_type in variable_types
+                            ),
+                        ]
+                    ),
+                ]
+            ):
                 variables_to_select.append(variable)
         return variables_to_select
 

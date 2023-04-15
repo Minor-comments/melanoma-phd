@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 import os
 import re
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import pandas as pd
 import yaml
@@ -13,12 +14,17 @@ from packaging.version import Version
 from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
+from melanoma_phd.config.IterationConfigGenerator import IterationConfigGenerator
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.source.DriveFileRepository import (DriveFileRepository,
-                                                              DriveFileRepositoryConfig,
-                                                              DriveVersionFileInfo)
+from melanoma_phd.database.source.DriveFileRepository import (
+    DriveFileRepository,
+    DriveFileRepositoryConfig,
+    DriveVersionFileInfo,
+)
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.IterationVariable import IterationVariable
+from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
 from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
 
@@ -62,6 +68,27 @@ class PatientDatabase:
             if variable.id == variable_id:
                 return variable
         raise ValueError(f"'{variable_id}' variable identifier not found!")
+
+    def get_variables_by_type(
+        self, types: Union[Type[BaseVariable], List[Type[BaseVariable]]]
+    ) -> List[BaseVariable]:
+        if types and isinstance(types, Type):
+            types = [types]
+        return [
+            variable
+            for variable in self.variables
+            if any([isinstance(variable, variable_type) for variable_type in types])
+        ]
+
+    def get_iteration_variables_of(
+        self, reference_variable: ReferenceIterationVariable
+    ) -> List[BaseVariable]:
+        iteration_variables = self.get_variables_by_type(IterationVariable)
+        return [
+            variable
+            for variable in iteration_variables
+            if variable.reference_variable == reference_variable
+        ]
 
     def reload(self) -> None:
         self.__load()
@@ -206,31 +233,71 @@ class PatientDatabase:
     def __load_sheet_variables(
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
     ) -> List[BaseVariable]:
-        variables = []
         config_variables = {}
         if config:
-            for variable in [
-                VariableFactory().create(dataframe=dataframe, **list(variable_config.values())[0])
-                for variable_config in config
-            ]:
-                config_variables[variable.id] = variable
-
-        for column in dataframe:
-            if column in config_variables.keys():
-                variables.append(config_variables[column])
-            else:
-                new_variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
-                if new_variable:
-                    variables.append(new_variable)
+            config_variables = self.__create_variables_from_config(
+                dataframe=dataframe, config=config
+            )
+        variables: List[BaseVariable] = list(config_variables.values())
+        missing_columns = [column for column in dataframe if column not in config_variables.keys()]
+        for column in missing_columns:
+            new_variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
+            if new_variable:
+                variables.append(new_variable)
         return variables
+
+    def __create_variables_from_config(
+        self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
+    ) -> Dict[str, BaseVariable]:
+        created_variables: Dict[str, BaseVariable] = {}
+        for variable_config in config:
+            if IterationConfigGenerator.is_iteration(variable_config):
+                iterated_variable_configs = IterationConfigGenerator.generate_iterated(
+                    variable_config
+                )
+                iterated_variables = []
+                for variable in [
+                    VariableFactory().create(
+                        dataframe=dataframe, **list(variable_config.values())[0]
+                    )
+                    for variable_config in iterated_variable_configs
+                ]:
+                    created_variables[variable.id] = variable
+                    iterated_variables.append(variable)
+                (
+                    iteration_variable_config,
+                    reference_variable_id,
+                ) = IterationConfigGenerator.generate_iteration(variable_config)
+                if reference_variable_id:
+                    reference_variable = created_variables[reference_variable_id]
+                    iteration_variable, dataframe = VariableFactory().create_iteration(
+                        dataframe=dataframe,
+                        reference_variable=reference_variable,
+                        iterated_variables=iterated_variables,
+                        **list(iteration_variable_config.values())[0],
+                    )
+                    created_variables[iteration_variable.id] = iteration_variable
+                else:
+                    reference_variable, dataframe = VariableFactory().create_reference_iteration(
+                        dataframe=dataframe,
+                        iterated_variables=iterated_variables,
+                        **list(iteration_variable_config.values())[0],
+                    )
+                    created_variables[reference_variable.id] = reference_variable
+            else:
+                variable = VariableFactory().create(
+                    dataframe=dataframe, **list(variable_config.values())[0]
+                )
+                created_variables[variable.id] = variable
+        return created_variables
 
     def __load_sheet_dynamic_variables(
         self, config: List[Dict[Any, Any]], dataframe: pd.DataFrame
     ) -> Tuple[List[BaseVariable], pd.DataFrame]:
-        new_variables = []
+        new_variables: List[BaseVariable] = []
         for variable_config in config:
             new_variable, dataframe = VariableFactory().create_dynamic(
                 dataframe=dataframe, **list(variable_config.values())[0]
             )
             new_variables.append(new_variable)
-        return [new_variables, dataframe]
+        return (new_variables, dataframe)

@@ -16,6 +16,7 @@ from melanoma_phd.database.filter.PatientDataFilterer import (
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.IterationVariable import IterationVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
 from streamlit_app.table.CsvTable import CsvTable
@@ -65,7 +66,13 @@ if __name__ == "__main__":
 
         st.subheader("Variable selection")
         selected_variables = select_variables(
-            app, variable_types=[ScalarVariable, CategoricalVariable, BooleanVariable]
+            app,
+            variable_types=[
+                ScalarVariable,
+                CategoricalVariable,
+                BooleanVariable,
+                IterationVariable,
+            ],
         )
         st.header("Descriptive Statistcs")
         if selected_variables:

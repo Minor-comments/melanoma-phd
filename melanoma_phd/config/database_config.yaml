@@ -662,6 +662,17 @@ sections:
       sheets:
         - "BASE PARAMETROS SANGRE"
       variables:
+        - n. patient:
+            id: "N. PACIENTE"
+            name: "N. PACIENTE"
+            type: categorical
+            selectable: false
+
+        - n. historic:
+            id: "N. HISTORIA"
+            name: "N. HISTORIA"
+            type: categorical
+            selectable: false
   
   - lf_dna_populations_database:
       name: "POBLACIONES LF-DNA"
@@ -670,17 +681,712 @@ sections:
         - "BASE POBLACIONES LF-DNA (5-8)"
         - "BASE POBLACIONES LF-DNA (9y10)"
       variables:
+        - n. patient:
+            id: "N. PACIENTE"
+            name: "N. PACIENTE"
+            type: categorical
+            selectable: false
+        - n. historic:
+            id: "N. HISTORIA"
+            name: "N. HISTORIA"
+            type: categorical
+            selectable: false
+        - tiempo it(1..10):
+            id: "TIEMPO IT{N}"
+            name: "TIEMPO IT1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: false
+            _iteration_type: ReferenceIterationVariable
+        - limfos totals(1..10):
+            id: "Limfos totals ({N})"
+            name: "Limfos totals 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - T(CD3+)(1..10):
+            id: "T(CD3+)({N})"
+            name: "T(CD3+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - T(CD3+)(1..10)Fluo:
+            id: "T(CD3+)({N})Fluo "
+            name: "T(CD3+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - T(CD3+CD4+)(1..10):
+            id: "T(CD3+CD4+)({N})"
+            name: "T(CD3+CD4+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - T(CD3+CD4+)(1..10)Fluo:
+            id: "T(CD3+CD4+)({N})Fluo"
+            name: "T(CD3+CD4+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - T(CD3+CD8+)(1..10):
+            id: "T(CD3+CD8+)({N})"
+            name: "T(CD3+CD8+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - T(CD3+CD8+)(1..10)Fluo:
+            id: "T(CD3+CD8+)({N})Fluo"
+            name: "T(CD3+CD8+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - LB(CD19+)(1..10):
+            id: "LB(CD19+)({N})"
+            name: "LB(CD19+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - LB(CD19+)(1..10)Fluo:
+            id: "LB(CD19+)({N})Fluo"
+            name: "LB(CD19+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - NK(CD16/56+)(1..10):
+            id: "NK(CD16/56+)({N})"
+            name: "NK(CD16/56+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - NK(CD16/56+)(1..10)Fluo:
+            id: "NK(CD16/56+)({N})Fluo"
+            name: "NK(CD16/56+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - TACT(1..10):
+            id: "TACT({N})"
+            name: "TACT 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - TACT(1..10)Fluo:
+            id: "TACT({N})Fluo"
+            name: "TACTFluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - DN(1..10):
+            id: "DN ({N})"
+            name: "DN 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - CD4+/CD8+(1..10):
+            id: "CD4+/CD8+({N})"
+            name: "CD4+/CD8+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - naïve(CD3+CCR7+CD45A+)(1..10):
+            id: "naïve(CD3+CCR7+CD45A+)({N})"
+            name: "naïve(CD3+CCR7+CD45A+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - naïve(CD3+CCR7+CD45A+)(1..10)Fluo:
+            id: "naïve(CD3+CCR7+CD45A+)({N})Fluo"
+            name: "naïve(CD3+CCR7+CD45A+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CCR7+CD45RO+)(1..10):
+            id: "mem central(CD3+CCR7+CD45RO+)({N})"
+            name: "mem central(CD3+CCR7+CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CCR7+)(1..10)Fluo:
+            id: "mem central(CD3+CCR7+)({N})Fluo"
+            name: "mem central(CD3+CCR7+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD45RO+)(1..10)Fluo:
+            id: "mem central(CD3+CD45RO+)({N})Fluo"
+            name: "mem central(CD3+CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CCR7-CD45RO+)(1..10):
+            id: "mem efectora(CD3+CCR7-CD45RO+)({N})"
+            name: "mem efectora(CD3+CCR7-CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CCR7-CD45RO+)(1..10)Fluo:
+            id: "mem efectora(CD3+CCR7-CD45RO+)({N})Fluo"
+            name: "mem efectora(CD3+CCR7-CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD4+CCR7+CD45A+)(1..10):
+            id: "naïve(CD3+CD4+CCR7+CD45A+)({N})"
+            name: "naïve(CD3+CD4+CCR7+CD45A+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD4+CCR7+CD45A+)(1..10)Fluo:
+            id: "naïve(CD3+CD4+CCR7+CD45A+)({N})Fluo"
+            name: "naïve(CD3+CD4+CCR7+CD45A+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD4+CCR7+CD45RO+)(1..10):
+            id: "mem central(CD3+CD4+CCR7+CD45RO+)({N})"
+            name: "mem central(CD3+CD4+CCR7+CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD4+CCR7+)(1..10)Fluo:
+            id: "mem central(CD3+CD4+CCR7+)({N})Fluo"
+            name: "mem central(CD3+CD4+CCR7+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD4+CD45RO+)(1..10)Fluo:
+            id: "mem central(CD3+CD4+CD45RO+)({N})Fluo"
+            name: "mem central(CD3+CD4+CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD4+CCR7-CD45RO+)(1..10):
+            id: "mem efectora(CD3+CD4+CCR7-CD45RO+)({N})"
+            name: "mem efectora(CD3+CD4+CCR7-CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD4+CCR7-CD45RO+)(1..10)Fluo:
+            id: "mem efectora(CD3+CD4+CCR7-CD45RO+)({N})Fluo"
+            name: "mem efectora(CD3+CD4+CCR7-CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD8+CCR7+CD45A+)(1..10):
+            id: "naïve(CD3+CD8+CCR7+CD45A+)({N})"
+            name: "naïve(CD3+CD8+CCR7+CD45A+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD8+CCR7+CD45A+)(1..10)Fluo:
+            id: "naïve(CD3+CD8+CCR7+CD45A+)({N})Fluo"
+            name: "naïve(CD3+CD8+CCR7+CD45A+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD8+CCR7+CD45RO+)(1..10):
+            id: "mem central(CD3+CD8+CCR7+CD45RO+) ({N})"
+            name: "mem central(CD3+CD8+CCR7+CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD8+CCR7+)(1..10)Fluo:
+            id: "mem central(CD3+CD8+CCR7+)({N})Fluo"
+            name: "mem central(CD3+CD8+CCR7+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD8+CD45RO+)(1..10)Fluo:
+            id: "mem central(CD3+CD8+CD45RO+)({N})Fluo"
+            name: "mem central(CD3+CD8+CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD8+CCR7-CD45RO+)(1..10):
+            id: "mem efectora(CD3+CD8+CCR7-CD45RO+)({N})"
+            name: "mem efectora(CD3+CD8+CCR7-CD45RO+) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD8+CCR7-CD45RO+)(1..10)Fluo:
+            id: "mem efectora(CD3+CD8+CCR7-CD45RO+)({N})Fluo"
+            name: "mem efectora(CD3+CD8+CCR7-CD45RO+)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Treg(CD3+CD4+CD25+FOXP3)(1..10):
+            id: "Treg(CD3+CD4+CD25+FOXP3)({N})"
+            name: "Treg(CD3+CD4+CD25+FOXP3) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Treg(CD3+CD4+CD25+FOXP3)(1..10)Fluo:
+            id: "Treg(CD3+CD4+CD25+FOXP3)({N})Fluo"
+            name: "Treg(CD3+CD4+CD25+FOXP3)Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CTLA4+(1..10):
+            id: "CTLA4+({N})"
+            name: "CTLA4+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CTLA4+(1..10)Fluo:
+            id: "CTLA4+({N})Fluo"
+            name: "CTLA4+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PDL1+(1..10):
+            id: "PDL1+({N})"
+            name: "PDL1+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PDL1+(1..10)Fluo:
+            id: "PDL1+({N})Fluo"
+            name: "PDL1+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD25+(1..10):
+            id: "CD25+({N})"
+            name: "CD25+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD25+(1..10)Fluo:
+            id: "CD25+({N})Fluo"
+            name: "CD25+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - HLA-DR+(1..10):
+            id: "HLA-DR+({N})"
+            name: "HLA-DR+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - HLA-DR+(1..10)Fluo:
+            id: "HLA-DR+({N})Fluo"
+            name: "HLA-DR+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD40L+(1..10):
+            id: "CD40L+({N})"
+            name: "CD40L+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD40L+(1..10)Fluo:
+            id: "CD40L+({N})Fluo"
+            name: "CD40L+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD62L+(1..10):
+            id: "CD62L+({N})"
+            name: "CD62L+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD62L+(1..10)Fluo:
+            id: "CD62L+({N})Fluo"
+            name: "CD62L+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD69+(1..10):
+            id: "CD69+({N})"
+            name: "CD69+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD69+(1..10)Fluo:
+            id: "CD69+({N})Fluo"
+            name: "CD69+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PD1+(1..10):
+            id: "PD1+({N})"
+            name: "PD1+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PD1+(1..10)Fluo:
+            id: "PD1+({N})Fluo"
+            name: "PD1+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Ki67+(1..10):
+            id: "Ki67+({N})"
+            name: "Ki67+ 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Ki67+(1..10)Fluo:
+            id: "Ki67+({N})Fluo"
+            name: "Ki67+Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - T(CD3+) Abs(1..10):
+            id: "T(CD3+) Abs ({N})"
+            name: "T(CD3+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - T(CD3+CD4+) Abs(1..10):
+            id: "T(CD3+CD4+) Abs ({N})"
+            name: "T(CD3+CD4+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - T(CD3+CD8+) Abs(1..10):
+            id: "T(CD3+CD8+) Abs ({N})"
+            name: "T(CD3+CD8+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - LB(CD19+) Abs(1..10):
+            id: "LB(CD19+) Abs ({N})"
+            name: "LB(CD19+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - NK(CD16/56+) Abs(1..10):
+            id: "NK(CD16/56+) Abs ({N})"
+            name: "NK(CD16/56+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - TACT Abs(1..10):
+            id: "TACT Abs ({N})"
+            name: "TACT Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - DN Abs(1..10):
+            id: "DN Abs ({N})"
+            name: "DN Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CCR7+CD45A+) Abs(1..10):
+            id: "naïve(CD3+CCR7+CD45A+) Abs ({N})"
+            name: "naïve(CD3+CCR7+CD45A+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CCR7+CD45RO+) Abs(1..10):
+            id: "mem central(CD3+CCR7+CD45RO+) Abs ({N})"
+            name: "mem central(CD3+CCR7+CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CCR7-CD45RO+) Abs(1..10):
+            id: "mem efectora(CD3+CCR7-CD45RO+) Abs ({N})"
+            name: "mem efectora(CD3+CCR7-CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD4+CCR7+CD45A+) Abs(1..10):
+            id: "naïve(CD3+CD4+CCR7+CD45A+) Abs ({N})"
+            name: "naïve(CD3+CD4+CCR7+CD45A+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD4+CCR7+CD45RO+) Abs(1..10):
+            id: "mem central(CD3+CD4+CCR7+CD45RO+) Abs ({N})"
+            name: "mem central(CD3+CD4+CCR7+CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD4+CCR7-CD45RO+) Abs(1..10):
+            id: "mem efectora(CD3+CD4+CCR7-CD45RO+) Abs ({N})"
+            name: "mem efectora(CD3+CD4+CCR7-CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - naïve(CD3+CD8+CCR7+CD45A+) Abs(1..10):
+            id: "naïve(CD3+CD8+CCR7+CD45A+) Abs ({N})"
+            name: "naïve(CD3+CD8+CCR7+CD45A+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem central(CD3+CD8+CCR7+CD45RO+) Abs(1..10):
+            id: "mem central(CD3+CD8+CCR7+CD45RO+) Abs ({N})"
+            name: "mem central(CD3+CD8+CCR7+CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - mem efectora(CD3+CD8+CCR7-CD45RO+) Abs(1..10):
+            id: "mem efectora(CD3+CD8+CCR7-CD45RO+) Abs ({N})"
+            name: "mem efectora(CD3+CD8+CCR7-CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Treg(CD3+CD4+CD25+FOXP3) Abs(1..10):
+            id: "Treg(CD3+CD4+CD25+FOXP3) Abs ({N})"
+            name: "Treg(CD3+CD4+CD25+FOXP3) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CTLA4+ Abs(1..10):
+            id: "CTLA4+ Abs ({N})"
+            name: "CTLA4+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PDL1+ Abs(1..10):
+            id: "PDL1+ Abs ({N})"
+            name: "PDL1+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD25+ Abs(1..10):
+            id: "CD25+ Abs ({N})"
+            name: "CD25+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - HLA-DR+ Abs(1..10):
+            id: "HLA-DR+ Abs ({N})"
+            name: "HLA-DR+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD40L+ Abs(1..10):
+            id: "CD40L+ Abs ({N})"
+            name: "CD40L+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD62L+ Abs(1..10):
+            id: "CD62L+ Abs ({N})"
+            name: "CD62L+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - CD69+ Abs(1..10):
+            id: "CD69+ Abs ({N})"
+            name: "CD69+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - PD1+ Abs(1..10):
+            id: "PD1+ Abs ({N})"
+            name: "PD1+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - Ki67+ Abs(1..10):
+            id: "Ki67+ Abs ({N})"
+            name: "Ki67+ Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
 
   - radiological_tests_database:
       name: "PRUEBAS RADIOLÓGICAS"
       sheets:
         - "BASE PRUEBAS RADIOLÓGICAS"
       variables:
+        - n. patient:
+            id: "N. PACIENTE"
+            name: "N. PACIENTE"
+            type: categorical
+            selectable: false
+
+        - n. historic:
+            id: "N. HISTORIA"
+            name: "N. HISTORIA"
+            type: categorical
+            selectable: false
 
   - ap_ampliation_database:
       name: "AMPLIADA AP"
       sheets:
         - "BASE AMPLIADA AP"
       variables:
+        - n. patient:
+            id: "N. PACIENTE"
+            name: "N. PACIENTE"
+            type: categorical
+            selectable: false
+
+        - n. historic:
+            id: "N. HISTORIA"
+            name: "N. HISTORIA"
+            type: categorical
+            selectable: false
         
 

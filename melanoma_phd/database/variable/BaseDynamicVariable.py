@@ -37,9 +37,10 @@ class BaseDynamicVariable(BaseVariable):
         return None
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
-        raise NotImplementedError(
-            f"'get_series' method not implemented in dynamic variable '{self.id}'"
-        )
+        if self.id in dataframe:
+            return super().get_series(dataframe)
+        else:
+            raise NotImplementedError(f"'{self.id}' dynamic variable does not create any series")
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         pass

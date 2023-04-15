@@ -1,24 +1,23 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type
 
 import pandas as pd
-from pandas.core.dtypes.common import (
-    is_bool_dtype,
-    is_datetime64_any_dtype,
-    is_datetime64tz_dtype,
-    is_float_dtype,
-    is_integer_dtype,
-    is_string_dtype,
-)
+from pandas.core.dtypes.common import (is_bool_dtype, is_datetime64_any_dtype,
+                                       is_datetime64tz_dtype, is_float_dtype, is_integer_dtype,
+                                       is_string_dtype)
 
+from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariableConfig
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
-from melanoma_phd.database.variable.CategoricalVariable import (
-    CategoricalVariable,
-    CategoricalVariableConfig,
-)
+from melanoma_phd.database.variable.CategoricalVariable import (CategoricalVariable,
+                                                                CategoricalVariableConfig)
 from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariable, DateTimeVariableConfig
+from melanoma_phd.database.variable.IteratedVariable import IteratedVariable, IteratedVariableConfig
+from melanoma_phd.database.variable.IterationVariable import (IterationVariable,
+                                                              IterationVariableConfig)
+from melanoma_phd.database.variable.ReferenceIterationVariable import (
+    ReferenceIterationVariable, ReferenceIterationVariableConfig)
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable, ScalarVariableConfig
 from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable, SurvivalVariableConfig
 
@@ -44,10 +43,17 @@ class VariableFactory:
             VariableType.DATETIME.value: VariableFactoryClass(
                 class_type=DateTimeVariable, config_type=DateTimeVariableConfig
             ),
+            VariableType.ITERATED.value: VariableFactoryClass(
+                class_type=IteratedVariable, config_type=IteratedVariableConfig
+            ),
         }
         # So far, use a known set of dyanmic variables to create
         dynamic_classes = [
-            VariableFactoryClass(class_type=SurvivalVariable, config_type=SurvivalVariableConfig)
+            VariableFactoryClass(
+                class_type=ReferenceIterationVariable, config_type=ReferenceIterationVariableConfig
+            ),
+            VariableFactoryClass(class_type=IterationVariable, config_type=IterationVariableConfig),
+            VariableFactoryClass(class_type=SurvivalVariable, config_type=SurvivalVariableConfig),
         ]
         self._dynamic_classes: Dict[str, VariableFactoryClass] = {}
         for factory_class in dynamic_classes:
@@ -89,6 +95,53 @@ class VariableFactory:
             return new_variable, dataframe
         else:
             raise NameError(f"'{type}' dynamic variable class name not found!")
+
+    def create_dynamic_from_config(
+        self,
+        dataframe: pd.DataFrame,
+        type: str,
+        config: BaseDynamicVariableConfig,
+    ) -> Tuple[BaseVariable, pd.DataFrame]:
+        if type in self._dynamic_classes:
+            factory_class = self._dynamic_classes[type]
+            new_variable = factory_class.class_type(config=config)
+            new_variable.init_from_dataframe(dataframe)
+            series = new_variable.create_new_series(dataframe)
+            if series is not None:
+                dataframe[new_variable.id] = series
+            return new_variable, dataframe
+        else:
+            raise NameError(f"'{type}' dynamic variable class name not found!")
+
+    def create_reference_iteration(
+        self,
+        dataframe: pd.DataFrame,
+        type: str,
+        iterated_variables: List[IteratedVariable],
+        **kwargs,
+    ) -> Tuple[BaseVariable, pd.DataFrame]:
+        return self.create_dynamic(
+            dataframe=dataframe,
+            type=type,
+            iterated_variables=iterated_variables,
+            **kwargs,
+        )
+
+    def create_iteration(
+        self,
+        dataframe: pd.DataFrame,
+        type: str,
+        reference_variable: ReferenceIterationVariable,
+        iterated_variables: List[IteratedVariable],
+        **kwargs,
+    ) -> Tuple[BaseVariable, pd.DataFrame]:
+        return self.create_dynamic(
+            dataframe=dataframe,
+            type=type,
+            reference_variable=reference_variable,
+            iterated_variables=iterated_variables,
+            **kwargs,
+        )
 
     def create_from_series(self, dataframe: pd.DataFrame, id: str) -> Optional[BaseVariable]:
         series = dataframe[id]

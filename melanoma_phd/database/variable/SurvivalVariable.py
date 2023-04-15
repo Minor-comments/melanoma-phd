@@ -12,7 +12,6 @@ from melanoma_phd.database.variable.BaseDynamicVariable import (
     BaseDynamicVariableConfig,
 )
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 
 
 class SurvivalVariableConfig(BaseDynamicVariableConfig):
