@@ -31,6 +31,9 @@ class IterationFilter(BaseFilter):
         filter_dataframe = self._reference_variable.get_filter_dataframe(
             dataframe=dataframe, interval=interval
         )
+        mask_series = filter_dataframe.any(skipna=True, axis=1)
+        dataframe = dataframe.loc[mask_series]
+        filter_dataframe = filter_dataframe.loc[mask_series]
         for iteration_variable in self._iteration_variables:
             dataframe = iteration_variable.filter(
                 dataframe=dataframe, filter_dataframe=filter_dataframe

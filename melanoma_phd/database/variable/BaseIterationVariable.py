@@ -90,8 +90,9 @@ class BaseIterationVariable(BaseDynamicVariable):
         iterated_variable_ids = [varable.id for varable in self._iterated_variables]
         iterated_filter_dataframe = deepcopy(filter_dataframe)
         iterated_filter_dataframe.columns = iterated_variable_ids
+        filtered_dataframe = deepcopy(dataframe)
         for iterated_variable_id in iterated_variable_ids:
-            dataframe[iterated_variable_id].where(
+            filtered_dataframe.loc[:, iterated_variable_id].where(
                 iterated_filter_dataframe[iterated_variable_id], inplace=True
             )
-        return dataframe
+        return filtered_dataframe
