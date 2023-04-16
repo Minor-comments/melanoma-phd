@@ -42,9 +42,11 @@ def select_filters(app: AppLoader) -> List[Filter]:
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
             RangeSliderFilter(
                 filter=IterationFilter(
-                    name="Extraction time (time in moths)",
+                    name="Extraction time (time in months)",
                     reference_variable=reference_iteration_variable,
-                    iteration_variables=app.database.get_iteration_variables_of(reference_variable=reference_iteration_variable)
+                    iteration_variables=app.database.get_iteration_variables_of(
+                        reference_variable=reference_iteration_variable
+                    ),
                 ),
                 min_value=0,
                 max_value=None,

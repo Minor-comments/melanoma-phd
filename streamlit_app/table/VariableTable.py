@@ -16,12 +16,12 @@ class VariableTable:
         ]
 
     def __rows_variable(self, variable: BaseVariable, statistics: pd.DataFrame) -> List[List[Any]]:
-        name = variable.name + " [" + " ".join(list(statistics.columns)) + "]"
+        name = variable.name + " [" + " / ".join(list(statistics.columns)) + "]"
         rows = []
         for i in range(0, len(statistics.index)):
             row_values = [value for value in statistics.iloc[i, :] if value]
             row_name = name if i == 0 else ""
             value_name = statistics.index[i] if statistics.index[i] != 0 or i != 0 else ""
-            row = [row_name, value_name, "  ".join([str(row_value) for row_value in row_values])]
+            row = [row_name, value_name, " / ".join([str(row_value) for row_value in row_values])]
             rows.append(row)
         return rows
