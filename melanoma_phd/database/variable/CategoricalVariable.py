@@ -5,6 +5,7 @@ import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
 
 @dataclass
@@ -83,7 +84,12 @@ class CategoricalVariable(BaseVariable):
             )
         percent = series.value_counts(normalize=True)
         percent100 = percent.mul(100).round(1)
-        return pd.DataFrame({"n": counts, "%": percent100})
+        return pd.DataFrame(
+            {
+                StatisticFieldName.COUNT.value: counts,
+                StatisticFieldName.PERCENTAGE.value: percent100,
+            }
+        )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)

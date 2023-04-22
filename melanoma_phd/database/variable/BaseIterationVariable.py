@@ -9,6 +9,7 @@ from melanoma_phd.database.variable.BaseDynamicVariable import (
 )
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.IteratedVariable import IteratedVariable
+from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
 
 class BaseIterationVariableConfig(BaseDynamicVariableConfig):
@@ -76,12 +77,12 @@ class BaseIterationVariable(BaseDynamicVariable):
         max = series.max()
         return pd.DataFrame(
             data={
-                "n": count,
-                "median": median,
-                "mean": mean,
-                "std": std_deviation,
-                "min": min,
-                "max": max,
+                StatisticFieldName.COUNT.value: count,
+                StatisticFieldName.MEDIAN.value: median,
+                StatisticFieldName.MEAN.value: mean,
+                StatisticFieldName.STD_DEVIATION.value: std_deviation,
+                StatisticFieldName.MIN_VALUE.value: min,
+                StatisticFieldName.MAX_VALUE.value: max,
             },
             index=[0],
         )

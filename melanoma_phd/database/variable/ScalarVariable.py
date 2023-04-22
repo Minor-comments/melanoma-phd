@@ -5,6 +5,7 @@ import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
 
 @dataclass
@@ -51,12 +52,12 @@ class ScalarVariable(BaseVariable):
             max = series.max()
             return pd.DataFrame(
                 data={
-                    "n": count,
-                    "median": median,
-                    "mean": mean,
-                    "std": std_deviation,
-                    "min": min,
-                    "max": max,
+                    StatisticFieldName.COUNT.value: count,
+                    StatisticFieldName.MEDIAN.value: median,
+                    StatisticFieldName.MEAN.value: mean,
+                    StatisticFieldName.STD_DEVIATION.value: std_deviation,
+                    StatisticFieldName.MIN_VALUE.value: min,
+                    StatisticFieldName.MAX_VALUE.value: max,
                 },
                 index=[0],
             )
@@ -67,7 +68,14 @@ class ScalarVariable(BaseVariable):
                 for group_by_variable in group_by_list
             ]
             return dataframe.groupby(group_by_data)[self.id].agg(
-                ["median", "mean", "std", "min", "max"], dropna=True
+                [
+                    StatisticFieldName.MEDIAN.value,
+                    StatisticFieldName.MEAN.value,
+                    StatisticFieldName.STD_DEVIATION.value,
+                    StatisticFieldName.MIN_VALUE.value,
+                    StatisticFieldName.MAX_VALUE.value,
+                ],
+                dropna=True,
             )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
