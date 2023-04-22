@@ -18,6 +18,7 @@ from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.IterationVariable import IterationVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.visualizer.PiePlotter import PiePlotter
 from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
 from streamlit_app.table.CsvTable import CsvTable
 from streamlit_app.table.MarkdownTable import MarkdownTable
@@ -51,6 +52,16 @@ def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
         return
 
 
+def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
+    variable_names_to_plot = ["T(CD3+)({N})", "LB(CD19+)({N})", "NK(CD16/56+)({N})"]
+    variables_to_plot = dict(
+        (variable, statistics)
+        for variable, statistics in variables_statistics.items()
+        if variable.id in variable_names_to_plot
+    )
+    st.pyplot(PiePlotter().plot(variable_statistics=variables_to_plot))
+
+
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
     st.title("Melanoma PHD Statistics")
@@ -82,5 +93,6 @@ if __name__ == "__main__":
 
             download_statistics(variables_statistics)
             plot_statistics(variables_statistics)
+            plot_figures(variables_statistics)
         else:
             st.text("Select variables to analyze :)")
