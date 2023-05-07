@@ -3,9 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Union
 
 import pandas as pd
+
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 
 PValue = float
 
@@ -15,13 +17,15 @@ class VariableType(Enum):
     CATEGORICAL = "categorical"
     BOOLEAN = "boolean"
     DATETIME = "datetime"
+    ITERATED = "iterated"
 
 
 @dataclass
 class BaseVariable(ABC):
-    def __init__(self, id: str, name: str) -> None:
-        self.id: str = id
-        self.name: str = name
+    def __init__(self, config: BaseVariableConfig) -> None:
+        self.id: str = config.id
+        self.name: str = config.name
+        self.selectable: bool = config.selectable
         self.unique_id: Optional[str] = None
 
     def __hash__(self) -> int:

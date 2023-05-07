@@ -9,12 +9,13 @@ import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
-from melanoma_phd.database.filter.MultiScalarFilter import MultiScalarFilter
+from melanoma_phd.database.filter.IterationFilter import IterationFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
-from streamlit_app.filter.MultiSelectBinFilter import MultiSelectBinFilter
+from streamlit_app.filter.Filter import Filter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
+from streamlit_app.filter.RangeSliderFilter import RangeSliderFilter
 from streamlit_app.VariableSelector import VariableSelector
 
 
@@ -31,39 +32,24 @@ def create_database_section(app: AppLoader) -> None:
         st.dataframe(app.database.dataframe)
 
 
-def select_filters(app: AppLoader) -> List[MultiSelectFilter]:
+def select_filters(app: AppLoader) -> List[Filter]:
     with st.sidebar.form("Patients Filter"):
         # TODO: Create filter factory from .yaml file
-        filters = [
+        reference_iteration_variable = app.database.get_variable("TIEMPO IT{N}")
+        filters: List[Filter] = [
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
-            MultiSelectBinFilter(
-                filter=MultiScalarFilter(
-                    name="Extraction time",
-                    variables=[
-                        app.database.get_variable("TIEMPO IT1"),
-                        app.database.get_variable("TIEMPO IT2"),
-                        app.database.get_variable("TIEMPO IT3"),
-                        app.database.get_variable("TIEMPO IT4"),
-                        app.database.get_variable("TIEMPO IT5"),
-                        app.database.get_variable("TIEMPO IT6"),
-                        app.database.get_variable("TIEMPO IT7"),
-                        app.database.get_variable("TIEMPO IT8"),
-                        app.database.get_variable("TIEMPO IT9"),
-                        app.database.get_variable("TIEMPO IT10"),
-                    ],
+            RangeSliderFilter(
+                filter=IterationFilter(
+                    name="Extraction time (time in months)",
+                    reference_variable=reference_iteration_variable,
+                    iteration_variables=app.database.get_iteration_variables_of(
+                        reference_variable=reference_iteration_variable
+                    ),
                 ),
-                bins={
-                    "0-2 months": "[0, 2]",
-                    "3-5 months": "[3, 5]",
-                    "6-8 months": "[6, 8]",
-                    "9-11 months": "[9, 11]",
-                    "12-14 months": "[12, 14]",
-                    "15-17 months": "[15, 17]",
-                    "18-20 months": "[18, 20]",
-                    "21-24 months": "[21, 24]",
-                },
+                min_value=0,
+                max_value=None,
             ),
         ]
         for filter in filters:

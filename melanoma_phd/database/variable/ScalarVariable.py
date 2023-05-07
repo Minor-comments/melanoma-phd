@@ -1,16 +1,22 @@
+from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
-import scipy.stats as stats
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable, PValue
-from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
+
+
+@dataclass
+class ScalarVariableConfig(BaseVariableConfig):
+    pass
 
 
 class ScalarVariable(BaseVariable):
-    def __init__(self, id: str, name: str) -> None:
-        super().__init__(id=id, name=name)
+    def __init__(self, config: ScalarVariableConfig) -> None:
+        super().__init__(config=config)
         self._interval: Optional[pd.Interval] = None
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
@@ -39,6 +45,7 @@ class ScalarVariable(BaseVariable):
     ) -> pd.DataFrame:
         if group_by is None:
             series = self.get_series(dataframe=dataframe).dropna()
+            count = series.count()
             median = series.median()
             mean = series.mean()
             std_deviation = series.std()
@@ -46,11 +53,12 @@ class ScalarVariable(BaseVariable):
             max = series.max()
             return pd.DataFrame(
                 data={
-                    "median": median,
-                    "mean": mean,
-                    "std": std_deviation,
-                    "min": min,
-                    "max": max,
+                    StatisticFieldName.COUNT.value: count,
+                    StatisticFieldName.MEDIAN.value: median,
+                    StatisticFieldName.MEAN.value: mean,
+                    StatisticFieldName.STD_DEVIATION.value: std_deviation,
+                    StatisticFieldName.MIN_VALUE.value: min,
+                    StatisticFieldName.MAX_VALUE.value: max,
                 },
                 index=[0],
             )
@@ -61,7 +69,14 @@ class ScalarVariable(BaseVariable):
                 for group_by_variable in group_by_list
             ]
             return dataframe.groupby(group_by_data)[self.id].agg(
-                ["median", "mean", "std", "min", "max"], dropna=True
+                [
+                    StatisticFieldName.MEDIAN.value,
+                    StatisticFieldName.MEAN.value,
+                    StatisticFieldName.STD_DEVIATION.value,
+                    StatisticFieldName.MIN_VALUE.value,
+                    StatisticFieldName.MAX_VALUE.value,
+                ],
+                dropna=True,
             )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:

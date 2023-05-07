@@ -1,20 +1,40 @@
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
+
+
+@dataclass
+class CategoricalVariableConfig(BaseVariableConfig):
+    categories: Optional[Dict[Union[int, float, str], str]] = None
 
 
 class CategoricalVariable(BaseVariable):
-    def __init__(self, id: str, name: str, categories: Dict[Union[int, float, str], str]) -> None:
-        super().__init__(id=id, name=name)
-        self._categories = categories
+    def __init__(self, config: CategoricalVariableConfig) -> None:
+        super().__init__(config=config)
+        self._categories = config.categories
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
+        if not self._categories:
+            series = super().get_series(dataframe=dataframe)
+            unique_values = list(series.dropna().unique())
+            self._categories = dict(zip(unique_values, unique_values))
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         series = super().get_series(dataframe=dataframe)
+        categories_values = list(self._categories.keys())
+        series_unique_values = list(series.dropna().unique())
+        if set(categories_values).issuperset(series_unique_values):
+            raise ValueError(
+                f"{self.id} categories are not present in {self._categories} variable categories"
+            )
+        if type(categories_values[0]) != type(series_unique_values[0]):
+            return series.astype(type(categories_values[0])).map(self._categories)
         return series.map(self._categories)
 
     def get_numeric_series(self, dataframe: pd.DataFrame) -> pd.Series:
@@ -79,7 +99,12 @@ class CategoricalVariable(BaseVariable):
             )
         percent = series.value_counts(normalize=True)
         percent100 = percent.mul(100).round(1)
-        return pd.DataFrame({"n": counts, "%": percent100})
+        return pd.DataFrame(
+            {
+                StatisticFieldName.COUNT.value: counts,
+                StatisticFieldName.PERCENTAGE.value: percent100,
+            }
+        )
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)

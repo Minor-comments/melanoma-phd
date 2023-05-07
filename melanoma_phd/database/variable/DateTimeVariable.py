@@ -1,14 +1,20 @@
-from datetime import datetime
+from dataclasses import dataclass
 from typing import Any, List, Optional, Union
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+
+
+@dataclass
+class DateTimeVariableConfig(BaseVariableConfig):
+    pass
 
 
 class DateTimeVariable(BaseVariable):
-    def __init__(self, id: str, name: str) -> None:
-        super().__init__(id=id, name=name)
+    def __init__(self, config: DateTimeVariableConfig) -> None:
+        super().__init__(config=config)
         self._interval: Optional[pd.Interval] = None
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
