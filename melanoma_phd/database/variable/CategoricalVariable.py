@@ -17,6 +17,13 @@ class CategoricalVariable(BaseVariable):
         series = super().get_series(dataframe=dataframe)
         return series.map(self._categories)
 
+    def get_numeric_series(self, dataframe: pd.DataFrame) -> pd.Series:
+        series = self.get_series(dataframe=dataframe)
+        if str(series.dtype) in ["object", "category"]:
+            unique = series.unique()
+            return series.map({value: i for i, value in enumerate(unique)}).astype(int)
+        return series
+
     @property
     def category_names(self) -> List[str]:
         return list(self._categories.values())

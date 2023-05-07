@@ -41,7 +41,7 @@ class DriveFileRepositoryConfig:
     """Filter if a file inside Drive repository folder is considered a file version or not by its file name.
     It should Return the version of the file or None if the file is not included as file version set.
     """
-    filter: Callable[[str], Version]
+    filter: Callable[[str], Optional[Version]]
 
 
 class DriveFileRepository:

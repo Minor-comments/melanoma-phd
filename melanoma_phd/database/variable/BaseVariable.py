@@ -3,9 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
+
+PValue = float
 
 
 class VariableType(Enum):
@@ -47,3 +49,9 @@ class BaseVariable(ABC):
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         if self.id not in dataframe.columns:
             raise ValueError(f"'{self.id}' not present in dataframe")
+
+    def _get_non_na_data(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+        if isinstance(data, pd.DataFrame):
+            return self.get_series(dataframe=data).dropna()
+        else:
+            return data

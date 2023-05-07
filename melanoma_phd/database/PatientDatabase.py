@@ -14,9 +14,11 @@ from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.source.DriveFileRepository import (DriveFileRepository,
-                                                              DriveFileRepositoryConfig,
-                                                              DriveVersionFileInfo)
+from melanoma_phd.database.source.DriveFileRepository import (
+    DriveFileRepository,
+    DriveFileRepositoryConfig,
+    DriveVersionFileInfo,
+)
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.VariableFactory import VariableFactory
@@ -51,6 +53,10 @@ class PatientDatabase:
 
     @property
     def dataframe(self) -> pd.DataFrame:
+        if self._dataframe is None:
+            raise ValueError(
+                f"Database has not been loaded. Please review code to ensure the process is working as expected"
+            )
         return self._dataframe
 
     @property
@@ -120,7 +126,7 @@ class PatientDatabase:
 
     def __get_latest_version_file(
         self, google_service_account_info: Dict[str, str], drive_folder_id: str
-    ) -> DriveVersionFileInfo:
+    ) -> Optional[DriveVersionFileInfo]:
         config = DriveFileRepositoryConfig(
             google_service_account_info=google_service_account_info,
             drive_folder_id=drive_folder_id,
@@ -184,13 +190,18 @@ class PatientDatabase:
         sheet_names = config["sheets"]
         dataframe = None
         for sheet_name in sheet_names:
-            sheet_dataframe = pd.read_excel(io=database_file, sheet_name=sheet_name)
+            sheet_dataframe: pd.DataFrame = pd.read_excel(io=database_file, sheet_name=sheet_name)
             if dataframe is not None:
                 dataframe = dataframe.merge(sheet_dataframe, how="inner")
             else:
                 dataframe = sheet_dataframe
 
-        dataframe = dataframe[dataframe[self._index_variable_name].notna()]
+        if dataframe is None:
+            raise ValueError("Sheets not found in config file")
+        if self._index_variable_name is None:
+            raise ValueError("Index variable name not found in config")
+
+        dataframe = dataframe.loc[dataframe[self._index_variable_name].notna()]
         dataframe.name = databae_sheet_name
         variables_config = config["variables"]
         variables = self.__load_sheet_variables(dataframe, variables_config)
@@ -216,6 +227,7 @@ class PatientDatabase:
                 config_variables[variable.id] = variable
 
         for column in dataframe:
+            column = str(column)
             if column in config_variables.keys():
                 variables.append(config_variables[column])
             else:
@@ -233,4 +245,4 @@ class PatientDatabase:
                 dataframe=dataframe, **list(variable_config.values())[0]
             )
             new_variables.append(new_variable)
-        return [new_variables, dataframe]
+        return new_variables, dataframe
