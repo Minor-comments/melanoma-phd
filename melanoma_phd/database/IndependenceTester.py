@@ -25,6 +25,8 @@ class IndependenceTester:
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
     ) -> PValue:
         first_variable, second_variable = self._order_variables(variable, other_variable)
+        first_variable.init_from_dataframe(dataframe=dataframe)
+        second_variable.init_from_dataframe(dataframe=dataframe)
         first_series = first_variable._get_non_na_data(data=dataframe)
         second_series = second_variable._get_non_na_data(data=dataframe)
         if isinstance(first_variable, ScalarVariable):
@@ -72,12 +74,8 @@ class IndependenceTester:
 
     def table(self, dataframe: pd.DataFrame, variables: List[BaseVariable]) -> pd.DataFrame:
         return pd.DataFrame(
-            {
-                "Variable": [v.name for v in variables],
-                "Correlation": [
-                    self.test(dataframe, v1, v2) for v2 in variables for v1 in variables
-                ],
-            },
+            [[self.test(dataframe, v1, v2) for v2 in variables] for v1 in variables],
+            columns=[v.name for v in variables],
             index=[v.name for v in variables],
         )
 

@@ -34,7 +34,9 @@ class BaseVariable(ABC):
     @abstractmethod
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         self._check_valid_id(dataframe)
-        self.unique_id = f"{dataframe.name}.{self.id}"
+        self.unique_id = (
+            f"{dataframe.name}.{self.id}" if hasattr(dataframe, "name") else f"{self.id}"
+        )
 
     @abstractmethod
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:

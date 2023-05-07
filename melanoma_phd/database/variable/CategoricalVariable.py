@@ -29,9 +29,9 @@ class CategoricalVariable(BaseVariable):
         series = super().get_series(dataframe=dataframe)
         categories_values = list(self._categories.keys())
         series_unique_values = list(series.dropna().unique())
-        if set(categories_values).issuperset(series_unique_values):
+        if not set(categories_values).issuperset(series_unique_values):
             raise ValueError(
-                f"{self.id} categories are not present in {self._categories} variable categories"
+                f"{series_unique_values} categories are not present in {categories_values} variable categories for `{self.id}`"
             )
         if type(categories_values[0]) != type(series_unique_values[0]):
             return series.astype(type(categories_values[0])).map(self._categories)
