@@ -8,12 +8,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlotter
-from streamlit_app.AppLoader import (
-    AppLoader,  # isort: skip <- Force to be after workaround
-    create_database_section,
-    select_filters,
-    select_variables,
-)
+from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
+
+from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
 
 if __name__ == "__main__":
     st.title("Melanoma Survival variables")
@@ -27,8 +24,12 @@ if __name__ == "__main__":
             st.text(f"{len(df_result.index)} patients match with selected filters")
             st.dataframe(df_result)
 
-        st.subheader("Variable selection")
-        selected_variables = select_variables(app, variable_types=CategoricalVariable)
+        st.subheader("Categorical Group By selection")
+        selected_variables = select_variables(
+            app,
+            variable_types=CategoricalVariable,
+            displayed_title="Categorical Group By variables",
+        )
         if not selected_variables:
             selected_variables = None
         elif len(selected_variables) == 1:
