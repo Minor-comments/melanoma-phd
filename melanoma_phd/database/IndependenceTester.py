@@ -70,6 +70,17 @@ class IndependenceTester:
             f"Combination of `{variable.__class__.__name__}` and `{other_variable.__class__.__name__}` variable types is not supported"
         )
 
+    def table(self, dataframe: pd.DataFrame, variables: List[BaseVariable]) -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "Variable": [v.name for v in variables],
+                "Correlation": [
+                    self.test(dataframe, v1, v2) for v2 in variables for v1 in variables
+                ],
+            },
+            index=[v.name for v in variables],
+        )
+
     def _order_variables(self, *variables: BaseVariable) -> Tuple[BaseVariable, ...]:
         already_ordered_index = set()
         ordered_variables = []
