@@ -653,7 +653,7 @@ sections:
         - TFS:
             type: "SurvivalVariable"
             id: "TFS"
-            name: "TFS" # TODO: set full name
+            name: "Treatment free survival"
             duration_variable_id: "TFS DURATION"
             events_variable_id: "1L POST"
 

@@ -5,13 +5,22 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from streamlit_app.AppLoader import AppLoader, create_database_section, select_filters, select_variables, download_statistics, plot_figures, plot_statistics  # isort: skip <- Force to be after workaround
-from melanoma_phd.database.filter.PatientDataFilterer import \
-    PatientDataFilterer  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.filter.PatientDataFilterer import (
+    PatientDataFilterer,
+)  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.IterationVariable import IterationVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from streamlit_app.AppLoader import (
+    AppLoader,  # isort: skip <- Force to be after workaround
+    create_database_section,
+    download_statistics,
+    plot_figures,
+    plot_statistics,
+    select_filters,
+    select_variables,
+)
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
@@ -36,11 +45,20 @@ if __name__ == "__main__":
                 IterationVariable,
             ],
         )
+
+        st.subheader("Categorical Group By selection")
+        selected_group_by_variables = select_variables(
+            app,
+            variable_types=CategoricalVariable,
+            displayed_title="Categorical Group By variables",
+        )
         st.header("Descriptive Statistcs")
-        if selected_variables:
+        if selected_variables and selected_group_by_variables:
             variables_statistics = {}
             for variable in selected_variables:
-                variables_statistics[variable] = variable.descriptive_statistics(df_result)
+                variables_statistics[variable] = variable.descriptive_statistics(
+                    df_result, group_by_id=selected_group_by_variables
+                )
 
             download_statistics(variables_statistics)
             plot_statistics(variables_statistics)

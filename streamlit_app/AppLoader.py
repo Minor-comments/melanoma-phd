@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
+from itertools import islice
 from types import TracebackType
-from typing import Dict, List, Optional, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Type, Union
 
+import pandas as pd
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
@@ -13,9 +14,13 @@ from melanoma_phd.database.filter.IterationFilter import IterationFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
+from melanoma_phd.visualizer.PiePlotter import PiePlotter
 from streamlit_app.filter.Filter import Filter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
 from streamlit_app.filter.RangeSliderFilter import RangeSliderFilter
+from streamlit_app.table.CsvTable import CsvTable
+from streamlit_app.table.MarkdownTable import MarkdownTable
+from streamlit_app.table.VariableTable import VariableTable
 from streamlit_app.VariableSelector import VariableSelector
 
 
@@ -61,13 +66,15 @@ def select_filters(app: AppLoader) -> List[Filter]:
 def select_variables(
     app: AppLoader,
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
+    displayed_title: Optional[str] = None,
 ) -> List[BaseVariable]:
     uploaded_file = st.file_uploader(label="Upload a variable selection ⬆️", type=["json"])
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
         VariableSelector.select_variables_from_file(file_contents)
     selected_variables = []
-    with st.expander("Variables to select"):
+    displayed_title = displayed_title or "Variables to select"
+    with st.expander(displayed_title):
         selector = VariableSelector(app.database)
         variables_to_select = selector.get_variables_to_select(variable_types)
         st.checkbox(
@@ -98,6 +105,42 @@ def select_variables(
             )
         return selected_variables
 
+
+def batched_dict(iterable: Dict[Any, Any], chunk_size: int) -> Iterator[Any]:
+    iterator = iter(iterable)
+    for i in range(0, len(iterable), chunk_size):
+        yield {key: iterable[key] for key in islice(iterator, chunk_size)}
+
+
+def download_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
+    table = VariableTable(variables_statistics)
+    csv_creator = CsvTable(table)
+    csv_contents = csv_creator.dumps()
+    file_name = "descriptive_statistics" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+    st.download_button(label="Download as CSV ⬇️ ", data=csv_contents, file_name=file_name)
+
+
+def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
+    MAX_VARIABLES_TABLE = 100
+    for variables_statistics_chunk in batched_dict(variables_statistics, MAX_VARIABLES_TABLE):
+        table = VariableTable(variables_statistics_chunk)
+        markdown_table = MarkdownTable(table)
+        st.markdown(markdown_table.dumps(), unsafe_allow_html=True)
+        if len(variables_statistics) > MAX_VARIABLES_TABLE:
+            st.markdown(
+                f"📃 :orange[Only displaying the first {MAX_VARIABLES_TABLE} variables for performance issues.]"
+            )
+        return
+
+
+def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
+    variable_names_to_plot = ["T(CD3+)({N})", "LB(CD19+)({N})", "NK(CD16/56+)({N})"]
+    variables_to_plot = dict(
+        (variable, statistics)
+        for variable, statistics in variables_statistics.items()
+        if variable.id in variable_names_to_plot
+    )
+    st.pyplot(PiePlotter().plot(variable_statistics=variables_to_plot))
 
 class AppLoader:
     def __init__(self) -> None:
