@@ -5,19 +5,27 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from melanoma_phd.database.filter.PatientDataFilterer import \
-    PatientDataFilterer  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.filter.PatientDataFilterer import (
+    PatientDataFilterer,
+)  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.IterationVariable import IterationVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from streamlit_app.AppLoader import (
+    create_database_section,
+    download_statistics,
+    plot_figures,
+    plot_statistics,
+    select_filters,
+    select_variables,
+)
+
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
-from streamlit_app.AppLoader import (create_database_section, download_statistics, plot_figures,
-                                     plot_statistics, select_filters, select_variables)
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
-    st.title("Melanoma PHD Statistics")
+    st.title("Melanoma PHD Group By Statistics")
     with AppLoader() as app:
         create_database_section(app)
 
@@ -31,6 +39,7 @@ if __name__ == "__main__":
         st.subheader("Variable selection")
         selected_variables = select_variables(
             app,
+            "Descriptive statistics",
             variable_types=[
                 ScalarVariable,
                 CategoricalVariable,
@@ -41,6 +50,7 @@ if __name__ == "__main__":
         st.subheader("Categorical Group By selection")
         selected_group_by_variables = select_variables(
             app,
+            "Categorical Group By",
             variable_types=CategoricalVariable,
             displayed_title="Categorical Group By variables",
         )

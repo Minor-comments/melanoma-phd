@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 import re
-from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -16,11 +15,9 @@ from packaging.version import parse as version_parse
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.config.IterationConfigGenerator import IterationConfigGenerator
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.source.DriveFileRepository import (
-    DriveFileRepository,
-    DriveFileRepositoryConfig,
-    DriveVersionFileInfo,
-)
+from melanoma_phd.database.source.DriveFileRepository import (DriveFileRepository,
+                                                              DriveFileRepositoryConfig,
+                                                              DriveVersionFileInfo)
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.IterationVariable import IterationVariable
@@ -28,11 +25,14 @@ from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceI
 from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
 
-@dataclass
-class IntegrityError:
-    source_sheet: str
-    target_sheet: str
-    column: str
+class IntegrityError(Exception):
+    def __init__(self, source_sheet: str, target_sheet: str, columns: List[str]) -> None:
+        self.source_sheet: str = source_sheet
+        self.target_sheet: str = target_sheet
+        self.columns: List[str] = columns
+        super().__init__(
+            f"Source sheet '{source_sheet}' has different column data {columns} in comparison to target sheet '{target_sheet}'!"
+        )
 
 
 class PatientDatabase:
@@ -97,22 +97,16 @@ class PatientDatabase:
     def reload(self) -> None:
         self.__load()
 
-    def check_data_integrity(self) -> List[IntegrityError]:
-        errors: List[IntegrityError] = []
-        if not self.sheets:
-            return errors
-        first_sheet = self.sheets[0]
-        for sheet in self.sheets[1:]:
-            same_columns = first_sheet.dataframe.columns.intersection(sheet.dataframe.columns)
-            for column in same_columns:
-                if not first_sheet.dataframe[column].equals(sheet.dataframe[column]):
-                    errors.append(
-                        IntegrityError(
-                            source_sheet=first_sheet.name, target_sheet=sheet.name, column=column
-                        )
-                    )
+    def __check_equal_column_data(
+        self, left_dataframe: pd.DataFrame, right_dataframe: pd.DataFrame
+    ) -> List[str]:
+        not_equal_columns: List[str] = []
+        same_columns = left_dataframe.columns.intersection(right_dataframe.columns)
+        for column in same_columns:
+            if not left_dataframe[column].equals(right_dataframe[column]):
+                not_equal_columns.append(column)
 
-        return errors
+        return not_equal_columns
 
     def __load(self) -> None:
         database_file_path = os.path.join(
@@ -206,17 +200,37 @@ class PatientDatabase:
             if self._dataframe is None:
                 self._dataframe = sheet.dataframe
             else:
+                not_equal_columns = self.__check_equal_column_data(
+                    left_dataframe=self._dataframe, right_dataframe=sheet.dataframe
+                )
+                if not_equal_columns:
+                    raise IntegrityError(
+                        source_sheet=sheet.name,
+                        target_sheet="top dataframe",
+                        columns=not_equal_columns,
+                    )
                 self._dataframe = self._dataframe.merge(
-                    sheet.dataframe, how="inner", validate="1:1"
+                    sheet.dataframe,
+                    how="inner",
+                    validate="1:1",
                 )
 
     def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
-        databae_sheet_name = config["name"]
+        database_sheet_name = config["name"]
         sheet_names = config["sheets"]
         dataframe = None
         for sheet_name in sheet_names:
             sheet_dataframe: pd.DataFrame = pd.read_excel(io=database_file, sheet_name=sheet_name)
             if dataframe is not None:
+                not_equal_columns = self.__check_equal_column_data(
+                    left_dataframe=dataframe, right_dataframe=sheet_dataframe
+                )
+                if not_equal_columns:
+                    raise IntegrityError(
+                        source_sheet=sheet_name,
+                        target_sheet=database_sheet_name,
+                        columns=not_equal_columns,
+                    )
                 dataframe = dataframe.merge(sheet_dataframe, how="inner")
             else:
                 dataframe = sheet_dataframe
@@ -227,7 +241,7 @@ class PatientDatabase:
             raise ValueError("Index variable name not found in config")
 
         dataframe = dataframe.loc[dataframe[self._index_variable_name].notna()]
-        dataframe.name = databae_sheet_name
+        dataframe.name = database_sheet_name
         variables_config = config["variables"]
         variables = self.__load_sheet_variables(dataframe, variables_config)
 
@@ -237,7 +251,7 @@ class PatientDatabase:
                 config=variables_config, dataframe=dataframe
             )
             variables.extend(dynamic_variables)
-        return DatabaseSheet(name=databae_sheet_name, dataframe=dataframe, variables=variables)
+        return DatabaseSheet(name=database_sheet_name, dataframe=dataframe, variables=variables)
 
     def __load_sheet_variables(
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
@@ -262,44 +276,50 @@ class PatientDatabase:
     ) -> Dict[str, BaseVariable]:
         created_variables: Dict[str, BaseVariable] = {}
         for variable_config in config:
-            if IterationConfigGenerator.is_iteration(variable_config):
-                iterated_variable_configs = IterationConfigGenerator.generate_iterated(
-                    variable_config
-                )
-                iterated_variables = []
-                for variable in [
-                    VariableFactory().create(
+            errors: List[str] = []
+            try:
+                if IterationConfigGenerator.is_iteration(variable_config):
+                    iterated_variable_configs = IterationConfigGenerator.generate_iterated(
+                        variable_config
+                    )
+                    iterated_variables = []
+                    for variable in [
+                        VariableFactory().create(
+                            dataframe=dataframe, **list(variable_config.values())[0]
+                        )
+                        for variable_config in iterated_variable_configs
+                    ]:
+                        created_variables[variable.id] = variable
+                        iterated_variables.append(variable)
+                    (
+                        iteration_variable_config,
+                        reference_variable_id,
+                    ) = IterationConfigGenerator.generate_iteration(variable_config)
+                    if reference_variable_id:
+                        reference_variable = created_variables[reference_variable_id]
+                        iteration_variable, dataframe = VariableFactory().create_iteration(
+                            dataframe=dataframe,
+                            reference_variable=reference_variable,
+                            iterated_variables=iterated_variables,
+                            **list(iteration_variable_config.values())[0],
+                        )
+                        created_variables[iteration_variable.id] = iteration_variable
+                    else:
+                        reference_variable, dataframe = VariableFactory().create_reference_iteration(
+                            dataframe=dataframe,
+                            iterated_variables=iterated_variables,
+                            **list(iteration_variable_config.values())[0],
+                        )
+                        created_variables[reference_variable.id] = reference_variable
+                else:
+                    variable = VariableFactory().create(
                         dataframe=dataframe, **list(variable_config.values())[0]
                     )
-                    for variable_config in iterated_variable_configs
-                ]:
                     created_variables[variable.id] = variable
-                    iterated_variables.append(variable)
-                (
-                    iteration_variable_config,
-                    reference_variable_id,
-                ) = IterationConfigGenerator.generate_iteration(variable_config)
-                if reference_variable_id:
-                    reference_variable = created_variables[reference_variable_id]
-                    iteration_variable, dataframe = VariableFactory().create_iteration(
-                        dataframe=dataframe,
-                        reference_variable=reference_variable,
-                        iterated_variables=iterated_variables,
-                        **list(iteration_variable_config.values())[0],
-                    )
-                    created_variables[iteration_variable.id] = iteration_variable
-                else:
-                    reference_variable, dataframe = VariableFactory().create_reference_iteration(
-                        dataframe=dataframe,
-                        iterated_variables=iterated_variables,
-                        **list(iteration_variable_config.values())[0],
-                    )
-                    created_variables[reference_variable.id] = reference_variable
-            else:
-                variable = VariableFactory().create(
-                    dataframe=dataframe, **list(variable_config.values())[0]
-                )
-                created_variables[variable.id] = variable
+            except ValueError as error:
+                errors.append(str(error))
+        if errors:
+            raise ValueError(f"Database configuration error: the next config variables could not been loaded {errors}")
         return created_variables
 
     def __load_sheet_dynamic_variables(

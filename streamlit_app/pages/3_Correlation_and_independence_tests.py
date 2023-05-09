@@ -5,10 +5,19 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from streamlit_app.AppLoader import AppLoader, create_database_section, select_filters, select_variables, download_statistics, plot_figures, plot_statistics  # isort: skip <- Force to be after workaround
+from streamlit_app.AppLoader import (
+    AppLoader,
+    create_database_section,
+    select_filters,
+    select_variables,
+    download_statistics,
+    plot_figures,
+    plot_statistics,
+)  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.Correlationer import Correlationer
-from melanoma_phd.database.filter.PatientDataFilterer import \
-    PatientDataFilterer  # isort: skip <- Force to be after workaround
+from melanoma_phd.database.filter.PatientDataFilterer import (
+    PatientDataFilterer,
+)  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.IndependenceTester import IndependenceTester
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -30,6 +39,7 @@ if __name__ == "__main__":
         st.subheader("Variable selection")
         selected_variables = select_variables(
             app,
+            "Correlation and Independence analysis",
             variable_types=[
                 ScalarVariable,
                 CategoricalVariable,
@@ -38,18 +48,24 @@ if __name__ == "__main__":
         )
 
         normality_null_hypothesis = st.number_input(
-            "Normality null hypotesis", min_value=0, max_value=1, step=0.01, value=0.05
+            "Normality null hypotesis", min_value=0.0, max_value=1.0, step=0.01, value=0.05
         )
         homogeneity_null_hypothesis = st.number_input(
-            "Homogeneity null hypotesis", min_value=0, max_value=1, step=0.01, value=0.05
+            "Homogeneity null hypotesis", min_value=0.0, max_value=1.0, step=0.01, value=0.05
         )
         if selected_variables:
             st.header("Independence Tests (p-value)")
-            independence_tester = IndependenceTester(normality_null_hypothesis=normality_null_hypothesis, homogeneity_null_hypothesis=homogeneity_null_hypothesis)
+            independence_tester = IndependenceTester(
+                normality_null_hypothesis=normality_null_hypothesis,
+                homogeneity_null_hypothesis=homogeneity_null_hypothesis,
+            )
             independence_table = independence_tester.table(df_result, selected_variables)
             st.dataframe(independence_table)
 
-            correlationer = Correlationer(normality_null_hypothesis=normality_null_hypothesis, homogeneity_null_hypothesis=homogeneity_null_hypothesis)
+            correlationer = Correlationer(
+                normality_null_hypothesis=normality_null_hypothesis,
+                homogeneity_null_hypothesis=homogeneity_null_hypothesis,
+            )
             correlation_table = correlationer.table(df_result, selected_variables)
             st.dataframe(correlation_table)
         else:

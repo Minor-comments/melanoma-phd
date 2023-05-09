@@ -65,10 +65,13 @@ def select_filters(app: AppLoader) -> List[Filter]:
 
 def select_variables(
     app: AppLoader,
+    variable_selection_name: str,
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
     displayed_title: Optional[str] = None,
 ) -> List[BaseVariable]:
-    uploaded_file = st.file_uploader(label="Upload a variable selection ⬆️", type=["json"])
+    uploaded_file = st.file_uploader(
+        label=f"Upload a '{variable_selection_name}' variable selection ⬆️", type=["json"]
+    )
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
         VariableSelector.select_variables_from_file(file_contents)
@@ -78,15 +81,15 @@ def select_variables(
         selector = VariableSelector(app.database)
         variables_to_select = selector.get_variables_to_select(variable_types)
         st.checkbox(
-            label="Select All variables",
-            key="select_all_variables",
+            label=f"Select '{variable_selection_name}' variables",
+            key=f"select_variables_{variable_selection_name}",
             on_change=lambda: selector.select_variables(variables_to_select)
-            if st.session_state["select_all_variables"]
+            if st.session_state[f"select_variables_{variable_selection_name}"]
             else selector.deselect_variables(variables_to_select),
         )
-        with st.form(key="variable_selection_form"):
+        with st.form(key=f"variable_selection_form_{variable_selection_name}"):
             for variable in variables_to_select:
-                st_variable_id = VariableSelector.get_variable_persistent_key(variable)
+                st_variable_id = f"{variable_selection_name}_{VariableSelector.get_variable_persistent_key(variable)}"
                 if st.checkbox(
                     label=f"{variable.name} [{variable.id}]",
                     key=st_variable_id,
@@ -101,7 +104,9 @@ def select_variables(
                 "variable_selection_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".json"
             )
             st.download_button(
-                label="Download variable selection ⬇️ ", data=data_to_save, file_name=file_name
+                label=f"Download '{variable_selection_name}' variable selection ⬇️ ",
+                data=data_to_save,
+                file_name=file_name,
             )
         return selected_variables
 
@@ -141,6 +146,7 @@ def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
         if variable.id in variable_names_to_plot
     )
     st.pyplot(PiePlotter().plot(variable_statistics=variables_to_plot))
+
 
 class AppLoader:
     def __init__(self) -> None:

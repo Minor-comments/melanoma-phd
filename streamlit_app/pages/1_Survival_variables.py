@@ -27,6 +27,7 @@ if __name__ == "__main__":
         st.subheader("Categorical Group By selection")
         selected_variables = select_variables(
             app,
+            "Categorical Group By",
             variable_types=CategoricalVariable,
             displayed_title="Categorical Group By variables",
         )
