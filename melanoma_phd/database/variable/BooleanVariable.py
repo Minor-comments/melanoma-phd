@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict, Optional, Union
 
 from melanoma_phd.database.variable.CategoricalVariable import (
     CategoricalVariable,

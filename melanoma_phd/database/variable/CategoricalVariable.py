@@ -27,7 +27,22 @@ class CategoricalVariable(BaseVariable):
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         series = super().get_series(dataframe=dataframe)
+        categories_values = list(self._categories.keys())
+        series_unique_values = list(series.dropna().unique())
+        if not set(categories_values).issuperset(series_unique_values):
+            raise ValueError(
+                f"{series_unique_values} categories are not present in {categories_values} variable categories for `{self.id}`"
+            )
+        if type(categories_values[0]) != type(series_unique_values[0]):
+            return series.astype(type(categories_values[0])).map(self._categories)
         return series.map(self._categories)
+
+    def get_numeric_series(self, dataframe: pd.DataFrame) -> pd.Series:
+        series = self.get_series(dataframe=dataframe)
+        if str(series.dtype) in ["object", "category"]:
+            unique = series.unique()
+            return series.map({value: i for i, value in enumerate(unique)}).astype(int)
+        return series
 
     @property
     def category_names(self) -> List[str]:

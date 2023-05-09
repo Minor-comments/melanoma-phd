@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
 
@@ -80,3 +81,11 @@ class ScalarVariable(BaseVariable):
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)
+
+    def _get_data_by_categories(
+        self, dataframe: pd.DataFrame, category_variable: CategoricalVariable
+    ) -> Tuple[pd.Series, ...]:
+        return tuple(
+            self._get_non_na_data(data=data)
+            for _, data in dataframe.groupby(category_variable._get_non_na_data(data=dataframe))
+        )

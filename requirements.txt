@@ -4,6 +4,7 @@ mypy
 
 # type hints from third parties
 pandas-stubs
+types-PyYAML
 
 # streamlit
 streamlit >= 1.18.1
@@ -15,6 +16,8 @@ matplotlib
 pandas >= 1.0
 scikit-survival
 lifelines
+statsmodels
+dython
 
 # config
 pyyaml

@@ -9,6 +9,8 @@ import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 
+PValue = float
+
 
 class VariableType(Enum):
     SCALAR = "scalar"
@@ -32,7 +34,9 @@ class BaseVariable(ABC):
     @abstractmethod
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         self._check_valid_id(dataframe)
-        self.unique_id = f"{dataframe.name}.{self.id}"
+        self.unique_id = (
+            f"{dataframe.name}.{self.id}" if hasattr(dataframe, "name") else f"{self.id}"
+        )
 
     @abstractmethod
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
@@ -51,3 +55,9 @@ class BaseVariable(ABC):
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         if self.id not in dataframe.columns:
             raise ValueError(f"'{self.id}' not present in dataframe")
+
+    def _get_non_na_data(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+        if isinstance(data, pd.DataFrame):
+            return self.get_series(dataframe=data).dropna()
+        else:
+            return data
