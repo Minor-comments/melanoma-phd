@@ -13,6 +13,7 @@ from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.IterationFilter import IterationFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from melanoma_phd.visualizer.PiePlotter import PiePlotter
 from streamlit_app.filter.Filter import Filter
@@ -63,6 +64,18 @@ def select_filters(app: AppLoader) -> List[Filter]:
         return filters
 
 
+def select_group_by(app: AppLoader) -> List[BaseVariable]:
+    with st.sidebar.form("Group by"):
+        selected_group_by = simple_select_variables(
+            app,
+            "Categorical Group By",
+            variable_types=CategoricalVariable,
+            displayed_title="Categorical Group By variables",
+        )
+        st.form_submit_button("Group By")
+        return selected_group_by
+
+
 def select_variables(
     app: AppLoader,
     variable_selection_name: str,
@@ -88,13 +101,9 @@ def select_variables(
             else selector.deselect_variables(variables_to_select),
         )
         with st.form(key=f"variable_selection_form_{variable_selection_name}"):
-            for variable in variables_to_select:
-                st_variable_id = f"{variable_selection_name}_{VariableSelector.get_variable_persistent_key(variable)}"
-                if st.checkbox(
-                    label=f"{variable.name} [{variable.id}]",
-                    key=st_variable_id,
-                ):
-                    selected_variables.append(variable)
+            selected_variables = _generate_selected_variable_checkboxs(
+                variables_to_select, variable_selection_name
+            )
             if st.form_submit_button("Display statistics 📊"):
                 data_to_save = VariableSelector.selected_variables_to_file(selected_variables)
             else:
@@ -109,6 +118,39 @@ def select_variables(
                 file_name=file_name,
             )
         return selected_variables
+
+
+def simple_select_variables(
+    app: AppLoader,
+    variable_selection_name: str,
+    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
+    displayed_title: Optional[str] = None,
+) -> List[BaseVariable]:
+    displayed_title = displayed_title or "Variables to select"
+    with st.expander(displayed_title):
+        selector = VariableSelector(app.database)
+        variables_to_select = selector.get_variables_to_select(variable_types)
+        selected_variables = _generate_selected_variable_checkboxs(
+            variables_to_select, variable_selection_name
+        )
+
+    return selected_variables
+
+
+def _generate_selected_variable_checkboxs(
+    variables: List[BaseVariable], variable_selection_name: str
+) -> List[BaseVariable]:
+    selected_variables = []
+    for variable in variables:
+        st_variable_id = (
+            f"{variable_selection_name}_{VariableSelector.get_variable_persistent_key(variable)}"
+        )
+        if st.checkbox(
+            label=f"{variable.name} [{variable.id}]",
+            key=st_variable_id,
+        ):
+            selected_variables.append(variable)
+    return selected_variables
 
 
 def batched_dict(iterable: Dict[Any, Any], chunk_size: int) -> Iterator[Any]:

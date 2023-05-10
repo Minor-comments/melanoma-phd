@@ -8,7 +8,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlotter
-from streamlit_app.AppLoader import create_database_section, select_filters, select_variables
+from streamlit_app.AppLoader import (create_database_section, select_filters, select_group_by,
+                                     select_variables)
 
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
 
@@ -24,21 +25,15 @@ if __name__ == "__main__":
             st.text(f"{len(df_result.index)} patients match with selected filters")
             st.dataframe(df_result)
 
-        st.subheader("Categorical Group By selection")
-        selected_variables = select_variables(
-            app,
-            "Categorical Group By",
-            variable_types=CategoricalVariable,
-            displayed_title="Categorical Group By variables",
-        )
-        if not selected_variables:
-            selected_variables = None
-        elif len(selected_variables) == 1:
-            selected_variables = selected_variables[0]
+        selected_group_by = select_group_by(app)
+        if not selected_group_by:
+            selected_group_by = None
+        elif len(selected_group_by) == 1:
+            selected_group_by = selected_group_by[0]
 
         survival_plot_config = dict(
             dataframe=df_result,
-            group_by=selected_variables,
+            group_by=selected_group_by,
             alpha=0.05,
             figsize=(10, 6),
             confident_interval=True,

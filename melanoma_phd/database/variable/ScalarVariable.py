@@ -68,7 +68,7 @@ class ScalarVariable(BaseVariable):
                 group_by_variable.get_series(dataframe=dataframe)
                 for group_by_variable in group_by_list
             ]
-            return dataframe.groupby(group_by_data)[self.id].agg(
+            result = dataframe.groupby(group_by_data)[self.id].agg(
                 [
                     StatisticFieldName.MEDIAN.value,
                     StatisticFieldName.MEAN.value,
@@ -76,8 +76,8 @@ class ScalarVariable(BaseVariable):
                     StatisticFieldName.MIN_VALUE.value,
                     StatisticFieldName.MAX_VALUE.value,
                 ],
-                dropna=True,
             )
+            return result
 
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)
