@@ -5,15 +5,6 @@ import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from streamlit_app.AppLoader import (
-    AppLoader,
-    create_database_section,
-    select_filters,
-    select_variables,
-    download_statistics,
-    plot_figures,
-    plot_statistics,
-)  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.Correlationer import Correlationer
 from melanoma_phd.database.filter.PatientDataFilterer import (
     PatientDataFilterer,
@@ -22,6 +13,15 @@ from melanoma_phd.database.IndependenceTester import IndependenceTester
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from streamlit_app.AppLoader import (
+    AppLoader,  # isort: skip <- Force to be after workaround
+    create_database_section,
+    download_statistics,
+    plot_figures,
+    plot_statistics,
+    select_filters,
+    select_variables,
+)
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
@@ -62,6 +62,7 @@ if __name__ == "__main__":
             independence_table = independence_tester.table(df_result, selected_variables)
             st.dataframe(independence_table)
 
+            st.header("Correlation")
             correlationer = Correlationer(
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
