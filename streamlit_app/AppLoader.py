@@ -87,25 +87,29 @@ def select_variables(
     )
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
-        VariableSelector.select_variables_from_file(file_contents)
+        VariableSelector.select_variables_from_file(variable_selection_name, file_contents)
     selected_variables = []
     displayed_title = displayed_title or "Variables to select"
     with st.expander(displayed_title):
         selector = VariableSelector(app.database)
         variables_to_select = selector.get_variables_to_select(variable_types)
         st.checkbox(
-            label=f"Select '{variable_selection_name}' variables",
+            label=f"Select All",
             key=f"select_variables_{variable_selection_name}",
-            on_change=lambda: selector.select_variables(variables_to_select)
+            on_change=lambda: selector.select_variables(
+                variable_selection_name, variables_to_select
+            )
             if st.session_state[f"select_variables_{variable_selection_name}"]
-            else selector.deselect_variables(variables_to_select),
+            else selector.deselect_variables(variable_selection_name, variables_to_select),
         )
         with st.form(key=f"variable_selection_form_{variable_selection_name}"):
             selected_variables = _generate_selected_variable_checkboxs(
                 variables_to_select, variable_selection_name
             )
             if st.form_submit_button("Display statistics 📊"):
-                data_to_save = VariableSelector.selected_variables_to_file(selected_variables)
+                data_to_save = VariableSelector.selected_variables_to_file(
+                    variable_selection_name, selected_variables
+                )
             else:
                 selected_variables = []
         if selected_variables:
@@ -142,8 +146,8 @@ def _generate_selected_variable_checkboxs(
 ) -> List[BaseVariable]:
     selected_variables = []
     for variable in variables:
-        st_variable_id = (
-            f"{variable_selection_name}_{VariableSelector.get_variable_persistent_key(variable)}"
+        st_variable_id = VariableSelector.get_variable_persistent_key(
+            variable_selection_name, variable
         )
         if st.checkbox(
             label=f"{variable.name} [{variable.id}]",
