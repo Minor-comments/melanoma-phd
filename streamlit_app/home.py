@@ -53,18 +53,23 @@ if __name__ == "__main__":
         if selected_variables:
             variables_statistics = {}
             for variable in selected_variables:
-                variables_statistics[variable] = variable.descriptive_statistics(
-                    df_result, group_by=selected_group_by
-                )
-                st.write(
-                    f"{variable.name}"
-                    + (
-                        f" by {[variable.name for variable in selected_group_by]}"
-                        if selected_group_by
-                        else ""
+                try:
+                    variables_statistics[variable] = variable.descriptive_statistics(
+                        df_result, group_by=selected_group_by
                     )
-                )
-                st.dataframe(variables_statistics[variable])
+                    st.write(
+                        f"{variable.name}"
+                        + (
+                            f" by {[variable.name for variable in selected_group_by]}"
+                            if selected_group_by
+                            else ""
+                        )
+                    )
+                    st.dataframe(variables_statistics[variable])
+                except Exception as e:
+                    st.markdown(
+                        f":red[Error generating '{variable.name}' variable statistics: {e}]"
+                    )
 
             download_statistics(variables_statistics)
             plot_statistics(variables_statistics)
