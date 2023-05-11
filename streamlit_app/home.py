@@ -56,7 +56,14 @@ if __name__ == "__main__":
                 variables_statistics[variable] = variable.descriptive_statistics(
                     df_result, group_by=selected_group_by
                 )
-                st.write(f"{variable.name} by {[variable.name for variable in selected_group_by]}")
+                st.write(
+                    f"{variable.name}"
+                    + (
+                        f" by {[variable.name for variable in selected_group_by]}"
+                        if selected_group_by
+                        else ""
+                    )
+                )
                 st.dataframe(variables_statistics[variable])
 
             download_statistics(variables_statistics)
