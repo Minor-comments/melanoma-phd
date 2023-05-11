@@ -43,7 +43,7 @@ class ScalarVariable(BaseVariable):
         group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        if group_by is None:
+        if not group_by:
             series = self.get_series(dataframe=dataframe).dropna()
             count = series.count()
             median = series.median()

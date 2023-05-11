@@ -76,7 +76,7 @@ class CategoricalVariable(BaseVariable):
         **kwargs: Any,
     ) -> pd.DataFrame:
         series = self.get_series(dataframe=dataframe)
-        if group_by is None:
+        if not group_by:
             counts = series.value_counts()
         else:
             new_column = f"_tmp_{self.id}"

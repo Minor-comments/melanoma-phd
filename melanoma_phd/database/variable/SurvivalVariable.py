@@ -59,9 +59,12 @@ class SurvivalVariable(BaseDynamicVariable):
         **kwargs: Any,
     ) -> pd.DataFrame:
         if isinstance(group_by, list):
-            raise NotImplementedError(
-                f"Group by list of variables is not implemented on {self.__class__.__name__}"
-            )
+            if len(group_by) > 1:
+                raise NotImplementedError(
+                    f"Group by list of variables is not implemented on {self.__class__.__name__}"
+                )
+            else:
+                group_by = group_by[0]
 
         group_by_data = group_by.get_series(dataframe=dataframe) if group_by else None
         group_by_id = group_by.id if group_by else None
