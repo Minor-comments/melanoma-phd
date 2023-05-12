@@ -34,7 +34,7 @@ class CategoricalVariable(BaseVariable):
                 f"{series_unique_values} categories are not present in {categories_values} variable categories for `{self.id}`"
             )
         if type(categories_values[0]) != type(series_unique_values[0]):
-            return series.astype(type(categories_values[0])).map(self._categories)
+            return series.dropna().astype(type(categories_values[0])).map(self._categories)
         return series.map(self._categories)
 
     def get_numeric_series(self, dataframe: pd.DataFrame) -> pd.Series:
