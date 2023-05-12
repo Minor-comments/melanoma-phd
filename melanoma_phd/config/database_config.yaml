@@ -1389,5 +1389,14 @@ sections:
             name: "N. HISTORIA"
             type: categorical
             selectable: false
+
+        - mutational_status:
+            id: "MUTATIONAL STATUS"
+            name: "MUTATIONAL STATUS"
+            type: categorical
+            categories:
+              0: "BRAF WT"
+              1: "BRAF V600"
+              2: "NRAS"
         
 
