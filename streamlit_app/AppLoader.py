@@ -46,6 +46,9 @@ def select_filters(app: AppLoader) -> List[Filter]:
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
+            MultiSelectFilter(
+                CategoricalFilter(app.database.get_variable("PROGRESIÓN EXTRACRANIAL"))
+            ),
             RangeSliderFilter(
                 filter=IterationFilter(
                     name="Extraction time (time in months)",
