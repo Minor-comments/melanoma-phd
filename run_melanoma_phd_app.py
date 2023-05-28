@@ -18,10 +18,3 @@ if __name__ == "__main__":
     logger_level = logging.CRITICAL if no_trace else logging.DEBUG if debug_trace else logging.INFO
     logger_file = log_filename if log_filename else APP_LOGGING_FILE_NAME
     app = create_melanoma_phd_app(log_filename=logger_file, log_level=logger_level)
-    errors = app.database.check_data_integrity()
-    if errors:
-        error_string = [
-            f"'{error.column}' | '{error.source_sheet}' - '{error.target_sheet}' values mismatch"
-            for error in errors
-        ]
-        logging.error("DATABASE INTEGRITY ERRORS FOUND!\n" + "\n".join(error_string))

@@ -35,6 +35,9 @@ sections:
               6: "grupo NATERA"
               7: "voluntarios sanos"
               8: "extracción basal (antes de empezar cualquier tratamiento)"
+              9: "no NATERA y grupo 4"
+              10: "no NATERA y grupo 5"
+              11: "no NATERA y grupo 8"
 
         - gender:
             id: "SEXO"
