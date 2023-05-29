@@ -60,6 +60,17 @@ def select_filters(app: AppLoader) -> List[Filter]:
                 min_value=0,
                 max_value=None,
             ),
+            RangeSliderFilter(
+                filter=IterationFilter(
+                    name="Extraction time 2 (time in months)",
+                    reference_variable=reference_iteration_variable,
+                    iteration_variables=app.database.get_iteration_variables_of(
+                        reference_variable=reference_iteration_variable
+                    ),
+                ),
+                min_value=0,
+                max_value=None,
+            ),
         ]
         for filter in filters:
             filter.select()

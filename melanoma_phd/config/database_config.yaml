@@ -934,6 +934,30 @@ sections:
             _iteration_selectable: true
             _iteration_reference_variable_id: "TIEMPO IT{N}"
             _iteration_type: IterationVariable
+        - efectora (CCR7-CD45RO-)(1..10):
+            id: "efectora (CCR7-CD45RO-) ({N})"
+            name: "efectora (CCR7-CD45RO-) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - efectora (CD8+CCR7-CD45RO-)(1..10):
+            id: "efectora (CD8+CCR7-CD45RO-) ({N})"
+            name: "efectora (CD8+CCR7-CD45RO-) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - efectora (CD4+CCR7-CD45RO-) (1..10):
+            id: "efectora (CD4+CCR7-CD45RO-) ({N})"
+            name: "efectora (CD4+CCR7-CD45RO-) 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
         - naïve(CD3+CD8+CCR7+CD45A+)(1..10):
             id: "naïve(CD3+CD8+CCR7+CD45A+)({N})"
             name: "naïve(CD3+CD8+CCR7+CD45A+) 1..10"
@@ -1273,6 +1297,30 @@ sections:
         - mem efectora(CD3+CD8+CCR7-CD45RO+) Abs(1..10):
             id: "mem efectora(CD3+CD8+CCR7-CD45RO+) Abs ({N})"
             name: "mem efectora(CD3+CD8+CCR7-CD45RO+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - efectora (CCR7-CD45RO-)(1..10) Abs:
+            id: "efectora (CCR7-CD45RO-) ({N}) Abs"
+            name: "efectora (CCR7-CD45RO-) 1..10 Abs"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - efectora (CD8+CCR7-CD45RO-)(1..10) Abs:
+            id: "efectora (CD8+CCR7-CD45RO-) ({N}) Abs"
+            name: "efectora (CD8+CCR7-CD45RO-) 1..10 Abs"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - efectora (CD4+CCR7-CD45RO-) (1..10) Abs:
+            id: "efectora (CD4+CCR7-CD45RO-) ({N}) Abs"
+            name: "efectora (CD4+CCR7-CD45RO-) 1..10 Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
