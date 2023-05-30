@@ -202,12 +202,12 @@ def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
     variable_names_to_plot = {
         "T(CD3+)/LB(CD19+)/NK(CD16/56+)": ["T(CD3+)({N})", "LB(CD19+)({N})", "NK(CD16/56+)({N})"],
         "CD4+/CD8+": ["T(CD3+CD4+)({N})", "T(CD3+CD8+)({N})"],
-        "CTLA4+/PDL1+": ["CTLA4+({N})", "", "PDL1+({N})"],
+        "CTLA4+/PDL1+": ["CTLA4+({N})", "PDL1+({N})"],
         "naive/memoria/mem efectora/efectora": [
             "naïve(CD3+CCR7+CD45A+)({N})",
             "mem central(CD3+CCR7+CD45RO+)({N})",
-            "mem efectora(CD3+CCR7-CD45RO+)({N})",
             "efectora (CCR7-CD45RO-) ({N})",
+            "mem efectora(CD3+CCR7-CD45RO+)({N})",
         ],
         "CD69+/HLA-DR+/CD40L+/CD25+/CD62L+": [
             "CD69+({N})",

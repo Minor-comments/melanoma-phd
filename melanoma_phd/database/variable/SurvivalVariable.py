@@ -100,6 +100,14 @@ class SurvivalVariable(BaseDynamicVariable):
 
         return statistics_dataframe
 
+    def format_descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> List[List[str]]:
+        raise NotImplementedError(
+            f"Survival variable '{self.id}' has no format descriptive statistics implementation"
+        )
+
     def calculate_kaplan_meier_fitters(
         self,
         dataframe: pd.DataFrame,

@@ -45,5 +45,13 @@ class DateTimeVariable(BaseVariable):
             f"DateTime variable '{self.id}' has no descriptive statistics implementation"
         )
 
+    def format_descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> List[List[str]]:
+        raise NotImplementedError(
+            f"DateTime variable '{self.id}' has no format descriptive statistics implementation"
+        )
+
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)

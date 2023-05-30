@@ -87,6 +87,18 @@ class BaseIterationVariable(BaseDynamicVariable):
             index=[0],
         )
 
+    def format_descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> List[List[str]]:
+        row_name = f"{self.name}   mean ± std (min-max)"
+        value_name = ""
+        value = (
+            f"{dataframe.iloc[0][StatisticFieldName.MEAN.value]:.2f} ± {dataframe.iloc[0][StatisticFieldName.STD_DEVIATION.value]:.2f}"
+            f" ({dataframe.iloc[0][StatisticFieldName.MIN_VALUE.value]:.2f}-{dataframe.iloc[0][StatisticFieldName.MAX_VALUE.value]:.2f})"
+        )
+        return [[row_name, value_name, value]]
+
     def filter(self, dataframe: pd.DataFrame, filter_dataframe: pd.DataFrame) -> pd.DataFrame:
         iterated_variable_ids = [varable.id for varable in self._iterated_variables]
         iterated_filter_dataframe = deepcopy(filter_dataframe)

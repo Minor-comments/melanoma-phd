@@ -106,5 +106,22 @@ class CategoricalVariable(BaseVariable):
             }
         )
 
+    def format_descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> List[List[str]]:
+        name = f"{self.name}   N (%)"
+        rows: List[List[str]] = []
+        for i in range(0, len(dataframe.index)):
+            row_name = name if i == 0 else ""
+            value_name = str(dataframe.index[i]) if dataframe.index[i] != 0 or i != 0 else ""
+            row = [
+                row_name,
+                value_name,
+                f"{dataframe.iloc[i][StatisticFieldName.COUNT.value]} ({dataframe.iloc[i][StatisticFieldName.PERCENTAGE.value]})",
+            ]
+            rows.append(row)
+        return rows
+
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)

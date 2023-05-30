@@ -52,6 +52,13 @@ class BaseVariable(ABC):
         pass
 
     @abstractmethod
+    def format_descriptive_statistics(
+        self,
+        dataframe: pd.DataFrame,
+    ) -> List[List[str]]:
+        pass
+
+    @abstractmethod
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         if self.id not in dataframe.columns:
             raise ValueError(f"'{self.id}' not present in dataframe")
