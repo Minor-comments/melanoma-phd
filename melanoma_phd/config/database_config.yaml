@@ -830,14 +830,6 @@ sections:
             _iteration_reference_variable_id: "TIEMPO IT{N}"
             _iteration_selectable: true
             _iteration_type: IterationVariable
-        - naïve(CD3+CCR7+CD45A+)(1..10)Fluo:
-            id: "naïve(CD3+CCR7+CD45A+)({N})Fluo"
-            name: "naïve(CD3+CCR7+CD45A+)Fluo 1..10"
-            _iterated_type: iterated
-            _iterated_selectable: false
-            _iteration_selectable: true
-            _iteration_reference_variable_id: "TIEMPO IT{N}"
-            _iteration_type: IterationVariable
         - mem central(CD3+CCR7+CD45RO+)(1..10):
             id: "mem central(CD3+CCR7+CD45RO+)({N})"
             name: "mem central(CD3+CCR7+CD45RO+) 1..10"
@@ -881,14 +873,6 @@ sections:
         - naïve(CD3+CD4+CCR7+CD45A+)(1..10):
             id: "naïve(CD3+CD4+CCR7+CD45A+)({N})"
             name: "naïve(CD3+CD4+CCR7+CD45A+) 1..10"
-            _iterated_type: iterated
-            _iterated_selectable: false
-            _iteration_selectable: true
-            _iteration_reference_variable_id: "TIEMPO IT{N}"
-            _iteration_type: IterationVariable
-        - naïve(CD3+CD4+CCR7+CD45A+)(1..10)Fluo:
-            id: "naïve(CD3+CD4+CCR7+CD45A+)({N})Fluo"
-            name: "naïve(CD3+CD4+CCR7+CD45A+)Fluo 1..10"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -961,14 +945,6 @@ sections:
         - naïve(CD3+CD8+CCR7+CD45A+)(1..10):
             id: "naïve(CD3+CD8+CCR7+CD45A+)({N})"
             name: "naïve(CD3+CD8+CCR7+CD45A+) 1..10"
-            _iterated_type: iterated
-            _iterated_selectable: false
-            _iteration_selectable: true
-            _iteration_reference_variable_id: "TIEMPO IT{N}"
-            _iteration_type: IterationVariable
-        - naïve(CD3+CD8+CCR7+CD45A+)(1..10)Fluo:
-            id: "naïve(CD3+CD8+CCR7+CD45A+)({N})Fluo"
-            name: "naïve(CD3+CD8+CCR7+CD45A+)Fluo 1..10"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true

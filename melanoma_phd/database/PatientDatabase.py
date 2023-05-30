@@ -15,9 +15,11 @@ from packaging.version import parse as version_parse
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.config.IterationConfigGenerator import IterationConfigGenerator
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
-from melanoma_phd.database.source.DriveFileRepository import (DriveFileRepository,
-                                                              DriveFileRepositoryConfig,
-                                                              DriveVersionFileInfo)
+from melanoma_phd.database.source.DriveFileRepository import (
+    DriveFileRepository,
+    DriveFileRepositoryConfig,
+    DriveVersionFileInfo,
+)
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.IterationVariable import IterationVariable
@@ -275,10 +277,10 @@ class PatientDatabase:
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
     ) -> Dict[str, BaseVariable]:
         created_variables: Dict[str, BaseVariable] = {}
+        errors: List[str] = []
         for variable_config in config:
-            errors: List[str] = []
-            try:
-                if IterationConfigGenerator.is_iteration(variable_config):
+            if IterationConfigGenerator.is_iteration(variable_config):
+                try:
                     iterated_variable_configs = IterationConfigGenerator.generate_iterated(
                         variable_config
                     )
@@ -305,21 +307,31 @@ class PatientDatabase:
                         )
                         created_variables[iteration_variable.id] = iteration_variable
                     else:
-                        reference_variable, dataframe = VariableFactory().create_reference_iteration(
+                        (
+                            reference_variable,
+                            dataframe,
+                        ) = VariableFactory().create_reference_iteration(
                             dataframe=dataframe,
                             iterated_variables=iterated_variables,
                             **list(iteration_variable_config.values())[0],
                         )
                         created_variables[reference_variable.id] = reference_variable
-                else:
+                except ValueError as error:
+                    errors.append(
+                        f"Error creating iteration variable '{variable_config}': {str(error)}"
+                    )
+            else:
+                try:
                     variable = VariableFactory().create(
                         dataframe=dataframe, **list(variable_config.values())[0]
                     )
                     created_variables[variable.id] = variable
-            except ValueError as error:
-                errors.append(str(error))
+                except ValueError as error:
+                    errors.append(f"Error creating variable '{variable_config}': {str(error)}")
         if errors:
-            raise ValueError(f"Database configuration error: the next config variables could not been loaded {errors}")
+            raise ValueError(
+                f"Database configuration error: the next config variables could not been loaded {errors}"
+            )
         return created_variables
 
     def __load_sheet_dynamic_variables(
