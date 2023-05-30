@@ -13,7 +13,16 @@ class PiePlotter:
 
     def plot(self, variable_statistics: Dict[ScalarVariable, pd.DataFrame]) -> plt.Figure:
         labels, sizes = self.__get_variable_labels_sizes(variable_statistics)
-        colors = ["#9BBFE0", "#E8A09A", "#FBE29F", "#C6D68F"]
+        colors = [
+            "#9BBFE0",
+            "#E8A09A",
+            "#FBE29F",
+            "#C6D68F",
+            "#809bce",
+            "#d6eadf",
+            "#eac4d5",
+            "#fcf5c7",
+        ]
         figure, axes = plt.subplots()
         axes.pie(x=sizes, labels=labels, autopct="%1.1f%%", startangle=90, colors=colors)
         axes.axis("equal")
