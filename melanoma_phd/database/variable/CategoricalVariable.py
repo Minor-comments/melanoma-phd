@@ -37,8 +37,15 @@ class CategoricalVariable(BaseVariable):
             return series.dropna().astype(type(categories_values[0])).map(self._categories)
         return series.map(self._categories)
 
-    def get_numeric_series(self, dataframe: pd.DataFrame) -> pd.Series:
-        series = self.get_series(dataframe=dataframe)
+    def get_numeric_series(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+        if isinstance(data, pd.Series):
+            series = data
+        else:
+            series = self.get_series(dataframe=data)
+        return self.get_numeric(series=series)
+    
+    @classmethod
+    def get_numeric(cls, series: pd.Series) -> pd.Series:
         if str(series.dtype) in ["object", "category"]:
             unique = series.unique()
             return series.map({value: i for i, value in enumerate(unique)}).astype(int)

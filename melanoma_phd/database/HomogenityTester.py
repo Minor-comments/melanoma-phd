@@ -16,20 +16,32 @@ class HomogenityTester:
         self._null_hypothesis = null_hypothesis
         self._normality_tester = NormalityTester(normality_null_hypothesis)
 
-    def test(self, *series: pd.Series) -> PValue:
+    def test(self, *series: pd.Series) -> bool:
         if self._normality_tester.test_many_series(*series):
-            return stats.bartlett(*series).pvalue >= self._null_hypothesis
+            homogenity_test = stats.bartlett
         else:
-            return stats.levene(*series).pvalue >= self._null_hypothesis
+            homogenity_test = stats.levene
+        try:
+            return homogenity_test(*series).pvalue >= self._null_hypothesis
+        except ValueError as e:
+            raise ValueError(f"Homogenity test failed due to: {e}")
 
     def test_variable(self, data: Union[pd.DataFrame, pd.Series], variable: ScalarVariable) -> bool:
         series = variable._get_non_na_data(data=data)
-        return self.test(series)
+        try:
+            return self.test(series)
+        except ValueError as e:
+            raise ValueError(f"Variable '{variable.name}': {e}")
 
     def test_variables(self, data: pd.DataFrame, *variables: ScalarVariable) -> bool:
         return all(self.test_variable(data, variable=variable) for variable in variables)
-    
-    def test_scalar_with_categorical_variables(self, data: pd.DataFrame, scalar_variable: ScalarVariable, categorical_variable: CategoricalVariable) -> bool:
+
+    def test_scalar_with_categorical_variables(
+        self,
+        data: pd.DataFrame,
+        scalar_variable: ScalarVariable,
+        categorical_variable: CategoricalVariable,
+    ) -> bool:
         series_by_categories = scalar_variable._get_data_by_categories(
             dataframe=data, category_variable=categorical_variable
         )

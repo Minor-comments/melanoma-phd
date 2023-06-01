@@ -95,9 +95,13 @@ class ScalarVariable(BaseVariable):
         return super()._check_valid_id(dataframe)
 
     def _get_data_by_categories(
-        self, dataframe: pd.DataFrame, category_variable: CategoricalVariable
+        self, dataframe: pd.DataFrame, category_variable: CategoricalVariable, remove_nulls: bool = False
     ) -> Tuple[pd.Series, ...]:
+        if remove_nulls:
+            get_data = lambda variable: variable._get_non_na_data
+        else:
+            get_data = lambda variable: variable.get_series
         return tuple(
-            self._get_non_na_data(data=data)
-            for _, data in dataframe.groupby(category_variable._get_non_na_data(data=dataframe))
+            get_data(self)(data)
+            for _, data in dataframe.groupby(get_data(category_variable)(dataframe))
         )

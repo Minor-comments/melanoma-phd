@@ -31,57 +31,69 @@ class Correlationer:
         first_variable, second_variable = self._order_variables(variable, other_variable)
         first_variable.init_from_dataframe(dataframe=dataframe)
         second_variable.init_from_dataframe(dataframe=dataframe)
-        first_series = first_variable._get_non_na_data(data=dataframe)
-        second_series = second_variable._get_non_na_data(data=dataframe)
-        if isinstance(first_variable, ScalarVariable):
-            normal_data = self._normality_tester.test_series(first_series)
-            if isinstance(second_variable, ScalarVariable):
-                normal_data = normal_data and self._normality_tester.test_series(second_series)
-                homogenuos_data = self._homogeneity_tester.test(first_series, second_series)
-                if normal_data and homogenuos_data:
-                    return stats.pearsonr(first_series, second_series).statistic
-                else:
-                    return stats.spearmanr(first_series, second_series).statistic
-            elif isinstance(second_variable, CategoricalVariable):
-                if isinstance(second_variable, BooleanVariable):
-                    return stats.pointbiserialr(
-                        first_series, second_variable.get_numeric_series(dataframe)
-                    ).statistic
-                else:
-                    # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
-                    series_by_categories = first_variable._get_data_by_categories(
-                        dataframe=dataframe, category_variable=second_variable
-                    )
-                    homogenuos_data = self._homogeneity_tester.test(*series_by_categories)
+        first_series, second_series = self._remove_nulls_from_any_serie_to_all(
+            first_variable.get_series(dataframe), second_variable.get_series(dataframe)
+        )
+        try:
+            if isinstance(first_variable, ScalarVariable):
+                normal_data = self._normality_tester.test_series(first_series)
+                if isinstance(second_variable, ScalarVariable):
+                    normal_data = normal_data and self._normality_tester.test_series(second_series)
+                    homogenuos_data = self._homogeneity_tester.test(first_series, second_series)
                     if normal_data and homogenuos_data:
-                        return self._calculate_omega_square(
-                            continuous_series=first_series, categorical_series=second_series
-                        )
+                        return stats.pearsonr(first_series, second_series).statistic
                     else:
-                        return self._calculate_epsilon_squared(
-                            h_statistic=stats.kruskal(*series_by_categories).statistic,
-                            n=len(first_series),
+                        return stats.spearmanr(first_series, second_series).statistic
+                elif isinstance(second_variable, CategoricalVariable):
+                    if isinstance(second_variable, BooleanVariable):
+                        return stats.pointbiserialr(
+                            first_series, CategoricalVariable.get_numeric(second_series)
+                        ).statistic
+                    else:
+                        # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
+                        series_by_categories = first_variable._get_data_by_categories(
+                            dataframe=dataframe,
+                            category_variable=second_variable,
+                            remove_nulls=True,
                         )
-        elif isinstance(first_variable, BooleanVariable) and isinstance(
-            second_variable, CategoricalVariable
-        ):
-            if isinstance(second_variable, BooleanVariable):
-                return matthews_corrcoef(first_series, second_series)
-            elif isinstance(second_variable, CategoricalVariable):
+                        homogenuos_data = self._homogeneity_tester.test(*series_by_categories)
+                        if normal_data and homogenuos_data:
+                            return self._calculate_omega_square(
+                                continuous_series=first_series, categorical_series=second_series
+                            )
+                        else:
+                            return self._calculate_epsilon_squared(
+                                h_statistic=stats.kruskal(*series_by_categories).statistic,
+                                n=len(first_series),
+                            )
+            elif isinstance(first_variable, BooleanVariable) and isinstance(
+                second_variable, CategoricalVariable
+            ):
+                if isinstance(second_variable, BooleanVariable):
+                    return matthews_corrcoef(first_series, second_series)
+                elif isinstance(second_variable, CategoricalVariable):
+                    # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
+                    # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
+                    return theils_u(
+                        *self._remove_nulls_from_any_serie_to_all(
+                            variable.get_series(dataframe),
+                            other_variable.get_series(dataframe),
+                        )
+                    )
+            if isinstance(first_variable, CategoricalVariable):
                 # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
-                # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
-                return theils_u(
-                    variable._get_non_na_data(data=dataframe),
-                    other_variable._get_non_na_data(data=dataframe),
-                )
-        if isinstance(first_variable, CategoricalVariable):
-            # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
-            if isinstance(second_variable, CategoricalVariable):
-                # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
-                return theils_u(
-                    variable._get_non_na_data(data=dataframe),
-                    other_variable._get_non_na_data(data=dataframe),
-                )
+                if isinstance(second_variable, CategoricalVariable):
+                    # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
+                    return theils_u(
+                        *self._remove_nulls_from_any_serie_to_all(
+                            variable.get_series(dataframe),
+                            other_variable.get_series(dataframe),
+                        )
+                    )
+        except ValueError as e:
+            raise ValueError(
+                f"Independence test could not be done for `{variable.name}` and `{other_variable.name}` due to: {e}"
+            )
 
         raise ValueError(
             f"Combination of `{variable.__class__.__name__}` and `{other_variable.__class__.__name__}` variable types is not supported"
@@ -109,6 +121,14 @@ class Correlationer:
             if len(variables) == len(ordered_variables):
                 break
         return tuple(ordered_variables)
+
+    def _remove_nulls_from_any_serie_to_all(self, *series: pd.Series) -> Tuple[pd.Series, ...]:
+        index = series[0].index.values
+        null_mask = series[0].isnull()
+        for serie in series[1:]:
+            assert all(serie.index.values == index), "Indexes of all series must be the same"
+            null_mask |= serie.isnull()
+        return tuple(serie[~null_mask] for serie in series)
 
     def _calculate_omega_square(self, continuous_series: pd.Series, categorical_series: pd.Series):
         anova = self._calculate_anova(
