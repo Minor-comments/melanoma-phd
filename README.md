@@ -13,7 +13,7 @@ python -m pip install -r requirements.txt
 ```
 
 - Install, configrue & recover git secrets for private keys management (ask Marcel for adding you to git secret):
-https://git-secret.io/
+[git-secret](https://sobolevn.me/git-secret/)
 
 ```bash
 git-secret reveal
