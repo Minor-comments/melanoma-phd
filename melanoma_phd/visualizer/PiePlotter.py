@@ -24,8 +24,11 @@ class PiePlotter:
             "#fcf5c7",
         ]
         figure, axes = plt.subplots()
-        axes.pie(x=sizes, labels=labels, autopct="%1.1f%%", startangle=90, colors=colors)
+        patches, _, _ = axes.pie(
+            x=sizes, labels=None, autopct="%1.1f%%", startangle=90, colors=colors
+        )
         axes.axis("equal")
+        plt.legend(patches, labels, loc="lower right", bbox_to_anchor=(1.25, 0))
         return figure
 
     def __get_variable_labels_sizes(
