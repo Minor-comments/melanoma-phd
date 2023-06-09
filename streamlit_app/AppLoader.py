@@ -201,7 +201,7 @@ def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
 def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
     variable_names_to_plot = {
         "T(CD3+)/LB(CD19+)/NK(CD16/56+)": ["T(CD3+)({N})", "LB(CD19+)({N})", "NK(CD16/56+)({N})"],
-        "CD4+/CD8+": ["T(CD3+CD4+)({N})", "T(CD3+CD8+)({N})"],
+        "CD4+/CD8+/DP/DN": ["T(CD3+CD4+)({N})", "T(CD3+CD8+)({N})", "DP ({N})", "DN ({N})"],
         "CTLA4+/PDL1+": ["CTLA4+({N})", "PDL1+({N})"],
         "naive/memoria/mem efectora/efectora": [
             "naïve(CD3+CCR7+CD45A+)({N})",

@@ -758,6 +758,38 @@ sections:
             _iteration_reference_variable_id: "TIEMPO IT{N}"
             _iteration_selectable: true
             _iteration_type: IterationVariable
+        - DP(1..10):
+            id: "DP ({N})"
+            name: "DP 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - DP(1..10)CD4+ Fluo:
+            id: "DP ({N}) CD4+ Fluo"
+            name: "DP CD4+ Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - DN(1..10):
+            id: "DN ({N})"
+            name: "DN 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
+        - DP(1..10)CD8+ Fluo:
+            id: "DP ({N}) CD8+ Fluo"
+            name: "DP CD8+ Fluo 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_selectable: true
+            _iteration_type: IterationVariable
         - LB(CD19+)(1..10):
             id: "LB(CD19+)({N})"
             name: "LB(CD19+) 1..10"
@@ -801,14 +833,6 @@ sections:
         - TACT(1..10)Fluo:
             id: "TACT({N})Fluo"
             name: "TACTFluo 1..10"
-            _iterated_type: iterated
-            _iterated_selectable: false
-            _iteration_reference_variable_id: "TIEMPO IT{N}"
-            _iteration_selectable: true
-            _iteration_type: IterationVariable
-        - DN(1..10):
-            id: "DN ({N})"
-            name: "DN 1..10"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -1169,6 +1193,14 @@ sections:
         - T(CD3+CD8+) Abs(1..10):
             id: "T(CD3+CD8+) Abs ({N})"
             name: "T(CD3+CD8+) Abs 1..10"
+            _iterated_type: iterated
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationVariable
+        - DP (1..10) Abs:
+            id: "DP ({N}) Abs"
+            name: "DP Abs 1..10"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
