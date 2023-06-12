@@ -5,7 +5,7 @@ import scipy.stats as stats
 
 from melanoma_phd.database.HomogenityTester import HomogenityTester
 from melanoma_phd.database.NormalityTester import NormalityTester
-from melanoma_phd.database.variable.BaseVariable import BaseVariable, PValue
+from melanoma_phd.database.variable.BaseVariable import BaseVariable, PValueType
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
@@ -13,7 +13,9 @@ from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 
 class IndependenceTester:
     def __init__(
-        self, normality_null_hypothesis: PValue = 0.05, homogeneity_null_hypothesis: PValue = 0.05
+        self,
+        normality_null_hypothesis: PValueType = 0.05,
+        homogeneity_null_hypothesis: PValueType = 0.05,
     ) -> None:
         self._normality_tester = NormalityTester(null_hypothesis=normality_null_hypothesis)
         self._homogeneity_tester = HomogenityTester(
@@ -23,7 +25,7 @@ class IndependenceTester:
 
     def test(
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
-    ) -> PValue:
+    ) -> PValueType:
         first_variable, second_variable = self._order_variables(variable, other_variable)
         first_variable.init_from_dataframe(dataframe=dataframe)
         second_variable.init_from_dataframe(dataframe=dataframe)
@@ -41,7 +43,7 @@ class IndependenceTester:
                     else:
                         return stats.spearmanr(first_series, second_series).pvalue
                 elif isinstance(second_variable, CategoricalVariable):
-                    series_by_categories = first_variable._get_data_by_categories(
+                    series_by_categories = first_variable.get_data_by_categories(
                         dataframe=dataframe, category_variable=second_variable, remove_nulls=True
                     )
                     homogenuos_data = self._homogeneity_tester.test(*series_by_categories)

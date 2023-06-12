@@ -94,11 +94,14 @@ class ScalarVariable(BaseVariable):
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
         return super()._check_valid_id(dataframe)
 
-    def _get_data_by_categories(
-        self, dataframe: pd.DataFrame, category_variable: CategoricalVariable, remove_nulls: bool = False
+    def get_data_by_categories(
+        self,
+        dataframe: pd.DataFrame,
+        category_variable: CategoricalVariable,
+        remove_nulls: bool = False,
     ) -> Tuple[pd.Series, ...]:
         if remove_nulls:
-            get_data = lambda variable: variable._get_non_na_data
+            get_data = lambda variable: variable.get_non_na_series
         else:
             get_data = lambda variable: variable.get_series
         return tuple(

@@ -3,12 +3,12 @@ from typing import Union
 import pandas as pd
 import scipy.stats as stats
 
-from melanoma_phd.database.variable.BaseVariable import PValue
+from melanoma_phd.database.variable.BaseVariable import PValueType
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 
 
 class NormalityTester:
-    def __init__(self, null_hypothesis: PValue = 0.05) -> None:
+    def __init__(self, null_hypothesis: PValueType = 0.05) -> None:
         self._null_hypothesis = null_hypothesis
 
     def test_series(self, series: pd.Series) -> bool:
@@ -21,7 +21,7 @@ class NormalityTester:
         return all(self.test_series(serie) for serie in series)
 
     def test_variable(self, data: Union[pd.DataFrame, pd.Series], variable: ScalarVariable) -> bool:
-        series = variable._get_non_na_data(data=data)
+        series = variable.get_non_na_series(data=data)
         try:
             return self.test_series(series)
         except ValueError as e:

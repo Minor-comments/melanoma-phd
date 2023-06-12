@@ -9,7 +9,7 @@ import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 
-PValue = float
+PValueType = float
 
 
 class VariableType(Enum):
@@ -63,7 +63,7 @@ class BaseVariable(ABC):
         if self.id not in dataframe.columns:
             raise ValueError(f"'{self.id}' not present in dataframe")
 
-    def _get_non_na_data(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+    def get_non_na_series(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
         if isinstance(data, pd.DataFrame):
             return self.get_series(dataframe=data).dropna()
         else:

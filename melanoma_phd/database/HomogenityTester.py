@@ -4,14 +4,14 @@ import pandas as pd
 import scipy.stats as stats
 
 from melanoma_phd.database.NormalityTester import NormalityTester
-from melanoma_phd.database.variable.BaseVariable import PValue
+from melanoma_phd.database.variable.BaseVariable import PValueType
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 
 
 class HomogenityTester:
     def __init__(
-        self, null_hypothesis: PValue = 0.05, normality_null_hypothesis: PValue = 0.05
+        self, null_hypothesis: PValueType = 0.05, normality_null_hypothesis: PValueType = 0.05
     ) -> None:
         self._null_hypothesis = null_hypothesis
         self._normality_tester = NormalityTester(normality_null_hypothesis)
@@ -27,7 +27,7 @@ class HomogenityTester:
             raise ValueError(f"Homogenity test failed due to: {e}")
 
     def test_variable(self, data: Union[pd.DataFrame, pd.Series], variable: ScalarVariable) -> bool:
-        series = variable._get_non_na_data(data=data)
+        series = variable.get_non_na_series(data=data)
         try:
             return self.test(series)
         except ValueError as e:
@@ -42,7 +42,7 @@ class HomogenityTester:
         scalar_variable: ScalarVariable,
         categorical_variable: CategoricalVariable,
     ) -> bool:
-        series_by_categories = scalar_variable._get_data_by_categories(
+        series_by_categories = scalar_variable.get_data_by_categories(
             dataframe=data, category_variable=categorical_variable
         )
         return self.test(*series_by_categories)
