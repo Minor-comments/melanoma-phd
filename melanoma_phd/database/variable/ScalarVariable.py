@@ -28,9 +28,6 @@ class ScalarVariable(BaseVariable):
             else None
         )
 
-    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
-        return super().get_series(dataframe=dataframe)
-
     @property
     def interval(self) -> pd.Interval:
         if self._interval:

@@ -1,12 +1,10 @@
 from typing import List
 
-import pandas as pd
-
 from melanoma_phd.database.variable.BaseIterationVariable import (
     BaseIterationVariable,
     BaseIterationVariableConfig,
 )
-from melanoma_phd.database.variable.IteratedVariable import IteratedVariable
+from melanoma_phd.database.variable.IteratedVariableStatic import IteratedVariableStatic
 from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
 
 
@@ -16,7 +14,7 @@ class IterationVariableConfig(BaseIterationVariableConfig):
         id: str,
         name: str,
         reference_variable: ReferenceIterationVariable,
-        iterated_variables: List[IteratedVariable],
+        iterated_variables: List[IteratedVariableStatic],
         selectable: bool = True,
     ) -> None:
         super().__init__(

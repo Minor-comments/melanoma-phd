@@ -7,11 +7,11 @@ from lifelines import KaplanMeierFitter
 from lifelines.statistics import StatisticalResult, logrank_test
 from lifelines.utils import median_survival_times
 
-from melanoma_phd.database.variable.BaseDynamicVariable import (
-    BaseDynamicVariable,
-    BaseDynamicVariableConfig,
-)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.VariableDynamicMixin import (
+    BaseDynamicVariableConfig,
+    VariableDynamicMixin,
+)
 
 
 class SurvivalVariableConfig(BaseDynamicVariableConfig):
@@ -39,7 +39,7 @@ class EventsDurations:
     durations: np.ndarray
 
 
-class SurvivalVariable(BaseDynamicVariable):
+class SurvivalVariable(VariableDynamicMixin, BaseVariable):
     def __init__(self, config: SurvivalVariableConfig) -> None:
         super().__init__(config=config)
         self._duration_variable_id = config.duration_variable_id

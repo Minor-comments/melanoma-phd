@@ -2,24 +2,41 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Type
 
 import pandas as pd
-from pandas.core.dtypes.common import (is_bool_dtype, is_datetime64_any_dtype,
-                                       is_datetime64tz_dtype, is_float_dtype, is_integer_dtype,
-                                       is_string_dtype)
+from pandas.core.dtypes.common import (
+    is_bool_dtype,
+    is_datetime64_any_dtype,
+    is_datetime64tz_dtype,
+    is_float_dtype,
+    is_integer_dtype,
+    is_string_dtype,
+)
 
-from melanoma_phd.database.variable.BaseDynamicVariable import BaseDynamicVariableConfig
 from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableType
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
-from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
-from melanoma_phd.database.variable.CategoricalVariable import (CategoricalVariable,
-                                                                CategoricalVariableConfig)
-from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariable, DateTimeVariableConfig
-from melanoma_phd.database.variable.IteratedVariable import IteratedVariable, IteratedVariableConfig
-from melanoma_phd.database.variable.IterationVariable import (IterationVariable,
-                                                              IterationVariableConfig)
+from melanoma_phd.database.variable.BooleanVariableStatic import (
+    BooleanVariableConfig,
+    BooleanVariableStatic,
+)
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariableConfig
+from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
+from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariableConfig
+from melanoma_phd.database.variable.DateTimeVariableStatic import DateTimeVariableStatic
+from melanoma_phd.database.variable.IteratedVariableStatic import (
+    IteratedVariableConfig,
+    IteratedVariableStatic,
+)
+from melanoma_phd.database.variable.IterationVariable import (
+    IterationVariable,
+    IterationVariableConfig,
+)
 from melanoma_phd.database.variable.ReferenceIterationVariable import (
-    ReferenceIterationVariable, ReferenceIterationVariableConfig)
-from melanoma_phd.database.variable.ScalarVariable import ScalarVariable, ScalarVariableConfig
+    ReferenceIterationVariable,
+    ReferenceIterationVariableConfig,
+)
+from melanoma_phd.database.variable.ScalarVariable import ScalarVariableConfig
+from melanoma_phd.database.variable.ScalarVariableStatic import ScalarVariableStatic
 from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable, SurvivalVariableConfig
+from melanoma_phd.database.variable.VariableDynamicMixin import BaseDynamicVariableConfig
 
 
 @dataclass
@@ -32,19 +49,19 @@ class VariableFactory:
     def __init__(self) -> None:
         self._static_classes: Dict[str, VariableFactoryClass] = {
             VariableType.SCALAR.value: VariableFactoryClass(
-                class_type=ScalarVariable, config_type=ScalarVariableConfig
+                class_type=ScalarVariableStatic, config_type=ScalarVariableConfig
             ),
             VariableType.CATEGORICAL.value: VariableFactoryClass(
-                class_type=CategoricalVariable, config_type=CategoricalVariableConfig
+                class_type=CategoricalVariableStatic, config_type=CategoricalVariableConfig
             ),
             VariableType.BOOLEAN.value: VariableFactoryClass(
-                class_type=BooleanVariable, config_type=BooleanVariableConfig
+                class_type=BooleanVariableStatic, config_type=BooleanVariableConfig
             ),
             VariableType.DATETIME.value: VariableFactoryClass(
-                class_type=DateTimeVariable, config_type=DateTimeVariableConfig
+                class_type=DateTimeVariableStatic, config_type=DateTimeVariableConfig
             ),
             VariableType.ITERATED.value: VariableFactoryClass(
-                class_type=IteratedVariable, config_type=IteratedVariableConfig
+                class_type=IteratedVariableStatic, config_type=IteratedVariableConfig
             ),
         }
         # So far, use a known set of dyanmic variables to create
@@ -117,7 +134,7 @@ class VariableFactory:
         self,
         dataframe: pd.DataFrame,
         type: str,
-        iterated_variables: List[IteratedVariable],
+        iterated_variables: List[IteratedVariableStatic],
         **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         return self.create_dynamic(
@@ -132,7 +149,7 @@ class VariableFactory:
         dataframe: pd.DataFrame,
         type: str,
         reference_variable: ReferenceIterationVariable,
-        iterated_variables: List[IteratedVariable],
+        iterated_variables: List[IteratedVariableStatic],
         **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         return self.create_dynamic(

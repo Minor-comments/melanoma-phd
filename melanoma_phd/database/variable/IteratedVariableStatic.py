@@ -2,7 +2,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from melanoma_phd.database.variable.ScalarVariable import ScalarVariable, ScalarVariableConfig
+from melanoma_phd.database.variable.ScalarVariable import ScalarVariableConfig
+from melanoma_phd.database.variable.ScalarVariableStatic import ScalarVariableStatic
 
 
 @dataclass
@@ -10,7 +11,7 @@ class IteratedVariableConfig(ScalarVariableConfig):
     pass
 
 
-class IteratedVariable(ScalarVariable):
+class IteratedVariableStatic(ScalarVariableStatic):
     def __init__(self, config: IteratedVariableConfig) -> None:
         super().__init__(config=config)
 

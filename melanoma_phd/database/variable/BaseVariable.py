@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import Enum
 from typing import Any, List, Optional, Union
 
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
-
-PValueType = float
 
 
 class VariableType(Enum):
@@ -20,8 +17,9 @@ class VariableType(Enum):
     ITERATED = "iterated"
 
 
-@dataclass
 class BaseVariable(ABC):
+    """Base class for all variables, static or dynamic."""
+
     def __init__(self, config: BaseVariableConfig) -> None:
         self.id: str = config.id
         self.name: str = config.name
@@ -40,7 +38,7 @@ class BaseVariable(ABC):
 
     @abstractmethod
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
-        return dataframe[self.id]
+        pass
 
     @abstractmethod
     def descriptive_statistics(
@@ -60,11 +58,10 @@ class BaseVariable(ABC):
 
     @abstractmethod
     def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
-        if self.id not in dataframe.columns:
-            raise ValueError(f"'{self.id}' not present in dataframe")
+        pass
 
     def get_non_na_series(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
         if isinstance(data, pd.DataFrame):
             return self.get_series(dataframe=data).dropna()
         else:
-            return data
+            return data.dropna()

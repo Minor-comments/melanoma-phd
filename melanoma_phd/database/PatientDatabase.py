@@ -316,6 +316,10 @@ class PatientDatabase:
                             **list(iteration_variable_config.values())[0],
                         )
                         created_variables[reference_variable.id] = reference_variable
+                except KeyError as error:
+                    raise ValueError(
+                        f"Database loading error: the next config variables could not been loaded causing the database loading abortation [{errors}]"
+                    )
                 except ValueError as error:
                     errors.append(
                         f"Error creating iteration variable '{variable_config}': {str(error)}"
@@ -330,7 +334,7 @@ class PatientDatabase:
                     errors.append(f"Error creating variable '{variable_config}': {str(error)}")
         if errors:
             raise ValueError(
-                f"Database configuration error: the next config variables could not been loaded {errors}"
+                f"Database configuration error: the next config variables could not been loaded [{errors}]"
             )
         return created_variables
 

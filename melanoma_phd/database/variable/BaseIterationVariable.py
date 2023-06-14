@@ -1,15 +1,18 @@
+import warnings
 from copy import deepcopy
 from typing import Any, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseDynamicVariable import (
-    BaseDynamicVariable,
-    BaseDynamicVariableConfig,
-)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.IteratedVariable import IteratedVariable
+from melanoma_phd.database.variable.IteratedVariableStatic import IteratedVariableStatic
+from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
+from melanoma_phd.database.variable.VariableDynamicMixin import (
+    BaseDynamicVariableConfig,
+    VariableDynamicMixin,
+)
 
 
 class BaseIterationVariableConfig(BaseDynamicVariableConfig):
@@ -17,7 +20,7 @@ class BaseIterationVariableConfig(BaseDynamicVariableConfig):
         self,
         id: str,
         name: str,
-        iterated_variables: List[IteratedVariable],
+        iterated_variables: List[IteratedVariableStatic],
         selectable: bool = True,
     ) -> None:
         super().__init__(
@@ -29,7 +32,7 @@ class BaseIterationVariableConfig(BaseDynamicVariableConfig):
         self.iterated_variables = iterated_variables
 
 
-class BaseIterationVariable(BaseDynamicVariable):
+class BaseIterationVariable(VariableDynamicMixin, ScalarVariable):
     def __init__(self, config: BaseIterationVariableConfig) -> None:
         super().__init__(config=config)
         self._iterated_variables = config.iterated_variables
@@ -37,9 +40,9 @@ class BaseIterationVariable(BaseDynamicVariable):
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
-        series = self.get_series(dataframe=dataframe).explode().dropna().astype(int)
+        series = self.get_series(dataframe=dataframe).dropna().astype(int)
         self._interval = (
-            pd.Interval(left=series.explode().min(), right=series.explode().max(), closed="both")
+            pd.Interval(left=series.min(), right=series.max(), closed="both")
             if not series.empty
             else None
         )
@@ -49,7 +52,17 @@ class BaseIterationVariable(BaseDynamicVariable):
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         iterated_variable_ids = [varable.id for varable in self._iterated_variables]
-        series = pd.Series(dataframe[iterated_variable_ids].values.tolist())
+        values = dataframe[iterated_variable_ids].to_numpy()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            series = pd.Series(
+                np.nanmean(
+                    values,
+                    axis=1,
+                ),
+                index=dataframe.index,
+                name=self.id,
+            )
         return series
 
     @property
@@ -68,7 +81,7 @@ class BaseIterationVariable(BaseDynamicVariable):
             raise NotImplementedError(
                 f"Group by for is not implemented on {self.__class__.__name__}"
             )
-        series = self.get_series(dataframe=dataframe).explode().dropna()
+        series = self.get_series(dataframe=dataframe).dropna()
         count = series.count()
         median = series.median()
         mean = series.mean()
