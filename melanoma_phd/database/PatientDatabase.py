@@ -318,7 +318,7 @@ class PatientDatabase:
                         created_variables[reference_variable.id] = reference_variable
                 except KeyError as error:
                     raise ValueError(
-                        f"Database loading error: the next config variables could not been loaded causing the database loading abortation [{errors}]"
+                        f"Database loading error: '{error}'. The next config variables could not been loaded causing the database loading abortation [{errors}]"
                     )
                 except ValueError as error:
                     errors.append(
