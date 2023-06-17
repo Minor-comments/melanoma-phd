@@ -20,12 +20,14 @@ from streamlit_app.AppLoader import (
     SelectVariableConfig,
     create_database_section,
     select_filters,
+    select_several_variables,
     select_variables,
+    simple_select_variables,
 )
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
-    st.title("Correlation and Independence Tests")
+    st.title("Distributions over categories")
     with AppLoader() as app:
         create_database_section(app)
 
@@ -37,39 +39,34 @@ if __name__ == "__main__":
             st.dataframe(df_result)
 
         st.subheader("Variable selection")
-        selected_variables = select_variables(
+        distribution_variables, categorical_variable = select_several_variables(
             app,
             SelectVariableConfig(
-                "Correlation and Independence analysis",
+                "Distribution variables",
                 variable_types=[
                     ScalarVariable,
-                    CategoricalVariable,
-                    BooleanVariable,
                 ],
+                displayed_title="Distribution variables to select",
+            ),
+            SelectVariableConfig(
+                "Categorical variables",
+                variable_types=[
+                    CategoricalVariable,
+                ],
+                displayed_title="Categorical variables to select",
             ),
         )
 
-        normality_null_hypothesis = st.number_input(
-            "Normality null hypotesis", min_value=0.0, max_value=1.0, step=0.01, value=0.05
-        )
-        homogeneity_null_hypothesis = st.number_input(
-            "Homogeneity null hypotesis", min_value=0.0, max_value=1.0, step=0.01, value=0.05
-        )
-        if selected_variables:
-            st.header("Independence Tests (p-value)")
-            independence_tester = IndependenceTester(
-                normality_null_hypothesis=normality_null_hypothesis,
-                homogeneity_null_hypothesis=homogeneity_null_hypothesis,
-            )
-            independence_table = independence_tester.table(df_result, selected_variables)
-            st.dataframe(independence_table)
+        if distribution_variables and categorical_variable:
+            assert len(categorical_variable) == 1, "Only one categorical variable allowed"
+            categorical_variable = categorical_variable[0]
 
-            st.header("Correlation")
-            correlationer = Correlationer(
-                normality_null_hypothesis=normality_null_hypothesis,
-                homogeneity_null_hypothesis=homogeneity_null_hypothesis,
+            st.plotly_chart(
+                StackedHistogram().plot(
+                    distribution_variables=distribution_variables,
+                    categorical_variable=categorical_variable,
+                    dataframe=df_result,
+                )
             )
-            correlation_table = correlationer.table(df_result, selected_variables)
-            st.dataframe(correlation_table)
         else:
             st.text("Select variables to analyze :)")

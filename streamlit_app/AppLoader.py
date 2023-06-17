@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from itertools import islice
 from types import TracebackType
-from typing import Any, Dict, Iterator, List, Optional, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 
 import pandas as pd
 import streamlit as st
@@ -23,6 +24,13 @@ from streamlit_app.table.CsvTable import CsvTable
 from streamlit_app.table.MarkdownTable import MarkdownTable
 from streamlit_app.table.VariableTable import VariableTable
 from streamlit_app.VariableSelector import VariableSelector
+
+
+@dataclass
+class SelectVariableConfig:
+    variable_selection_name: str
+    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None
+    displayed_title: Optional[str] = None
 
 
 def reload_database(app: AppLoader) -> None:
@@ -82,9 +90,11 @@ def select_group_by(app: AppLoader) -> List[BaseVariable]:
     with st.sidebar.form("Group by"):
         selected_group_by = simple_select_variables(
             app,
-            "Categorical Group By",
-            variable_types=CategoricalVariable,
-            displayed_title="Categorical Group By variables",
+            SelectVariableConfig(
+                "Categorical Group By",
+                variable_types=CategoricalVariable,
+                displayed_title="Categorical Group By variables",
+            )
         )
         st.form_submit_button("Group By")
         return selected_group_by
@@ -92,10 +102,12 @@ def select_group_by(app: AppLoader) -> List[BaseVariable]:
 
 def select_variables(
     app: AppLoader,
-    variable_selection_name: str,
-    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
-    displayed_title: Optional[str] = None,
+    select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
+    variable_selection_name = select_variable_config.variable_selection_name
+    variable_types = select_variable_config.variable_types
+    displayed_title = select_variable_config.displayed_title
+
     uploaded_file = st.file_uploader(
         label=f"Upload a '{variable_selection_name}' variable selection ⬆️", type=["json"]
     )
@@ -138,18 +150,29 @@ def select_variables(
         return selected_variables
 
 
+def select_several_variables(
+    app: AppLoader,
+    *select_variable_config: SelectVariableConfig
+) -> Tuple[List[BaseVariable], ...]:
+    with st.form(key=f"variable_selection_form_{'-'.join([c.variable_selection_name for c in select_variable_config])}"):
+        selected_variables = []
+        for config in select_variable_config:
+            selected_variables.append(simple_select_variables(app, config))
+        if not st.form_submit_button("Display statistics 📊"):
+            selected_variables = [[] for _ in select_variable_config]
+    return tuple(selected_variables)
+
+
 def simple_select_variables(
     app: AppLoader,
-    variable_selection_name: str,
-    variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None,
-    displayed_title: Optional[str] = None,
+    select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
-    displayed_title = displayed_title or "Variables to select"
+    displayed_title = select_variable_config.displayed_title or "Variables to select"
     with st.expander(displayed_title):
         selector = VariableSelector(app.database)
-        variables_to_select = selector.get_variables_to_select(variable_types)
+        variables_to_select = selector.get_variables_to_select(select_variable_config.variable_types)
         selected_variables = _generate_selected_variable_checkboxs(
-            variables_to_select, variable_selection_name
+            variables_to_select, select_variable_config.variable_selection_name
         )
 
     return selected_variables
