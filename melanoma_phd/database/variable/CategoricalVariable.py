@@ -18,32 +18,13 @@ class CategoricalVariable(BaseVariable):
         super().__init__(config=config)
         self._categories = config.categories
 
-    def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
-        super().init_from_dataframe(dataframe=dataframe)
-        if not self._categories:
-            series = super().get_series(dataframe=dataframe)
-            unique_values = list(series.dropna().unique())
-            self._categories = dict(zip(unique_values, unique_values))
-
-    def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
-        series = super().get_series(dataframe=dataframe)
-        categories_values = list(self._categories.keys())
-        series_unique_values = list(series.dropna().unique())
-        if not set(categories_values).issuperset(series_unique_values):
-            raise ValueError(
-                f"{series_unique_values} categories are not present in {categories_values} variable categories for `{self.id}`"
-            )
-        if type(categories_values[0]) != type(series_unique_values[0]):
-            return series.dropna().astype(type(categories_values[0])).map(self._categories)
-        return series.map(self._categories)
-
     def get_numeric_series(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
         if isinstance(data, pd.Series):
             series = data
         else:
             series = self.get_series(dataframe=data)
         return self.get_numeric(series=series)
-    
+
     @classmethod
     def get_numeric(cls, series: pd.Series) -> pd.Series:
         if str(series.dtype) in ["object", "category"]:
@@ -129,6 +110,3 @@ class CategoricalVariable(BaseVariable):
             ]
             rows.append(row)
         return rows
-
-    def _check_valid_id(self, dataframe: pd.DataFrame) -> None:
-        return super()._check_valid_id(dataframe)

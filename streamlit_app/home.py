@@ -10,7 +10,6 @@ from melanoma_phd.database.filter.PatientDataFilterer import (
 )  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
-from melanoma_phd.database.variable.IterationVariable import IterationVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import (
     create_database_section,
@@ -46,7 +45,6 @@ if __name__ == "__main__":
                 ScalarVariable,
                 CategoricalVariable,
                 BooleanVariable,
-                IterationVariable,
             ],
         )
         st.header("Descriptive Statistcs")

@@ -5,10 +5,11 @@ import scipy.stats as stats
 
 from melanoma_phd.database.HomogenityTester import HomogenityTester
 from melanoma_phd.database.NormalityTester import NormalityTester
-from melanoma_phd.database.variable.BaseVariable import BaseVariable, PValueType
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.database.variable.Variable import PValueType
 
 
 class IndependenceTester:

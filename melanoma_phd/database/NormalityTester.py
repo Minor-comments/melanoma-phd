@@ -3,8 +3,8 @@ from typing import Union
 import pandas as pd
 import scipy.stats as stats
 
-from melanoma_phd.database.variable.BaseVariable import PValueType
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.database.variable.Variable import PValueType
 
 
 class NormalityTester:
