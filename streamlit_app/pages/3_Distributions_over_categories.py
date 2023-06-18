@@ -6,7 +6,8 @@ import streamlit as st
 from melanoma_phd.visualizer.StackedHistogram import StackedHistogram
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
