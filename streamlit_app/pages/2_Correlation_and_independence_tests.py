@@ -10,7 +10,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from melanoma_phd.database.Correlationer import (
     Correlationer,
 )  # isort: skip <- Force to be after workaround
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.IndependenceTester import IndependenceTester
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -31,7 +30,7 @@ if __name__ == "__main__":
         create_database_section(app)
 
         filters = select_filters(app)
-        dt_result = filter_database(app=app, filters=filters)
+        df_result = filter_database(app=app, filters=filters)
 
         st.subheader("Variable selection")
         selected_variables = select_variables(

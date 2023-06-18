@@ -7,22 +7,16 @@ from melanoma_phd.visualizer.StackedHistogram import StackedHistogram
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from melanoma_phd.database.Correlationer import (
-    Correlationer,
 )  # isort: skip <- Force to be after workaround
-from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
-from melanoma_phd.database.IndependenceTester import IndependenceTester
-from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import (
     AppLoader,
     SelectVariableConfig,
     create_database_section,
+    filter_database,
     select_filters,
     select_several_variables,
-    select_variables,
-    simple_select_variables,
 )
 
 if __name__ == "__main__":
@@ -32,11 +26,7 @@ if __name__ == "__main__":
         create_database_section(app)
 
         filters = select_filters(app)
-        st.subheader("Filtered data")
-        with st.expander(f"Filtered dataframe"):
-            df_result = PatientDataFilterer().filter(app.database, filters)
-            st.text(f"{len(df_result.index)} patients match with selected filters")
-            st.dataframe(df_result)
+        df_result = filter_database(app=app, filters=filters)
 
         st.subheader("Variable selection")
         distribution_variables, categorical_variable = select_several_variables(

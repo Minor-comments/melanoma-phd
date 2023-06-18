@@ -16,7 +16,6 @@ from streamlit_app.AppLoader import (
     create_database_section,
     download_statistics,
     filter_database,
-    plot_figures,
     plot_statistics,
     select_filters,
     select_group_by,
@@ -71,6 +70,5 @@ if __name__ == "__main__":
 
             download_statistics(variables_statistics)
             plot_statistics(variables_statistics)
-            plot_figures(variables_statistics)
         else:
             st.text("Select variables to analyze :)")
