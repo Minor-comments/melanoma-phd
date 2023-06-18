@@ -24,11 +24,20 @@ class PiePlotter:
             "#fcf5c7",
         ]
         figure, axes = plt.subplots()
-        patches, _, _ = axes.pie(
-            x=sizes, labels=None, autopct="%1.1f%%", startangle=90, colors=colors
+        to_explode = [(size < 4.0) for size in sizes]
+        explode = [
+            0.2 + 0.2 * (i % 2)
+            if size < 4.0
+            and to_explode[i]
+            and ((to_explode[i + 1] and i < len(to_explode) - 1) or (to_explode[i - 1] and i > 0))
+            else 0
+            for i, size in enumerate(sizes)
+        ]
+        wedges, _, _ = axes.pie(
+            x=sizes, labels=None, autopct="%1.1f%%", startangle=90, colors=colors, explode=explode
         )
         axes.axis("equal")
-        plt.legend(patches, labels, loc="lower right", bbox_to_anchor=(1.25, 0))
+        plt.legend(wedges, labels, loc="lower right", bbox_to_anchor=(1.25, -0.30))
         return figure
 
     def __get_variable_labels_sizes(
