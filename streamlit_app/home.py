@@ -15,6 +15,7 @@ from streamlit_app.AppLoader import (
     SelectVariableConfig,
     create_database_section,
     download_statistics,
+    filter_database,
     plot_figures,
     plot_statistics,
     select_filters,
@@ -32,11 +33,7 @@ if __name__ == "__main__":
 
         filters = select_filters(app)
         selected_group_by = select_group_by(app)
-        st.subheader("Filtered data")
-        with st.expander(f"Filtered dataframe"):
-            df_result = PatientDataFilterer().filter(app.database, filters)
-            st.text(f"{len(df_result.index)} patients match with selected filters")
-            st.dataframe(df_result)
+        df_result = filter_database(app=app, filters=filters)
 
         st.subheader("Variable selection")
         selected_variables = select_variables(

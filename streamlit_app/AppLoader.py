@@ -12,6 +12,7 @@ from PersistentSessionState import PersistentSessionState
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.IterationFilter import IterationFilter
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -98,6 +99,22 @@ def select_group_by(app: AppLoader) -> List[BaseVariable]:
         )
         st.form_submit_button("Group By")
         return selected_group_by
+
+
+def filter_database(app: AppLoader, filters: List[Filter]) -> pd.DataFrame:
+    st.subheader("Filtered data")
+    with st.expander(f"Filtered dataframe"):
+        df_result = PatientDataFilterer().filter(app.database, filters)
+        st.text(f"{len(df_result.index)} patients match with selected filters")
+        selected_variables = []
+        with st.form("Variables to display"):
+            variable_ids = [variable.id for variable in app.database.variables]
+            selected_variables = st.multiselect(label="Variables to display", options=variable_ids)
+            if st.form_submit_button("Display variables") and selected_variables:
+                st.dataframe(df_result[selected_variables])
+            else:
+                st.dataframe(df_result)
+        return df_result
 
 
 def select_variables(
