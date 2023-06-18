@@ -16,6 +16,7 @@ from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from streamlit_app.AppLoader import (
     AppLoader,
     create_database_section,
+    filter_database,
     select_filters,
     select_variables,
 )
@@ -27,11 +28,7 @@ if __name__ == "__main__":
         create_database_section(app)
 
         filters = select_filters(app)
-        st.subheader("Filtered data")
-        with st.expander(f"Filtered dataframe"):
-            df_result = PatientDataFilterer().filter(app.database, filters)
-            st.text(f"{len(df_result.index)} patients match with selected filters")
-            st.dataframe(df_result)
+        dt_result = filter_database(app=app, filters=filters)
 
         st.subheader("Variable selection")
         selected_variables = select_variables(
