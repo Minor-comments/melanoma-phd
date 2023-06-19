@@ -21,8 +21,13 @@ class ReferenceIterationVariable(BaseIterationVariable):
         self, dataframe: pd.DataFrame, intervals: List[pd.Interval]
     ) -> pd.DataFrame:
         filter_dataframe = dataframe.loc[:, [variable.id for variable in self._iterated_variables]]
-        for column in filter_dataframe:
-            filter_dataframe.loc[:, column] = dataframe[column].map(
-                lambda value: any(value in interval for interval in intervals)
-            )
+        filters = [
+            filter_dataframe.applymap(lambda value: value in interval).any(axis=1)
+            for interval in intervals
+        ]
+        filter = pd.concat(filters, axis=1).all(axis=1)
+        filter_dataframe.loc[filter, :] = filter_dataframe.loc[filter, :].applymap(
+            lambda value: any(value in interval for interval in intervals)
+        )
+        filter_dataframe.loc[~filter, :] = False
         return filter_dataframe
