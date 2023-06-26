@@ -34,6 +34,11 @@ class SelectVariableConfig:
     displayed_title: Optional[str] = None
 
 
+@st.cache_data
+def dataframe_to_csv(df: pd.DataFrame) -> bytes:
+    return df.to_csv(index=False).encode("utf-8")
+
+
 def reload_database(app: AppLoader) -> None:
     with st.spinner("Reloading database..."):
         app.database.reload()
@@ -112,10 +117,18 @@ def filter_database(app: AppLoader, filters: List[Filter]) -> pd.DataFrame:
         with st.form("Variables to display"):
             variable_ids = [variable.id for variable in app.database.variables]
             selected_variables = st.multiselect(label="Variables to display", options=variable_ids)
+            df_result_to_display = df_result
             if st.form_submit_button("Display variables") and selected_variables:
-                st.dataframe(df_result[selected_variables])
-            else:
-                st.dataframe(df_result)
+                df_result_to_display = df_result[selected_variables]
+            st.dataframe(df_result_to_display)
+        file_name = "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+        csv = dataframe_to_csv(df_result_to_display)
+        st.download_button(
+            label=f"Download filtered dataframe ⬇️ ",
+            data=csv,
+            mime="text/csv",
+            file_name=file_name,
+        )
         return df_result
 
 
