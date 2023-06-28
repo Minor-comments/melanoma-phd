@@ -12,6 +12,7 @@ from PersistentSessionState import PersistentSessionState
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.IterationFilter import IterationFilter
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -31,6 +32,11 @@ class SelectVariableConfig:
     variable_selection_name: str
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None
     displayed_title: Optional[str] = None
+
+
+@st.cache_data
+def dataframe_to_csv(df: pd.DataFrame) -> bytes:
+    return df.to_csv(index=False).encode("utf-8")
 
 
 def reload_database(app: AppLoader) -> None:
@@ -59,23 +65,25 @@ def select_filters(app: AppLoader) -> List[Filter]:
             ),
             RangeSliderFilter(
                 filter=IterationFilter(
-                    name="Extraction time (time in months)",
+                    name="At least one extraction time at X months",
                     reference_variable=reference_iteration_variable,
                     iteration_variables=app.database.get_iteration_variables_of(
                         reference_variable=reference_iteration_variable
                     ),
                 ),
+                sliders_number=2,
                 min_value=0,
                 max_value=None,
             ),
             RangeSliderFilter(
                 filter=IterationFilter(
-                    name="Extraction time 2 (time in months)",
+                    name="Extraction time at X months",
                     reference_variable=reference_iteration_variable,
                     iteration_variables=app.database.get_iteration_variables_of(
                         reference_variable=reference_iteration_variable
                     ),
                 ),
+                sliders_number=1,
                 min_value=0,
                 max_value=None,
             ),
@@ -94,15 +102,38 @@ def select_group_by(app: AppLoader) -> List[BaseVariable]:
                 "Categorical Group By",
                 variable_types=CategoricalVariable,
                 displayed_title="Categorical Group By variables",
-            )
+            ),
         )
         st.form_submit_button("Group By")
         return selected_group_by
 
 
+def filter_database(app: AppLoader, filters: List[Filter]) -> pd.DataFrame:
+    st.subheader("Filtered data")
+    with st.expander(f"Filtered dataframe"):
+        df_result = PatientDataFilterer().filter(app.database, filters)
+        st.text(f"{len(df_result.index)} patients match with selected filters")
+        selected_variables = []
+        with st.form("Variables to display"):
+            variable_ids = [variable.id for variable in app.database.variables]
+            selected_variables = st.multiselect(label="Variables to display", options=variable_ids)
+            df_result_to_display = df_result
+            if st.form_submit_button("Display variables") and selected_variables:
+                df_result_to_display = df_result[selected_variables]
+            st.dataframe(df_result_to_display)
+        file_name = "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+        csv = dataframe_to_csv(df_result_to_display)
+        st.download_button(
+            label=f"Download filtered dataframe ⬇️ ",
+            data=csv,
+            mime="text/csv",
+            file_name=file_name,
+        )
+        return df_result
+
+
 def select_variables(
-    app: AppLoader,
-    select_variable_config: SelectVariableConfig
+    app: AppLoader, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     variable_selection_name = select_variable_config.variable_selection_name
     variable_types = select_variable_config.variable_types
@@ -151,10 +182,11 @@ def select_variables(
 
 
 def select_several_variables(
-    app: AppLoader,
-    *select_variable_config: SelectVariableConfig
+    app: AppLoader, *select_variable_config: SelectVariableConfig
 ) -> Tuple[List[BaseVariable], ...]:
-    with st.form(key=f"variable_selection_form_{'-'.join([c.variable_selection_name for c in select_variable_config])}"):
+    with st.form(
+        key=f"variable_selection_form_{'-'.join([c.variable_selection_name for c in select_variable_config])}"
+    ):
         selected_variables = []
         for config in select_variable_config:
             selected_variables.append(simple_select_variables(app, config))
@@ -164,13 +196,14 @@ def select_several_variables(
 
 
 def simple_select_variables(
-    app: AppLoader,
-    select_variable_config: SelectVariableConfig
+    app: AppLoader, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     displayed_title = select_variable_config.displayed_title or "Variables to select"
     with st.expander(displayed_title):
         selector = VariableSelector(app.database)
-        variables_to_select = selector.get_variables_to_select(select_variable_config.variable_types)
+        variables_to_select = selector.get_variables_to_select(
+            select_variable_config.variable_types
+        )
         selected_variables = _generate_selected_variable_checkboxs(
             variables_to_select, select_variable_config.variable_selection_name
         )
@@ -219,36 +252,6 @@ def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
                 f"📃 :orange[Only displaying the first {MAX_VARIABLES_TABLE} variables for performance issues.]"
             )
         return
-
-
-def plot_figures(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
-    variable_names_to_plot = {
-        "T(CD3+)/LB(CD19+)/NK(CD16/56+)": ["T(CD3+)({N})", "LB(CD19+)({N})", "NK(CD16/56+)({N})"],
-        "CD4+/CD8+/DP/DN": ["T(CD3+CD4+)({N})", "T(CD3+CD8+)({N})", "DP ({N})", "DN ({N})"],
-        "CTLA4+/PDL1+": ["CTLA4+({N})", "PDL1+({N})"],
-        "naive/memoria/mem efectora/efectora": [
-            "naïve(CD3+CCR7+CD45A+)({N})",
-            "mem central(CD3+CCR7+CD45RO+)({N})",
-            "efectora (CCR7-CD45RO-) ({N})",
-            "mem efectora(CD3+CCR7-CD45RO+)({N})",
-        ],
-        "CD69+/HLA-DR+/CD40L+/CD25+/CD62L+": [
-            "CD69+({N})",
-            "HLA-DR+({N})",
-            "CD40L+({N})",
-            "CD25+({N})",
-            "CD62L+({N})",
-        ],
-        "Treg vs no Treg": ["Treg(CD3+CD4+CD25+FOXP3)({N})"],
-    }
-    for title, variable_names in variable_names_to_plot.items():
-        st.header(title)
-        variables_to_plot = dict(
-            (variable, statistics)
-            for variable, statistics in variables_statistics.items()
-            if variable.id in variable_names
-        )
-        st.pyplot(PiePlotter().plot(variable_statistics=variables_to_plot))
 
 
 class AppLoader:

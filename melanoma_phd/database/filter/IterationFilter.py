@@ -27,9 +27,9 @@ class IterationFilter(BaseFilter):
     def interval(self) -> pd.Interval:
         return self._reference_variable.interval
 
-    def filter(self, dataframe: pd.DataFrame, interval: pd.Interval) -> pd.DataFrame:
+    def filter(self, dataframe: pd.DataFrame, intervals: List[pd.Interval]) -> pd.DataFrame:
         filter_dataframe = self._reference_variable.get_filter_dataframe(
-            dataframe=dataframe, interval=interval
+            dataframe=dataframe, intervals=intervals
         )
         mask_series = filter_dataframe.any(skipna=True, axis=1)
         dataframe = dataframe.loc[mask_series]
