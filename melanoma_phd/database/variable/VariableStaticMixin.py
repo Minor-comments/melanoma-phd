@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from copy import deepcopy
+
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
@@ -13,7 +15,7 @@ class VariableStaticMixin:
         super().__init__(config=config)
 
     def get_series(self: Variable, dataframe: pd.DataFrame) -> pd.Series:
-        return dataframe[self.id]
+        return deepcopy(dataframe[self.id])
 
     def _check_valid_id(self: Variable, dataframe: pd.DataFrame) -> None:
         if self.id not in dataframe.columns:

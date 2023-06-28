@@ -24,8 +24,13 @@ class CategoricalVariableStatic(VariableStaticMixin, CategoricalVariable):
         series_unique_values = list(series.dropna().unique())
         if not set(categories_values).issuperset(series_unique_values):
             raise ValueError(
-                f"{series_unique_values} categories are not present in {categories_values} variable categories for `{self.id}`"
+                f"{set(series_unique_values).difference(categories_values)} categories are not present in {categories_values} variable categories for `{self.id}`"
             )
+        not_null_mask = series.notnull()
         if type(categories_values[0]) != type(series_unique_values[0]):
-            return series.dropna().astype(type(categories_values[0])).map(self._categories)
-        return series.map(self._categories)
+            series.loc[not_null_mask] = (
+                series[not_null_mask].astype(type(categories_values[0])).map(self._categories)
+            )
+        else:
+            series.loc[not_null_mask] = series[not_null_mask].map(self._categories)
+        return series
