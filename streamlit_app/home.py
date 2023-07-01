@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
         filters = select_filters(app)
         selected_group_by = select_group_by(app)
-        df_result = filter_database(app=app, filters=filters)
+        filtered_df = filter_database(app=app, filters=filters)
 
         st.subheader("Variable selection")
         selected_variables = select_variables(
@@ -77,7 +77,7 @@ if __name__ == "__main__":
             for variable in selected_variables:
                 try:
                     variables_statistics[variable] = variable.descriptive_statistics(
-                        df_result, group_by=selected_group_by
+                        filtered_df, group_by=selected_group_by
                     )
                     st.write(
                         f"{variable.name}"
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 (
                     app.database.get_variable(variable_name),
                     app.database.get_variable(variable_name)
-                    .descriptive_statistics(df_result, group_by=selected_group_by)
+                    .descriptive_statistics(filtered_df, group_by=selected_group_by)
                     .fillna(0),
                 )
                 for variable_name in variable_names

@@ -160,9 +160,16 @@ def select_variables(
             else selector.deselect_variables(variable_selection_name, variables_to_select),
         )
         with st.form(key=f"variable_selection_form_{variable_selection_name}"):
-            selected_variables = _generate_selected_variable_checkboxs(
-                variables_to_select, variable_selection_name
-            )
+            selected_variables = []
+            for variable in variables_to_select:
+                st_variable_id = VariableSelector.get_variable_persistent_key(
+                    variable_selection_name, variable
+                )
+                if st.checkbox(
+                    label=f"{variable.name} [{variable.id}]",
+                    key=st_variable_id,
+                ):
+                    selected_variables.append(variable)
             if st.form_submit_button("Display statistics 📊"):
                 data_to_save = VariableSelector.selected_variables_to_file(
                     variable_selection_name, selected_variables
@@ -204,26 +211,16 @@ def simple_select_variables(
         variables_to_select = selector.get_variables_to_select(
             select_variable_config.variable_types
         )
-        selected_variables = _generate_selected_variable_checkboxs(
-            variables_to_select, select_variable_config.variable_selection_name
-        )
-
-    return selected_variables
-
-
-def _generate_selected_variable_checkboxs(
-    variables: List[BaseVariable], variable_selection_name: str
-) -> List[BaseVariable]:
-    selected_variables = []
-    for variable in variables:
-        st_variable_id = VariableSelector.get_variable_persistent_key(
-            variable_selection_name, variable
-        )
-        if st.checkbox(
-            label=f"{variable.name} [{variable.id}]",
-            key=st_variable_id,
-        ):
-            selected_variables.append(variable)
+        selected_variables = []
+        for variable in variables_to_select:
+            st_variable_id = VariableSelector.get_variable_persistent_key(
+                select_variable_config.variable_selection_name, variable
+            )
+            if st.checkbox(
+                label=f"{variable.name} [{variable.id}]",
+                key=st_variable_id,
+            ):
+                selected_variables.append(variable)
     return selected_variables
 
 
