@@ -1,5 +1,4 @@
 import warnings
-from copy import deepcopy
 from typing import Any, List, Optional, Union
 
 import numpy as np
@@ -48,7 +47,7 @@ class BaseIterationVariable(VariableDynamicMixin, ScalarVariable):
         )
 
     def create_new_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:
-        return super().create_new_series(dataframe=dataframe)
+        return self.get_series(dataframe=dataframe).dropna()
 
     def get_series(self, dataframe: pd.DataFrame) -> pd.Series:
         iterated_variable_ids = [varable.id for varable in self._iterated_variables]
@@ -114,11 +113,12 @@ class BaseIterationVariable(VariableDynamicMixin, ScalarVariable):
 
     def filter(self, dataframe: pd.DataFrame, filter_dataframe: pd.DataFrame) -> pd.DataFrame:
         iterated_variable_ids = [varable.id for varable in self._iterated_variables]
-        iterated_filter_dataframe = deepcopy(filter_dataframe)
+        iterated_filter_dataframe = filter_dataframe.copy()
         iterated_filter_dataframe.columns = iterated_variable_ids
-        filtered_dataframe = deepcopy(dataframe)
+        filtered_dataframe = dataframe.copy()
         for iterated_variable_id in iterated_variable_ids:
             filtered_dataframe.loc[:, iterated_variable_id].where(
                 iterated_filter_dataframe[iterated_variable_id], inplace=True
             )
+        filtered_dataframe[self.id] = self.get_series(dataframe=filtered_dataframe)
         return filtered_dataframe
