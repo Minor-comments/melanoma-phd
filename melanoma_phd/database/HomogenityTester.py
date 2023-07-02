@@ -43,6 +43,9 @@ class HomogenityTester:
         categorical_variable: CategoricalVariable,
     ) -> bool:
         series_by_categories = scalar_variable.get_data_by_categories(
-            dataframe=data, category_variable=categorical_variable
+            dataframe=data,
+            category_variable=categorical_variable,
+            remove_nulls=True,
+            remove_short_categories=True,
         )
         return self.test(*series_by_categories)

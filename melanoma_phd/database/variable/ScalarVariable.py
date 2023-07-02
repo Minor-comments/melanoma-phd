@@ -96,12 +96,23 @@ class ScalarVariable(BaseVariable):
         dataframe: pd.DataFrame,
         category_variable: CategoricalVariable,
         remove_nulls: bool = False,
+        remove_short_categories: bool = False,
     ) -> Tuple[pd.Series, ...]:
         if remove_nulls:
             get_data = lambda variable: variable.get_non_na_series
         else:
             get_data = lambda variable: variable.get_series
-        return tuple(
-            get_data(self)(data)
-            for _, data in dataframe.groupby(get_data(category_variable)(dataframe))
-        )
+
+        series = []
+        removed_categories = []
+        for category_name, data in dataframe.groupby(get_data(category_variable)(dataframe)):
+            serie = get_data(self)(data)
+            if remove_short_categories and len(serie) < 3:
+                removed_categories.append(category_name)
+            else:
+                series.append(serie)
+        if removed_categories:
+            self.warning(
+                f"Removed `{self.name}` data corresponding to `{removed_categories}` categories of variable `{category_variable.name}` due to too few values in this category."
+            )
+        return tuple(series)

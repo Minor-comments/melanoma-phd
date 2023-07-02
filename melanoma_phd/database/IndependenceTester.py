@@ -10,14 +10,16 @@ from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.Variable import PValueType
+from melanoma_phd.logger.StreamlitLogger import StreamlitLogger
 
 
-class IndependenceTester:
+class IndependenceTester(StreamlitLogger):
     def __init__(
         self,
         normality_null_hypothesis: PValueType = 0.05,
         homogeneity_null_hypothesis: PValueType = 0.05,
     ) -> None:
+        super().__init__()
         self._normality_tester = NormalityTester(null_hypothesis=normality_null_hypothesis)
         self._homogeneity_tester = HomogenityTester(
             null_hypothesis=homogeneity_null_hypothesis,
@@ -31,7 +33,7 @@ class IndependenceTester:
         first_variable.init_from_dataframe(dataframe=dataframe)
         second_variable.init_from_dataframe(dataframe=dataframe)
         first_series, second_series = self._remove_nulls_from_any_serie_to_all(
-            first_variable.get_series(dataframe), second_variable.get_series(dataframe)
+            dataframe, first_variable, second_variable
         )
         try:
             if isinstance(first_variable, ScalarVariable):
@@ -45,7 +47,10 @@ class IndependenceTester:
                         return stats.spearmanr(first_series, second_series).pvalue
                 elif isinstance(second_variable, CategoricalVariable):
                     series_by_categories = first_variable.get_data_by_categories(
-                        dataframe=dataframe, category_variable=second_variable, remove_nulls=True
+                        dataframe=dataframe,
+                        category_variable=second_variable,
+                        remove_nulls=True,
+                        remove_short_categories=True,
                     )
                     homogenuos_data = self._homogeneity_tester.test(*series_by_categories)
                     if isinstance(second_variable, BooleanVariable):
@@ -65,8 +70,7 @@ class IndependenceTester:
                 # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
                 table = stats.contingency.crosstab(
                     *self._remove_nulls_from_any_serie_to_all(
-                        first_variable.get_numeric_series(dataframe),
-                        second_variable.get_numeric_series(dataframe),
+                        dataframe, first_variable, second_variable, only_numeric=True
                     )
                 ).count
                 if isinstance(first_variable, BooleanVariable) and isinstance(
@@ -76,7 +80,7 @@ class IndependenceTester:
                 return stats.chi2_contingency(table).pvalue
         except ValueError as e:
             raise ValueError(
-                f"Independence test could not be done for `{variable.name}` and `{other_variable.name}` due to: {e}"
+                f"Independence test could not be done for `{variable.name}` ({variable.__class__.__name__}) and `{other_variable.name}` ({other_variable.__class__.__name__}) due to: {e}"
             )
 
         raise ValueError(
@@ -106,10 +110,33 @@ class IndependenceTester:
                 break
         return tuple(ordered_variables)
 
-    def _remove_nulls_from_any_serie_to_all(self, *series: pd.Series) -> Tuple[pd.Series, ...]:
-        index = series[0].index.values
-        null_mask = series[0].isnull()
-        for serie in series[1:]:
+    def _remove_nulls_from_any_serie_to_all(
+        self, dataframe: pd.DataFrame, *variables: BaseVariable, only_numeric: bool = False
+    ) -> Tuple[pd.Series, ...]:
+        series = []
+        serie = self.__get_data(variables[0], dataframe, only_numeric=only_numeric)
+        series.append(serie)
+        index = serie.index.values
+        null_mask = serie.isnull()
+        for variable in variables[1:]:
+            serie = self.__get_data(variable, dataframe, only_numeric=only_numeric)
             assert all(serie.index.values == index), "Indexes of all series must be the same"
+            series.append(serie)
             null_mask |= serie.isnull()
+        if sum(null_mask):
+            self.info(
+                f"{self.__class__.__name__}: {sum(null_mask)} nulls removed out of {len(null_mask)} values from variables {[variable.name for variable in variables]}"
+            )
         return tuple(serie[~null_mask] for serie in series)
+
+    def __get_data(
+        self, variable: BaseVariable, dataframe: pd.DataFrame, only_numeric: bool = False
+    ) -> pd.Series:
+        if only_numeric:
+            if isinstance(variable, CategoricalVariable):
+                return variable.get_numeric_series(dataframe)
+            else:
+                self.warning(
+                    f"Trying to get numeric series for `{variable.name}` ({variable.__class__.__name__}) but it is not a categorical variable, defaulting to get_series"
+                )
+        return variable.get_series(dataframe)
