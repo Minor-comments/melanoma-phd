@@ -58,6 +58,7 @@ def select_filters(app: AppLoader) -> List[Filter]:
         reference_iteration_variable = app.database.get_variable("TIEMPO IT{N}")
         filters: List[Filter] = [
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRUPO TTM CORREGIDO"))),
+            MultiSelectFilter(CategoricalFilter(app.database.get_variable("GRANDES GRUPOS"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("TIPO TTM ACTUAL"))),
             MultiSelectFilter(CategoricalFilter(app.database.get_variable("BOR"))),
             MultiSelectFilter(

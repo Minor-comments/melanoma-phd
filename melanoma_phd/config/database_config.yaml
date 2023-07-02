@@ -641,6 +641,19 @@ sections:
               0: dentro de la normalidad
               1: superior al límite de la normalidad
 
+        - grandes_grupos:
+            id: "GRANDES GRUPOS"
+            name: "GRANDES GRUPOS"
+            type: categorical
+            categories:
+              1: "RC con/sin BRAF/MEK"
+              2: ">2 años antiPD1 ttm continuado +>2a antiPD1 ttm STOP (retrospectivos beneficio clínico)"
+              3: "Progresión: 4 BOR PD + 8 BOR PD + 6 BOR PD + 11 BOR PD + 9"
+              4: ">6-12 meses ttm continuado 5 + Natera 6 BOR SD/PR/CR + extracció basal 8 BOR SD/PR/CR + 11 BOR SD/PR/CR + grup 10"
+              5: "voluntarios sanos" 
+              6: "progresores que inicialmente responden y extracción hecha en el momento de PD"
+
+
       dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
         - PFS:
             type: "SurvivalVariable"
