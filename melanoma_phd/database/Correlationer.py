@@ -33,6 +33,7 @@ class Correlationer(StreamlitLogger):
     def correlate(
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
     ) -> PValueType:
+        self._check_variables(dataframe, variable, other_variable)
         first_variable, second_variable = self._order_variables(variable, other_variable)
         first_variable.init_from_dataframe(dataframe=dataframe)
         second_variable.init_from_dataframe(dataframe=dataframe)
@@ -104,6 +105,7 @@ class Correlationer(StreamlitLogger):
         )
 
     def table(self, dataframe: pd.DataFrame, variables: List[BaseVariable]) -> pd.DataFrame:
+        self._check_variables(dataframe, *variables)
         return pd.DataFrame(
             [[self.correlate(dataframe, v1, v2) for v2 in variables] for v1 in variables],
             columns=[v.name for v in variables],
@@ -126,6 +128,18 @@ class Correlationer(StreamlitLogger):
                 break
         return tuple(ordered_variables)
 
+    def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
+        empty_variables = []
+        for variable in variables:
+            serie = variable.get_series(dataframe)
+            null_mask = serie.isnull()
+            if sum(null_mask) == len(null_mask):
+                empty_variables.append(variable)
+        if empty_variables:
+            error_msg = f"{self.__class__.__name__}: variables {[variable.name for variable in empty_variables]} are empty for the given filters. Please review database or filters."
+            self.error(error_msg)
+            raise ValueError(error_msg)
+
     def _remove_nulls_from_any_serie_to_all(
         self, dataframe: pd.DataFrame, *variables: BaseVariable, only_numeric: bool = False
     ) -> Tuple[pd.Series, ...]:
@@ -139,7 +153,6 @@ class Correlationer(StreamlitLogger):
             assert all(serie.index.values == index), "Indexes of all series must be the same"
             series.append(serie)
             null_mask |= serie.isnull()
-
         if sum(null_mask):
             self.info(
                 f"{self.__class__.__name__}: {sum(null_mask)} nulls removed out of {len(null_mask)} values from variables {[variable.name for variable in variables]}"
