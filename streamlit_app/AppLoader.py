@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import islice
@@ -73,8 +74,6 @@ def select_filters(app: AppLoader) -> List[Filter]:
                     ),
                 ),
                 sliders_number=2,
-                min_value=0,
-                max_value=None,
             ),
             RangeSliderFilter(
                 filter=IterationFilter(
@@ -85,8 +84,6 @@ def select_filters(app: AppLoader) -> List[Filter]:
                     ),
                 ),
                 sliders_number=1,
-                min_value=0,
-                max_value=None,
             ),
         ]
         for filter in filters:
@@ -280,4 +277,4 @@ class AppLoader:
 
     @st.cache_resource(show_spinner="Loading main application & database...")
     def __load_app(_self) -> MelanomaPhdApp:
-        return create_melanoma_phd_app()
+        return create_melanoma_phd_app(log_level=logging.INFO)
