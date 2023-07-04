@@ -7,7 +7,6 @@ from typing import Any, List, Optional, Union
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
-from melanoma_phd.logger.StreamlitLogger import StreamlitLogger
 
 
 class VariableType(Enum):
@@ -18,7 +17,7 @@ class VariableType(Enum):
     ITERATED = "iterated"
 
 
-class BaseVariable(ABC, StreamlitLogger):
+class BaseVariable(ABC):
     """Base class for all variables, static or dynamic."""
 
     def __init__(self, config: BaseVariableConfig) -> None:

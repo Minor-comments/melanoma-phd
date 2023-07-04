@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple, Union
 
@@ -112,7 +113,7 @@ class ScalarVariable(BaseVariable):
             else:
                 series.append(serie)
         if removed_categories:
-            self.warning(
+            logging.warning(
                 f"Removed `{self.name}` data corresponding to `{removed_categories}` categories of variable `{category_variable.name}` due to too few values in this category."
             )
         return tuple(series)

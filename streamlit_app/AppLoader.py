@@ -18,10 +18,10 @@ from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
-from melanoma_phd.visualizer.PiePlotter import PiePlotter
 from streamlit_app.filter.Filter import Filter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
 from streamlit_app.filter.RangeSliderFilter import RangeSliderFilter
+from streamlit_app.logger.StreamlitLogHandler import StreamlitLogHandler
 from streamlit_app.table.CsvTable import CsvTable
 from streamlit_app.table.MarkdownTable import MarkdownTable
 from streamlit_app.table.VariableTable import VariableTable
@@ -277,4 +277,6 @@ class AppLoader:
 
     @st.cache_resource(show_spinner="Loading main application & database...")
     def __load_app(_self) -> MelanomaPhdApp:
-        return create_melanoma_phd_app(log_level=logging.INFO)
+        return create_melanoma_phd_app(
+            log_level=logging.INFO, custom_handlers=[StreamlitLogHandler()]
+        )
