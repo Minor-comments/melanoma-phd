@@ -24,7 +24,7 @@ class StreamlitLogHandler(logging.Handler):
             if container:
                 self._container = container
             else:
-                with st.expander("Streamlit Logger", expanded=True):
+                with st.expander("Streamlit Logger", expanded=False):
                     self._container = st.container()
             st.session_state[StreamlitLogHandler.CONTAINER_ID] = self._container
 

@@ -22,15 +22,9 @@ class VariableSelector:
             if all(
                 [
                     variable.selectable,
-                    any(
-                        [
-                            not variable_types,
-                            any(
-                                isinstance(variable, variable_type)
-                                for variable_type in variable_types
-                            ),
-                        ]
-                    ),
+                    any(isinstance(variable, variable_type) for variable_type in variable_types)
+                    if variable_types
+                    else True,
                 ]
             ):
                 variables_to_select.append(variable)

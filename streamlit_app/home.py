@@ -5,9 +5,8 @@ from typing import Dict, List
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from melanoma_phd.database.filter.PatientDataFilterer import (
-    PatientDataFilterer,
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -21,7 +20,7 @@ from streamlit_app.AppLoader import (
     plot_statistics,
     select_filters,
     select_group_by,
-    select_variables,
+    select_variables_by_checkbox,
 )
 
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
@@ -53,16 +52,18 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
     st.title("Melanoma PHD Decriptive Statistics")
     with AppLoader() as app:
-        create_database_section(app)
+        database = app.database
+        create_database_section(database)
 
-        filters = select_filters(app)
-        selected_group_by = select_group_by(app)
-        filtered_df = filter_database(app=app, filters=filters)
+        filters = select_filters(database)
+        selected_group_by = select_group_by(database)
+        db_view = filter_database(database=database, filters=filters)
+        filtered_df = db_view.dataframe
 
         st.subheader("Variable selection")
-        selected_variables = select_variables(
-            app,
-            SelectVariableConfig(
+        selected_variables = select_variables_by_checkbox(
+            database=database,
+            select_variable_config=SelectVariableConfig(
                 "Descriptive statistics",
                 variable_types=[
                     ScalarVariable,
@@ -104,8 +105,8 @@ if __name__ == "__main__":
             st.header(group_name)
             variables_to_plot = dict(
                 (
-                    app.database.get_variable(variable_name),
-                    app.database.get_variable(variable_name)
+                    database.get_variable(variable_name),
+                    database.get_variable(variable_name)
                     .descriptive_statistics(filtered_df, group_by=selected_group_by)
                     .fillna(0),
                 )

@@ -18,19 +18,21 @@ from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be afte
 if __name__ == "__main__":
     st.title("Melanoma Survival variables")
     with AppLoader() as app:
-        create_database_section(app)
+        database = app.database
+        create_database_section(database)
 
-        filters = select_filters(app)
-        df_result = filter_database(app=app, filters=filters)
+        filters = select_filters(database)
+        db_view = filter_database(database=database, filters=filters)
+        filtered_df = db_view.dataframe
 
-        selected_group_by = select_group_by(app)
+        selected_group_by = select_group_by(database)
         if not selected_group_by:
             selected_group_by = None
         elif len(selected_group_by) == 1:
             selected_group_by = selected_group_by[0]
 
         survival_plot_config = dict(
-            dataframe=df_result,
+            dataframe=filtered_df,
             group_by=selected_group_by,
             alpha=0.05,
             figsize=(10, 6),
@@ -41,13 +43,11 @@ if __name__ == "__main__":
         )
         st.header("Progression free survival (PFS)")
         st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("PFS")).plot(**survival_plot_config)
+            SurvivalFunctionPlotter(database.get_variable("PFS")).plot(**survival_plot_config)
         )
         st.header("Overall survival (OS)")
-        st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("OS")).plot(**survival_plot_config)
-        )
+        st.pyplot(SurvivalFunctionPlotter(database.get_variable("OS")).plot(**survival_plot_config))
         st.header("TFS (TFS)")
         st.pyplot(
-            SurvivalFunctionPlotter(app.database.get_variable("TFS")).plot(**survival_plot_config)
+            SurvivalFunctionPlotter(database.get_variable("TFS")).plot(**survival_plot_config)
         )

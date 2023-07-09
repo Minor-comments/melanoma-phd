@@ -18,22 +18,24 @@ from streamlit_app.AppLoader import (
     create_database_section,
     filter_database,
     select_filters,
-    select_variables,
+    select_variables_by_checkbox,
 )
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
     st.title("Correlation and Independence Tests")
     with AppLoader() as app:
-        create_database_section(app)
+        database = app.database
+        create_database_section(database)
 
-        filters = select_filters(app)
-        df_result = filter_database(app=app, filters=filters)
+        filters = select_filters(database)
+        db_view = filter_database(database=database, filters=filters)
+        filtered_df = db_view.dataframe
 
         st.subheader("Variable selection")
-        selected_variables = select_variables(
-            app,
-            SelectVariableConfig(
+        selected_variables = select_variables_by_checkbox(
+            database=database,
+            select_variable_config=SelectVariableConfig(
                 "Correlation and Independence analysis",
                 variable_types=[
                     ScalarVariable,
@@ -55,7 +57,7 @@ if __name__ == "__main__":
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
             )
-            independence_table = independence_tester.table(df_result, selected_variables)
+            independence_table = independence_tester.table(filtered_df, selected_variables)
             st.dataframe(independence_table)
 
             st.header("Correlation")
@@ -63,7 +65,7 @@ if __name__ == "__main__":
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
             )
-            correlation_table = correlationer.table(df_result, selected_variables)
+            correlation_table = correlationer.table(filtered_df, selected_variables)
             st.dataframe(correlation_table)
         else:
             st.text("Select variables to analyze :)")

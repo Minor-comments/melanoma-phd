@@ -3,9 +3,8 @@ from __future__ import annotations
 import logging
 import os
 import re
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import yaml
@@ -14,7 +13,11 @@ from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.config.IterationConfigGenerator import IterationConfigGenerator
+from melanoma_phd.database.AbstractPatientDatabaseView import AbstractPatientDatabaseView
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
+from melanoma_phd.database.filter.BaseFilter import BaseFilter
+from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
+from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
 from melanoma_phd.database.source.DriveFileRepository import (
     DriveFileRepository,
     DriveFileRepositoryConfig,
@@ -37,7 +40,7 @@ class IntegrityError(Exception):
         )
 
 
-class PatientDatabase:
+class PatientDatabase(AbstractPatientDatabaseView):
     DATABASE_FOLDER = "database"
     DATABASE_FILE = "patient_database.xlsx"
     VERSION_REGEX = re.compile(r"versió\ +(?P<number>\d+)")
@@ -69,23 +72,6 @@ class PatientDatabase:
     def variables(self) -> List[BaseVariable]:
         return [variable for sheet in self.sheets for variable in sheet.variables]
 
-    def get_variable(self, variable_id: str) -> BaseVariable:
-        for variable in self.variables:
-            if variable.id == variable_id:
-                return variable
-        raise ValueError(f"'{variable_id}' variable identifier not found!")
-
-    def get_variables_by_type(
-        self, types: Union[Type[BaseVariable], List[Type[BaseVariable]]]
-    ) -> List[BaseVariable]:
-        if types and isinstance(types, Type):
-            types = [types]
-        return [
-            variable
-            for variable in self.variables
-            if any([isinstance(variable, variable_type) for variable_type in types])
-        ]
-
     def get_iteration_variables_of(
         self, reference_variable: ReferenceIterationVariable
     ) -> List[BaseVariable]:
@@ -98,6 +84,11 @@ class PatientDatabase:
 
     def reload(self) -> None:
         self.__load()
+
+    def filter(self, filters: List[BaseFilter]) -> PatientDatabaseView:
+        dataframe_to_filter = self.dataframe.copy()
+        df_result = PatientDataFilterer().filter(dataframe_to_filter, filters)
+        return PatientDatabaseView(dataframe=df_result, variables=self.variables)
 
     def __check_equal_column_data(
         self, left_dataframe: pd.DataFrame, right_dataframe: pd.DataFrame
@@ -216,6 +207,7 @@ class PatientDatabase:
                     how="inner",
                     validate="1:1",
                 )
+        self._dataframe.set_index(self._index_variable_name, inplace=True)
 
     def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
         database_sheet_name = config["name"]

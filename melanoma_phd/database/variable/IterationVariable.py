@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from melanoma_phd.database.variable.BaseIterationVariable import (
@@ -34,3 +35,7 @@ class IterationVariable(BaseIterationVariable):
     @property
     def reference_variable(self):
         return self._reference_variable
+
+    @property
+    def name_without_iteration(self) -> str:
+        return re.sub(r" *\d+\.\.\d+ *", "", self.name)

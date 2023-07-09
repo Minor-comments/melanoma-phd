@@ -1,11 +1,12 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from typing import Any
 
 import pandas as pd
 
 
 class BaseFilter(ABC):
-    @abstractproperty
+    @property
+    @abstractmethod
     def name(self) -> str:
         pass
 
