@@ -17,7 +17,7 @@ from streamlit_app.AppLoader import (
     create_database_section,
     filter_database,
     select_filters,
-    select_several_variables,
+    select_several_variables_by_checkbox,
 )
 
 if __name__ == "__main__":
@@ -56,7 +56,7 @@ if __name__ == "__main__":
                 StackedHistogram().plot(
                     distribution_variables=distribution_variables,
                     categorical_variable=categorical_variable[0],
-                    dataframe=df_result,
+                    dataframe=filtered_df,
                 )
             )
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 BoxPlotter().plot(
                     distribution_variables=distribution_variables,
                     categorical_variable=categorical_variable[0] if categorical_variable else None,
-                    dataframe=df_result,
+                    dataframe=filtered_df,
                 )
             )
         else:
