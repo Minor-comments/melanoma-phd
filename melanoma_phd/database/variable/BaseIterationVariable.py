@@ -39,11 +39,12 @@ class BaseIterationVariable(VariableDynamicMixin, ScalarVariable):
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)
-        series = self.get_series(dataframe=dataframe).dropna().astype(int)
-        self._interval = (
-            pd.Interval(left=series.min(), right=series.max(), closed="both")
-            if not series.empty
-            else None
+        iterated_variable_ids = [varable.id for varable in self._iterated_variables]
+        iterated_variables_dataframe = dataframe[iterated_variable_ids]
+        self._interval = pd.Interval(
+            left=iterated_variables_dataframe.to_numpy(na_value=0).min(),
+            right=iterated_variables_dataframe.to_numpy(na_value=0).max(),
+            closed="both",
         )
 
     def create_new_series(self, dataframe: pd.DataFrame) -> Optional[pd.Series]:

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
@@ -10,10 +11,9 @@ from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.Variable import PValueType
-from melanoma_phd.logger.StreamlitLogger import StreamlitLogger
 
 
-class IndependenceTester(StreamlitLogger):
+class IndependenceTester:
     def __init__(
         self,
         normality_null_hypothesis: PValueType = 0.05,
@@ -121,7 +121,7 @@ class IndependenceTester(StreamlitLogger):
                 empty_variables.append(variable)
         if empty_variables:
             error_msg = f"{self.__class__.__name__}: variables {[variable.name for variable in empty_variables]} are empty for the given filters. Please review database or filters."
-            self.error(error_msg)
+            logging.error(error_msg)
             raise ValueError(error_msg)
 
     def _remove_nulls_from_any_serie_to_all(
@@ -138,7 +138,7 @@ class IndependenceTester(StreamlitLogger):
             series.append(serie)
             null_mask |= serie.isnull()
         if sum(null_mask):
-            self.info(
+            logging.info(
                 f"{self.__class__.__name__}: {sum(null_mask)} nulls removed out of {len(null_mask)} values from variables {[variable.name for variable in variables]}"
             )
         return tuple(serie[~null_mask] for serie in series)
@@ -150,7 +150,7 @@ class IndependenceTester(StreamlitLogger):
             if isinstance(variable, CategoricalVariable):
                 return variable.get_numeric_series(dataframe)
             else:
-                self.warning(
+                logging.warning(
                     f"Trying to get numeric series for `{variable.name}` ({variable.__class__.__name__}) but it is not a categorical variable, defaulting to get_series"
                 )
         return variable.get_series(dataframe)

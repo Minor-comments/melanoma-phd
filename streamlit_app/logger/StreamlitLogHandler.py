@@ -6,7 +6,7 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 
-class StreamlitLogger:
+class StreamlitLogHandler(logging.Handler):
     CONTAINER_ID = "streamlit-logger-container"
 
     COLOR_LEVELS = {
@@ -17,31 +17,40 @@ class StreamlitLogger:
     }
 
     def __init__(self, container: Optional[DeltaGenerator] = None):
-        if StreamlitLogger.CONTAINER_ID in st.session_state:
-            self._container = st.session_state[StreamlitLogger.CONTAINER_ID]
+        super().__init__()
+        if StreamlitLogHandler.CONTAINER_ID in st.session_state:
+            self._container = st.session_state[StreamlitLogHandler.CONTAINER_ID]
         else:
             if container:
                 self._container = container
             else:
                 with st.expander("Streamlit Logger", expanded=True):
                     self._container = st.container()
-            st.session_state[StreamlitLogger.CONTAINER_ID] = self._container
+            st.session_state[StreamlitLogHandler.CONTAINER_ID] = self._container
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.levelno == logging.DEBUG:
+            self.debug(record.message)
+        elif record.levelno == logging.INFO:
+            self.info(record.message)
+        elif record.levelno == logging.WARNING:
+            self.warning(record.message)
+        elif record.levelno == logging.ERROR:
+            self.error(record.message)
+        else:
+            self._container.markdown(self.__format_message(record.message, record.levelname))
 
     def debug(self, message: str) -> None:
-        if logging.root.isEnabledFor(logging.DEBUG):
-            self._container.markdown(self.__format_message(message, "DEBUG"))
+        self._container.markdown(self.__format_message(message, "DEBUG"))
 
     def info(self, message: str) -> None:
-        if logging.root.isEnabledFor(logging.INFO):
-            self._container.markdown(self.__format_message(message, "INFO"))
+        self._container.markdown(self.__format_message(message, "INFO"))
 
     def warning(self, message: str) -> None:
-        if logging.root.isEnabledFor(logging.WARNING):
-            self._container.markdown(self.__format_message(message, "WARNING"))
+        self._container.markdown(self.__format_message(message, "WARNING"))
 
     def error(self, message: str) -> None:
-        if logging.root.isEnabledFor(logging.ERROR):
-            self._container.markdown(self.__format_message(message, "ERROR"))
+        self._container.markdown(self.__format_message(message, "ERROR"))
 
     def __format_message(self, message: str, level: str) -> str:
         return (

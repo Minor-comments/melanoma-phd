@@ -27,7 +27,7 @@ class RangeSliderFilter:
     def select(self) -> None:
         self._selected_intervals.clear()
         for index in range(self._sliders_number):
-            index_postfix = f" {index+1}" if self._sliders_number > 1 else ""
+            index_postfix = f" #{index+1}" if self._sliders_number > 1 else ""
             selected_interval = st.slider(
                 label=f"{self._filter.name}{index_postfix}",
                 value=tuple([self._min_value, self._max_value]),
