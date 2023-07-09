@@ -9,6 +9,7 @@ sys.path.append(
 )  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.visualizer.BoxPlotter import BoxPlotter
 from melanoma_phd.visualizer.StackedHistogram import StackedHistogram
 from streamlit_app.AppLoader import (
     AppLoader,
@@ -16,7 +17,7 @@ from streamlit_app.AppLoader import (
     create_database_section,
     filter_database,
     select_filters,
-    select_several_variables_by_checkbox,
+    select_several_variables,
 )
 
 if __name__ == "__main__":
@@ -51,13 +52,21 @@ if __name__ == "__main__":
 
         if distribution_variables and categorical_variable:
             assert len(categorical_variable) == 1, "Only one categorical variable allowed"
-            categorical_variable = categorical_variable[0]
-
             st.plotly_chart(
                 StackedHistogram().plot(
                     distribution_variables=distribution_variables,
-                    categorical_variable=categorical_variable,
-                    dataframe=filtered_df,
+                    categorical_variable=categorical_variable[0],
+                    dataframe=df_result,
+                )
+            )
+
+        if distribution_variables:
+            assert len(categorical_variable) <= 1, "No categorical variable or only one allowed"
+            st.plotly_chart(
+                BoxPlotter().plot(
+                    distribution_variables=distribution_variables,
+                    categorical_variable=categorical_variable[0] if categorical_variable else None,
+                    dataframe=df_result,
                 )
             )
         else:
