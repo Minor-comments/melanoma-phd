@@ -46,7 +46,9 @@ class AbstractPatientDatabaseView(ABC):
     def get_variables_by_type(
         self, types: Union[Type[BaseVariable], List[Type[BaseVariable]]]
     ) -> List[BaseVariable]:
-        if types and isinstance(types, Type):
+        if not types:
+            return self.variables
+        elif types and isinstance(types, Type):
             types = [types]
         return [
             variable

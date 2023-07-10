@@ -251,8 +251,7 @@ def select_variables_by_multiselect(
     selected_variables = []
     displayed_title = select_variable_config.displayed_title or "Variables to select"
     with st.form(displayed_title):
-        selector = VariableSelector(database)
-        variables = selector.get_variables_to_select(select_variable_config.variable_types)
+        variables = database.get_variables_by_type(select_variable_config.variable_types)
         variable_ids = [variable.id for variable in variables]
         selected_variables_ids = st.multiselect(
             label="Select variables to display",

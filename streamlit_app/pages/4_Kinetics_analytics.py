@@ -19,7 +19,6 @@ from streamlit_app.AppLoader import (
     filter_database,
     select_filters,
     select_one_variable,
-    select_variables_by_multiselect,
 )
 
 
