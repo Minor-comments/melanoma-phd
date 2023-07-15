@@ -323,6 +323,7 @@ sections:
               6: "antiCTLA4 based"
               7: "Other"
               8: "Anti-PDL1 based"
+              10: "Healthy volunteers"
 
         - mantenimiento:
             id: "MANTENIMIENTO"
