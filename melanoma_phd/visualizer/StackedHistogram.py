@@ -44,11 +44,11 @@ class StackedHistogram:
 
         fig = plotly_go.Figure()
         for name in distribution_variable_names:
-            errors = []
+            minus_errors = []
             means = []
             for category_name in categorical_unique_data:
                 filtered_df = plot_df[plot_df[categorical_variable_name] == category_name]
-                errors.append(float(np.nanstd(filtered_df[name])))
+                minus_errors.append(float(np.nanstd(filtered_df[name]) / 2))
                 means.append(float(np.nanmean(filtered_df[name])))
 
             hovertemplate = (
@@ -61,7 +61,15 @@ class StackedHistogram:
                     x=categorical_unique_data,
                     y=means,
                     hovertemplate=hovertemplate,
-                    error_y={"type": "data", "array": errors},
+                    error_y={
+                        "type": "data",
+                        "symmetric": False,
+                        "arrayminus": minus_errors,
+                        "array": [
+                            0,
+                        ]
+                        * len(minus_errors),
+                    },
                 )
             )
         fig.update_layout(
