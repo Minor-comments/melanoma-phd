@@ -10,7 +10,9 @@ from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 
 
 class BoxPlotter:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+    ) -> None:
         pass
 
     def plot(
@@ -18,10 +20,17 @@ class BoxPlotter:
         distribution_variables: List[ScalarVariable],
         dataframe: pd.DataFrame,
         categorical_variable: Optional[CategoricalVariable] = None,
+        show_points: bool = False,
+        y_max_value: Optional[float] = None,
+        reference_variable_name: Optional[str] = None,
+        percentage_values: bool = False,
     ) -> plotly_go.Figure:
         distribution_variable_names = [variable.name for variable in distribution_variables]
         title = f"Distribution of {' / '.join(distribution_variable_names)}"
         plot_kwargs = {"y": "value", "x": "variable"}
+        if show_points:
+            plot_kwargs["points"] = "all"
+
         if categorical_variable:
             categorical_variable_name = categorical_variable.name
             categorical_data = categorical_variable.get_series(dataframe)
@@ -47,4 +56,21 @@ class BoxPlotter:
         plot_kwargs.update({"title": title})
 
         fig = px.box(plot_df, **plot_kwargs)
+
+        if reference_variable_name:
+            percentage_values = True
+            fig.update_yaxes(title=f"Mean (% of {reference_variable_name})")
+        elif percentage_values:
+            fig.update_yaxes(title=f"Mean (%)")
+        else:
+            fig.update_yaxes(title=f"Mean")
+
+        if y_max_value:
+            fig.update_yaxes(range=[0, y_max_value])
+
+        if categorical_variable:
+            xaxis_title = categorical_variable_name
+        else:
+            xaxis_title = ""
+        fig.update_xaxes(title=xaxis_title)
         return fig

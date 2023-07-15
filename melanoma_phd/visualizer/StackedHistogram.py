@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -19,6 +19,9 @@ class StackedHistogram:
         distribution_variables: List[ScalarVariable],
         categorical_variable: CategoricalVariable,
         dataframe: pd.DataFrame,
+        y_max_value: Optional[float] = None,
+        reference_variable_name: Optional[str] = None,
+        percentage_values: bool = False,
     ) -> plotly_go.Figure:
         distribution_data = [
             variable.get_series(dataframe).values for variable in distribution_variables
@@ -26,7 +29,7 @@ class StackedHistogram:
         distribution_variable_names = [variable.name for variable in distribution_variables]
         categorical_variable_name = categorical_variable.name
         categorical_data = categorical_variable.get_series(dataframe)
-        categorical_unique_data = categorical_data.unique()
+        categorical_unique_data = list(categorical_data.unique()) + ["All"]
         plot_df = pd.DataFrame(
             zip(*distribution_data, categorical_data),
             columns=distribution_variable_names + [categorical_variable_name],
@@ -47,7 +50,10 @@ class StackedHistogram:
             minus_errors = []
             means = []
             for category_name in categorical_unique_data:
-                filtered_df = plot_df[plot_df[categorical_variable_name] == category_name]
+                if category_name == "All":
+                    filtered_df = plot_df
+                else:
+                    filtered_df = plot_df[plot_df[categorical_variable_name] == category_name]
                 minus_errors.append(float(np.nanstd(filtered_df[name]) / 2))
                 means.append(float(np.nanmean(filtered_df[name])))
 
@@ -80,4 +86,16 @@ class StackedHistogram:
             hoverlabel_align="left",
             yaxis_title="Mean value",
         )
+
+        if reference_variable_name:
+            percentage_values = True
+            fig.update_yaxes(title=f"Mean (% of {reference_variable_name})")
+        elif percentage_values:
+            fig.update_yaxes(title=f"Mean (%)")
+        else:
+            fig.update_yaxes(title=f"Mean")
+
+        if y_max_value:
+            fig.update_yaxes(range=[0, y_max_value])
+
         return fig
