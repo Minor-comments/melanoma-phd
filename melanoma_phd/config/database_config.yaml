@@ -726,7 +726,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+)(1..10):
             id: "T(CD3+)({N})"
-            name: "T(CD3+)"
+            name: "LT(CD3+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -734,7 +734,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+)(1..10)Fluo:
             id: "T(CD3+)({N})Fluo "
-            name: "T(CD3+)Fluo"
+            name: "LT(CD3+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -742,7 +742,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD4+)(1..10):
             id: "T(CD3+CD4+)({N})"
-            name: "T(CD3+CD4+)"
+            name: "LT(CD3+CD4+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -750,7 +750,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD4+)(1..10)Fluo:
             id: "T(CD3+CD4+)({N})Fluo"
-            name: "T(CD3+CD4+)Fluo"
+            name: "LT(CD3+CD4+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -758,7 +758,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD8+)(1..10):
             id: "T(CD3+CD8+)({N})"
-            name: "T(CD3+CD8+)"
+            name: "LT(CD3+CD8+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -766,7 +766,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD8+)(1..10)Fluo:
             id: "T(CD3+CD8+)({N})Fluo"
-            name: "T(CD3+CD8+)Fluo"
+            name: "LT(CD3+CD8+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_reference_variable_id: "TIEMPO IT{N}"
@@ -974,7 +974,7 @@ sections:
             _iteration_type: IterationVariable
         - efectora (CD8+CCR7-CD45RO-)(1..10):
             id: "efectora (CD8+CCR7-CD45RO-) ({N})"
-            name: "efectora (CD8+CCR7-CD45RO-)"
+            name: "efectora (CD3+CD8+CCR7-CD45RO-)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -990,7 +990,7 @@ sections:
             _iteration_type: IterationVariable
         - efectora (CD4+CCR7-CD45RO-) (1..10):
             id: "efectora (CD4+CCR7-CD45RO-) ({N})"
-            name: "efectora (CD4+CCR7-CD45RO-)"
+            name: "efectora (CD3+CD4+CCR7-CD45RO-)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1094,7 +1094,7 @@ sections:
             _iteration_type: IterationVariable
         - CTLA4+(1..10):
             id: "CTLA4+({N})"
-            name: "CTLA4+"
+            name: "LT(CD3+CTLA4+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1102,7 +1102,7 @@ sections:
             _iteration_type: IterationVariable
         - CTLA4+(1..10)Fluo:
             id: "CTLA4+({N})Fluo"
-            name: "CTLA4+Fluo"
+            name: "LT(CD3+CTLA4+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1110,7 +1110,7 @@ sections:
             _iteration_type: IterationVariable
         - PDL1+(1..10):
             id: "PDL1+({N})"
-            name: "PDL1+"
+            name: "LT(CD3+PDL1+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1118,7 +1118,7 @@ sections:
             _iteration_type: IterationVariable
         - PDL1+(1..10)Fluo:
             id: "PDL1+({N})Fluo"
-            name: "PDL1+Fluo"
+            name: "LT(CD3+PDL1+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1126,7 +1126,7 @@ sections:
             _iteration_type: IterationVariable
         - CD25+(1..10):
             id: "CD25+({N})"
-            name: "CD25+"
+            name: "LT(CD3+CD25+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1134,7 +1134,7 @@ sections:
             _iteration_type: IterationVariable
         - CD25+(1..10)Fluo:
             id: "CD25+({N})Fluo"
-            name: "CD25+Fluo"
+            name: "LT(CD3+CD25+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1142,7 +1142,7 @@ sections:
             _iteration_type: IterationVariable
         - HLA-DR+(1..10):
             id: "HLA-DR+({N})"
-            name: "HLA-DR+"
+            name: "LT(CD3+HLA-DR+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1150,7 +1150,7 @@ sections:
             _iteration_type: IterationVariable
         - HLA-DR+(1..10)Fluo:
             id: "HLA-DR+({N})Fluo"
-            name: "HLA-DR+Fluo"
+            name: "LT(CD3+HLA-DR+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1158,7 +1158,7 @@ sections:
             _iteration_type: IterationVariable
         - CD40L+(1..10):
             id: "CD40L+({N})"
-            name: "CD40L+"
+            name: "LT(CD3+CD40L+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1166,7 +1166,7 @@ sections:
             _iteration_type: IterationVariable
         - CD40L+(1..10)Fluo:
             id: "CD40L+({N})Fluo"
-            name: "CD40L+Fluo"
+            name: "LT(CD3+CD40L+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1174,7 +1174,7 @@ sections:
             _iteration_type: IterationVariable
         - CD62L+(1..10):
             id: "CD62L+({N})"
-            name: "CD62L+"
+            name: "LT(CD3+CD62L+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1182,7 +1182,7 @@ sections:
             _iteration_type: IterationVariable
         - CD62L+(1..10)Fluo:
             id: "CD62L+({N})Fluo"
-            name: "CD62L+Fluo"
+            name: "LT(CD3+CD62L+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1190,7 +1190,7 @@ sections:
             _iteration_type: IterationVariable
         - CD69+(1..10):
             id: "CD69+({N})"
-            name: "CD69+"
+            name: "LT(CD3+CD69+)"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1198,7 +1198,7 @@ sections:
             _iteration_type: IterationVariable
         - CD69+(1..10)Fluo:
             id: "CD69+({N})Fluo"
-            name: "CD69+Fluo"
+            name: "LT(CD3+CD69+)Fluo"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1238,7 +1238,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+) Abs(1..10):
             id: "T(CD3+) Abs ({N})"
-            name: "T(CD3+) Abs"
+            name: "LT(CD3+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1246,7 +1246,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD4+) Abs(1..10):
             id: "T(CD3+CD4+) Abs ({N})"
-            name: "T(CD3+CD4+) Abs"
+            name: "LT(CD3+CD4+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1254,7 +1254,7 @@ sections:
             _iteration_type: IterationVariable
         - T(CD3+CD8+) Abs(1..10):
             id: "T(CD3+CD8+) Abs ({N})"
-            name: "T(CD3+CD8+) Abs"
+            name: "LT(CD3+CD8+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1382,7 +1382,7 @@ sections:
             _iteration_type: IterationVariable
         - efectora (CD8+CCR7-CD45RO-)(1..10) Abs:
             id: "efectora (CD8+CCR7-CD45RO-) ({N}) Abs"
-            name: "efectora (CD8+CCR7-CD45RO-) Abs"
+            name: "efectora (CD3+CD8+CCR7-CD45RO-) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1390,7 +1390,7 @@ sections:
             _iteration_type: IterationVariable
         - efectora (CD4+CCR7-CD45RO-) (1..10) Abs:
             id: "efectora (CD4+CCR7-CD45RO-) ({N}) Abs"
-            name: "efectora (CD4+CCR7-CD45RO-) Abs"
+            name: "efectora (CD3+CD4+CCR7-CD45RO-) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1406,7 +1406,7 @@ sections:
             _iteration_type: IterationVariable
         - CTLA4+ Abs(1..10):
             id: "CTLA4+ Abs ({N})"
-            name: "CTLA4+ Abs"
+            name: "LT(CD3+CTLA4+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1414,7 +1414,7 @@ sections:
             _iteration_type: IterationVariable
         - PDL1+ Abs(1..10):
             id: "PDL1+ Abs ({N})"
-            name: "PDL1+ Abs"
+            name: "LT(CD3+PDL1+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1422,7 +1422,7 @@ sections:
             _iteration_type: IterationVariable
         - CD25+ Abs(1..10):
             id: "CD25+ Abs ({N})"
-            name: "CD25+ Abs"
+            name: "LT(CD3+CD25+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1430,7 +1430,7 @@ sections:
             _iteration_type: IterationVariable
         - HLA-DR+ Abs(1..10):
             id: "HLA-DR+ Abs ({N})"
-            name: "HLA-DR+ Abs"
+            name: "LT(CD3+HLA-DR+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1438,7 +1438,7 @@ sections:
             _iteration_type: IterationVariable
         - CD40L+ Abs(1..10):
             id: "CD40L+ Abs ({N})"
-            name: "CD40L+ Abs"
+            name: "LT(CD3+CD40L+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1446,7 +1446,7 @@ sections:
             _iteration_type: IterationVariable
         - CD62L+ Abs(1..10):
             id: "CD62L+ Abs ({N})"
-            name: "CD62L+ Abs"
+            name: "LT(CD3+CD62L+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
@@ -1454,7 +1454,7 @@ sections:
             _iteration_type: IterationVariable
         - CD69+ Abs(1..10):
             id: "CD69+ Abs ({N})"
-            name: "CD69+ Abs"
+            name: "LT(CD3+CD69+) Abs"
             _iterated_type: iterated
             _iterated_selectable: false
             _iteration_selectable: true
