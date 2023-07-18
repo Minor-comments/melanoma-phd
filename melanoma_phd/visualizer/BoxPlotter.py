@@ -31,14 +31,22 @@ class BoxPlotter:
         if show_points:
             plot_kwargs["points"] = "all"
 
+        distribution_variable_lengths = [
+            len(variable.get_series(dataframe)) for variable in distribution_variables
+        ]
+
         if categorical_variable:
             categorical_variable_name = categorical_variable.name
             categorical_data = categorical_variable.get_series(dataframe)
             plot_df = pd.DataFrame(
                 [
-                    (value, variable.name, categorical_data.iloc[i])
-                    for variable in distribution_variables
-                    for i, value in enumerate(variable.get_series(dataframe).values)
+                    (
+                        value,
+                        f"{variable.name}<br>N = {distribution_variable_lengths[i]}",
+                        categorical_data.iloc[j],
+                    )
+                    for i, variable in enumerate(distribution_variables)
+                    for j, value in enumerate(variable.get_series(dataframe).values)
                 ],
                 columns=["value", "variable"] + [categorical_variable_name],
             )
@@ -47,8 +55,8 @@ class BoxPlotter:
         else:
             plot_df = pd.DataFrame(
                 [
-                    (value, variable.name)
-                    for variable in distribution_variables
+                    (value, f"{variable.name}<br>N = {distribution_variable_lengths[i]}")
+                    for i, variable in enumerate(distribution_variables)
                     for value in variable.get_series(dataframe).values
                 ],
                 columns=["value", "variable"],
