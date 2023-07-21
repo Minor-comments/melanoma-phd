@@ -49,6 +49,7 @@ class StackedHistogram:
         for name in distribution_variable_names:
             minus_errors = []
             means = []
+            x_names = []
             for category_name in categorical_unique_data:
                 if category_name == "All":
                     filtered_df = plot_df
@@ -56,6 +57,7 @@ class StackedHistogram:
                     filtered_df = plot_df[plot_df[categorical_variable_name] == category_name]
                 minus_errors.append(float(np.nanstd(filtered_df[name]) / 2))
                 means.append(float(np.nanmean(filtered_df[name])))
+                x_names.append(f"{category_name}<br>N = {len(filtered_df)}")
 
             hovertemplate = (
                 f"variable: {name}<br>" + f"{categorical_variable_name}: %{{x}}<br>"
@@ -64,7 +66,7 @@ class StackedHistogram:
             fig.add_trace(
                 plotly_go.Bar(
                     name=name,
-                    x=categorical_unique_data,
+                    x=x_names,
                     y=means,
                     hovertemplate=hovertemplate,
                     error_y={
