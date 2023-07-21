@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 from typing import Dict, List
@@ -49,9 +50,15 @@ def get_cell_variable_groups() -> Dict[str, List[str]]:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Melanoma PHD Statistics Streamlit App")
+    parser.add_argument("--log_trace", action="store_true", help="Show log trace on webpage")
+
+    args = parser.parse_args()
+    log_trace = args.log_trace
+
     st.set_page_config(page_title="Melanoma PHD Statistics", layout="wide")
     st.title("Melanoma PHD Decriptive Statistics")
-    with AppLoader() as app:
+    with AppLoader(log_trace=log_trace) as app:
         database = app.database
         create_database_section(database)
 

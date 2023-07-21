@@ -1,1 +1,1 @@
-python3 -m streamlit run streamlit_app/home.py
+python3 -m streamlit run streamlit_app/home.py -- --log_trace

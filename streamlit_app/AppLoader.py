@@ -291,8 +291,9 @@ def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
 
 
 class AppLoader:
-    def __init__(self) -> None:
+    def __init__(self, log_trace: bool = False) -> None:
         self._app: Optional[MelanomaPhdApp] = None
+        self._log_trace: bool = log_trace
 
     @property
     def database(self) -> PatientDatabase:
@@ -318,6 +319,5 @@ class AppLoader:
 
     @st.cache_resource(show_spinner="Loading main application & database...")
     def __load_app(_self) -> MelanomaPhdApp:
-        return create_melanoma_phd_app(
-            log_level=logging.INFO, custom_handlers=[StreamlitLogHandler()]
-        )
+        custom_handlers = [StreamlitLogHandler()] if _self._log_trace else []
+        return create_melanoma_phd_app(log_level=logging.INFO, custom_handlers=custom_handlers)
