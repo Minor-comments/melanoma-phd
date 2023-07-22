@@ -83,6 +83,7 @@ def select_filters(database: PatientDatabase) -> List[Filter]:
                 ),
                 sliders_number=1,
             ),
+            MultiSelectFilter(CategoricalFilter(database.get_variable("PFS 24"))),
         ]
         for filter in filters:
             filter.select()

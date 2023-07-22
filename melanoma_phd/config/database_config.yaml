@@ -634,6 +634,15 @@ sections:
               1: "Rel mel"
               2: "No rel mel"
 
+        - PFS 24:
+            id: "PFS 24"
+            name: "PFS >= 24"
+            type: categorical
+            categories:
+              0: "< 24"
+              1: ">= 24"
+              2: "no evaluable"
+
         - ldh_al_dx:
             id: "LDH AL DX (SIMPLIF)"
             name: "LDH AL DX (SIMPLIF)"
