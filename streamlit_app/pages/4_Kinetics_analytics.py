@@ -10,7 +10,7 @@ sys.path.append(
 )  # isort: skip <- Force to be after workaround
 from melanoma_phd.database.Patient import Patient
 from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
-from melanoma_phd.database.variable.IterationVariable import IterationVariable
+from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
 from melanoma_phd.visualizer.KineticsPlotter import KineticsPlotter
 from streamlit_app.AppLoader import (
     AppLoader,
@@ -33,7 +33,7 @@ def select_patients(database_view: PatientDatabaseView) -> List[Patient]:
     return database_view.get_patients(patient_ids)
 
 
-def plot_kinetics(variable: IterationVariable, patients: List[Patient]) -> None:
+def plot_kinetics(variable: IterationScalarVariable, patients: List[Patient]) -> None:
     figure = KineticsPlotter().plot(variable, patients)
     st.pyplot(figure)
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="kinetics itreated variable",
-                variable_types=[IterationVariable],
+                variable_types=[IterationScalarVariable],
                 displayed_title="Select iterated variable",
             ),
         )

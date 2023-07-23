@@ -2,17 +2,17 @@ from typing import List
 
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseIterationVariable import (
-    BaseIterationVariable,
-    BaseIterationVariableConfig,
+from melanoma_phd.database.variable.BaseIterationScalarVariable import (
+    BaseIterationScalarVariable,
+    BaseIterationScalarVariableConfig,
 )
 
 
-class ReferenceIterationVariableConfig(BaseIterationVariableConfig):
+class ReferenceIterationVariableConfig(BaseIterationScalarVariableConfig):
     pass
 
 
-class ReferenceIterationVariable(BaseIterationVariable):
+class ReferenceIterationVariable(BaseIterationScalarVariable):
     def __init__(self, config: ReferenceIterationVariableConfig) -> None:
         super().__init__(config=config)
         self._iterated_variables = config.iterated_variables

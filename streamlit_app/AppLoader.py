@@ -12,7 +12,8 @@ import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
-from melanoma_phd.database.filter.IterationFilter import IterationFilter
+from melanoma_phd.database.filter.IterationCategoricalFilter import IterationCategoricalFilter
+from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -64,7 +65,7 @@ def select_filters(database: PatientDatabase) -> List[Filter]:
             MultiSelectFilter(CategoricalFilter(database.get_variable("BOR"))),
             MultiSelectFilter(CategoricalFilter(database.get_variable("PROGRESIÓN EXTRACRANIAL"))),
             RangeSliderFilter(
-                filter=IterationFilter(
+                filter=IterationScalarFilter(
                     name="At least one extraction time at X months",
                     reference_variable=reference_iteration_variable,
                     iteration_variables=database.get_iteration_variables_of(
@@ -74,7 +75,7 @@ def select_filters(database: PatientDatabase) -> List[Filter]:
                 sliders_number=2,
             ),
             RangeSliderFilter(
-                filter=IterationFilter(
+                filter=IterationScalarFilter(
                     name="Extraction time at X months",
                     reference_variable=reference_iteration_variable,
                     iteration_variables=database.get_iteration_variables_of(
@@ -84,6 +85,15 @@ def select_filters(database: PatientDatabase) -> List[Filter]:
                 sliders_number=1,
             ),
             MultiSelectFilter(CategoricalFilter(database.get_variable("PFS 24"))),
+            MultiSelectFilter(
+                filter=IterationCategoricalFilter(
+                    name="IT PD",
+                    reference_variable=database.get_variable("IT{N} PD"),
+                    iteration_variables=database.get_iteration_variables_of(
+                        reference_variable=reference_iteration_variable
+                    ),
+                ),
+            ),
         ]
         for filter in filters:
             filter.select()

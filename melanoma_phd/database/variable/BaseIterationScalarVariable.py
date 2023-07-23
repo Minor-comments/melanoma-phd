@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.IteratedVariableStatic import IteratedVariableStatic
+from melanoma_phd.database.variable.IteratedScalarVariableStatic import IteratedScalarVariableStatic
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 from melanoma_phd.database.variable.VariableDynamicMixin import (
@@ -14,12 +14,12 @@ from melanoma_phd.database.variable.VariableDynamicMixin import (
 )
 
 
-class BaseIterationVariableConfig(BaseDynamicVariableConfig):
+class BaseIterationScalarVariableConfig(BaseDynamicVariableConfig):
     def __init__(
         self,
         id: str,
         name: str,
-        iterated_variables: List[IteratedVariableStatic],
+        iterated_variables: List[IteratedScalarVariableStatic],
         selectable: bool = True,
     ) -> None:
         super().__init__(
@@ -31,8 +31,8 @@ class BaseIterationVariableConfig(BaseDynamicVariableConfig):
         self.iterated_variables = iterated_variables
 
 
-class BaseIterationVariable(VariableDynamicMixin, ScalarVariable):
-    def __init__(self, config: BaseIterationVariableConfig) -> None:
+class BaseIterationScalarVariable(VariableDynamicMixin, ScalarVariable):
+    def __init__(self, config: BaseIterationScalarVariableConfig) -> None:
         super().__init__(config=config)
         self._iterated_variables = config.iterated_variables
         self._interval: Optional[pd.Interval] = None

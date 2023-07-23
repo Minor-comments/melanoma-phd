@@ -1,21 +1,21 @@
 import re
 from typing import List
 
-from melanoma_phd.database.variable.BaseIterationVariable import (
-    BaseIterationVariable,
-    BaseIterationVariableConfig,
+from melanoma_phd.database.variable.BaseIterationScalarVariable import (
+    BaseIterationScalarVariable,
+    BaseIterationScalarVariableConfig,
 )
-from melanoma_phd.database.variable.IteratedVariableStatic import IteratedVariableStatic
+from melanoma_phd.database.variable.IteratedScalarVariableStatic import IteratedScalarVariableStatic
 from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
 
 
-class IterationVariableConfig(BaseIterationVariableConfig):
+class IterationScalarVariableConfig(BaseIterationScalarVariableConfig):
     def __init__(
         self,
         id: str,
         name: str,
         reference_variable: ReferenceIterationVariable,
-        iterated_variables: List[IteratedVariableStatic],
+        iterated_variables: List[IteratedScalarVariableStatic],
         selectable: bool = True,
     ) -> None:
         super().__init__(
@@ -27,15 +27,11 @@ class IterationVariableConfig(BaseIterationVariableConfig):
         self.reference_variable = reference_variable
 
 
-class IterationVariable(BaseIterationVariable):
-    def __init__(self, config: IterationVariableConfig) -> None:
+class IterationScalarVariable(BaseIterationScalarVariable):
+    def __init__(self, config: IterationScalarVariableConfig) -> None:
         super().__init__(config=config)
         self._reference_variable = config.reference_variable
 
     @property
     def reference_variable(self):
         return self._reference_variable
-
-    @property
-    def name_without_iteration(self) -> str:
-        return re.sub(r" *\d+\.\.\d+ *", "", self.name)

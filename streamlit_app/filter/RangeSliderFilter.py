@@ -3,18 +3,18 @@ from typing import List, Optional, Union
 import pandas as pd
 import streamlit as st
 
-from melanoma_phd.database.filter.IterationFilter import IterationFilter
+from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
 
 
 class RangeSliderFilter:
     def __init__(
         self,
-        filter: IterationFilter,
+        filter: IterationScalarFilter,
         sliders_number: int = 1,
         min_value: Optional[Union[int, float]] = None,
         max_value: Optional[Union[int, float]] = None,
     ) -> None:
-        self._filter: IterationFilter = filter
+        self._filter: IterationScalarFilter = filter
         self._selected_intervals: List[pd.Interval] = []
         self._sliders_number = sliders_number
         self._min_value = min_value

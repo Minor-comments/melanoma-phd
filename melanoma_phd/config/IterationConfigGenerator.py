@@ -52,7 +52,9 @@ class IterationConfigGenerator:
 
     @staticmethod
     def remove_dict_keys(dictionary: Dict[str, Any], prefix: str) -> None:
-        keys_to_remove = [key for key in dictionary.keys() if key.startswith(prefix)]
+        keys_to_remove = [
+            key for key in dictionary.keys() if isinstance(key, str) and key.startswith(prefix)
+        ]
         for key in keys_to_remove:
             dictionary.pop(key)
         for key, value in dictionary.items():
@@ -61,7 +63,9 @@ class IterationConfigGenerator:
 
     @staticmethod
     def remove_dict_prefix(dictionary: Dict[str, Any], prefix: str) -> None:
-        keys_to_change = [key for key in dictionary.keys() if key.startswith(prefix)]
+        keys_to_change = [
+            key for key in dictionary.keys() if isinstance(key, str) and key.startswith(prefix)
+        ]
         for key in keys_to_change:
             dictionary[key.removeprefix(prefix)] = dictionary.pop(key)
         for key, value in dictionary.items():

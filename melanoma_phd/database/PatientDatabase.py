@@ -25,7 +25,8 @@ from melanoma_phd.database.source.DriveFileRepository import (
 )
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.IterationVariable import IterationVariable
+from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
+from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
 from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
 from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
@@ -75,7 +76,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
     def get_iteration_variables_of(
         self, reference_variable: ReferenceIterationVariable
     ) -> List[BaseVariable]:
-        iteration_variables = self.get_variables_by_type(IterationVariable)
+        iteration_variables = self.get_variables_by_type(
+            [IterationScalarVariable, IterationCategoricalVariable]
+        )
         return [
             variable
             for variable in iteration_variables
