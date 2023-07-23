@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as plotly_go
+from plotly.express.colors import sample_colorscale
 
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
@@ -46,7 +47,15 @@ class StackedHistogram:
         title = f"Distribution of {' / '.join(distribution_variable_names)} over {categorical_variable_name}"
 
         fig = plotly_go.Figure()
-        for name in distribution_variable_names:
+        colorscale = self.__get_colorscale(distribution_variable_names)
+        color_samples = sample_colorscale(
+            colorscale,
+            [
+                (1 / len(distribution_variable_names) * (i + 1))
+                for i in range(len(distribution_variable_names))
+            ],
+        )
+        for index, name in enumerate(distribution_variable_names):
             minus_errors = []
             means = []
             x_names = []
@@ -78,6 +87,9 @@ class StackedHistogram:
                         ]
                         * len(minus_errors),
                     },
+                    marker={
+                        "color": color_samples[index],
+                    },
                 )
             )
         fig.update_layout(
@@ -101,3 +113,17 @@ class StackedHistogram:
             fig.update_yaxes(range=[0, y_max_value])
 
         return fig
+
+    def __get_colorscale(self, distribution_variable_names: List[str]) -> str:
+        colorscale_dict = {
+            "Viridis": ["naive", "mem central", "mem efectora", "efectora", "transitional"],
+            "Burgyl": ["CD4", "CD8", "DN", "DP"],
+            "Plasma": ["LT", "LB", "NK"],
+        }
+        default = "Plotly3"
+        for colorscale, variable_substrings in colorscale_dict.items():
+            for variable_substring in variable_substrings:
+                for distribution_variable_name in distribution_variable_names:
+                    if variable_substring in distribution_variable_name:
+                        return colorscale
+        return default
