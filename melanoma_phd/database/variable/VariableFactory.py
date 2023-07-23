@@ -21,13 +21,13 @@ from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariab
 from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
 from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariableConfig
 from melanoma_phd.database.variable.DateTimeVariableStatic import DateTimeVariableStatic
-from melanoma_phd.database.variable.IteratedVariableStatic import (
-    IteratedVariableConfig,
-    IteratedVariableStatic,
+from melanoma_phd.database.variable.IteratedScalarVariableStatic import (
+    IteratedScalarVariableConfig,
+    IteratedScalarVariableStatic,
 )
-from melanoma_phd.database.variable.IterationVariable import (
-    IterationVariable,
-    IterationVariableConfig,
+from melanoma_phd.database.variable.IterationScalarVariable import (
+    IterationScalarVariable,
+    IterationScalarVariableConfig,
 )
 from melanoma_phd.database.variable.ReferenceIterationVariable import (
     ReferenceIterationVariable,
@@ -60,8 +60,8 @@ class VariableFactory:
             VariableType.DATETIME.value: VariableFactoryClass(
                 class_type=DateTimeVariableStatic, config_type=DateTimeVariableConfig
             ),
-            VariableType.ITERATED.value: VariableFactoryClass(
-                class_type=IteratedVariableStatic, config_type=IteratedVariableConfig
+            VariableType.ITERATED_SCALAR.value: VariableFactoryClass(
+                class_type=IteratedScalarVariableStatic, config_type=IteratedScalarVariableConfig
             ),
         }
         # So far, use a known set of dyanmic variables to create
@@ -69,7 +69,9 @@ class VariableFactory:
             VariableFactoryClass(
                 class_type=ReferenceIterationVariable, config_type=ReferenceIterationVariableConfig
             ),
-            VariableFactoryClass(class_type=IterationVariable, config_type=IterationVariableConfig),
+            VariableFactoryClass(
+                class_type=IterationScalarVariable, config_type=IterationScalarVariableConfig
+            ),
             VariableFactoryClass(class_type=SurvivalVariable, config_type=SurvivalVariableConfig),
         ]
         self._dynamic_classes: Dict[str, VariableFactoryClass] = {}
@@ -134,7 +136,7 @@ class VariableFactory:
         self,
         dataframe: pd.DataFrame,
         type: str,
-        iterated_variables: List[IteratedVariableStatic],
+        iterated_variables: List[IteratedScalarVariableStatic],
         **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         return self.create_dynamic(
@@ -149,7 +151,7 @@ class VariableFactory:
         dataframe: pd.DataFrame,
         type: str,
         reference_variable: ReferenceIterationVariable,
-        iterated_variables: List[IteratedVariableStatic],
+        iterated_variables: List[IteratedScalarVariableStatic],
         **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         return self.create_dynamic(

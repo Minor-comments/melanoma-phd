@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from melanoma_phd.database.Patient import Patient
-from melanoma_phd.database.variable.IterationVariable import IterationVariable
+from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
 
 
 class KineticsPlotter:
     def __init__(self) -> None:
         pass
 
-    def plot(self, variable: IterationVariable, patients: List[Patient]) -> plt.Figure:
+    def plot(self, variable: IterationScalarVariable, patients: List[Patient]) -> plt.Figure:
         time_series: Dict[str, pd.DataFrame] = {}
         for patient in patients:
             time_series[patient.id] = patient.create_time_series(

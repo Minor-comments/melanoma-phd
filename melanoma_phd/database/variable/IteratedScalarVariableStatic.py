@@ -7,12 +7,12 @@ from melanoma_phd.database.variable.ScalarVariableStatic import ScalarVariableSt
 
 
 @dataclass
-class IteratedVariableConfig(ScalarVariableConfig):
+class IteratedScalarVariableConfig(ScalarVariableConfig):
     pass
 
 
-class IteratedVariableStatic(ScalarVariableStatic):
-    def __init__(self, config: IteratedVariableConfig) -> None:
+class IteratedScalarVariableStatic(ScalarVariableStatic):
+    def __init__(self, config: IteratedScalarVariableConfig) -> None:
         super().__init__(config=config)
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:

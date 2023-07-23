@@ -4,16 +4,16 @@ import numpy as np
 import pandas as pd
 
 from melanoma_phd.database.filter.BaseFilter import BaseFilter
-from melanoma_phd.database.variable.IterationVariable import IterationVariable
+from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
 from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
 
 
-class IterationFilter(BaseFilter):
+class IterationScalarFilter(BaseFilter):
     def __init__(
         self,
         name: str,
         reference_variable: ReferenceIterationVariable,
-        iteration_variables: List[IterationVariable],
+        iteration_variables: List[IterationScalarVariable],
     ) -> None:
         super().__init__()
         self._name = name

@@ -14,7 +14,7 @@ class VariableType(Enum):
     CATEGORICAL = "categorical"
     BOOLEAN = "boolean"
     DATETIME = "datetime"
-    ITERATED = "iterated"
+    ITERATED_SCALAR = "iterated_scalar"
 
 
 class BaseVariable(ABC):
