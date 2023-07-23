@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 import pandas as pd
 from pandas.core.dtypes.common import (
@@ -21,9 +21,17 @@ from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariab
 from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
 from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariableConfig
 from melanoma_phd.database.variable.DateTimeVariableStatic import DateTimeVariableStatic
+from melanoma_phd.database.variable.IteratedCategoricalVariableStatic import (
+    IteratedCategoricalVariableConfig,
+    IteratedCategoricalVariableStatic,
+)
 from melanoma_phd.database.variable.IteratedScalarVariableStatic import (
     IteratedScalarVariableConfig,
     IteratedScalarVariableStatic,
+)
+from melanoma_phd.database.variable.IterationCategoricalVariable import (
+    IterationCategoricalVariable,
+    IterationCategoricalVariableConfig,
 )
 from melanoma_phd.database.variable.IterationScalarVariable import (
     IterationScalarVariable,
@@ -63,6 +71,10 @@ class VariableFactory:
             VariableType.ITERATED_SCALAR.value: VariableFactoryClass(
                 class_type=IteratedScalarVariableStatic, config_type=IteratedScalarVariableConfig
             ),
+            VariableType.ITERATED_CATEGORICAL.value: VariableFactoryClass(
+                class_type=IteratedCategoricalVariableStatic,
+                config_type=IteratedCategoricalVariableConfig,
+            ),
         }
         # So far, use a known set of dyanmic variables to create
         dynamic_classes = [
@@ -71,6 +83,10 @@ class VariableFactory:
             ),
             VariableFactoryClass(
                 class_type=IterationScalarVariable, config_type=IterationScalarVariableConfig
+            ),
+            VariableFactoryClass(
+                class_type=IterationCategoricalVariable,
+                config_type=IterationCategoricalVariableConfig,
             ),
             VariableFactoryClass(class_type=SurvivalVariable, config_type=SurvivalVariableConfig),
         ]
@@ -151,7 +167,9 @@ class VariableFactory:
         dataframe: pd.DataFrame,
         type: str,
         reference_variable: ReferenceIterationVariable,
-        iterated_variables: List[IteratedScalarVariableStatic],
+        iterated_variables: List[
+            Union[IteratedScalarVariableStatic, IteratedCategoricalVariableStatic]
+        ],
         **kwargs,
     ) -> Tuple[BaseVariable, pd.DataFrame]:
         return self.create_dynamic(

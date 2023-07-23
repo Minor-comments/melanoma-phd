@@ -24,7 +24,7 @@ class KineticsPlotter:
             lines = axes.plot(ts.iloc[:, 0], ts.iloc[:, 1], "o-")
             lines[0].set_label(patient_id)
         axes.set_xlabel("Months")
-        axes.set_ylabel(variable.name_without_iteration)
+        axes.set_ylabel(variable.name)
         axes.grid(True)
         axes.legend()
 

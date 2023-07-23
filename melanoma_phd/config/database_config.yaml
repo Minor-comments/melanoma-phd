@@ -725,6 +725,22 @@ sections:
             _iterated_selectable: false
             _iteration_selectable: false
             _iteration_type: ReferenceIterationVariable
+        - it pd(1..10):
+            id: "IT{N} PD"
+            name: "IT PD 1..10"
+            _iterated_type: iterated_categorical
+            _iterated_selectable: false
+            _iterated_categories:
+                0: "No PD"
+                1: "PD"
+                3: "extracción en momento basal"
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationCategoricalVariable
+            _iteration_categories:
+                0: "No PD"
+                1: "PD"
+                3: "extracción en momento basal"
         - limfos totals(1..10):
             id: "Limfos totals ({N})"
             name: "Limfos totals"

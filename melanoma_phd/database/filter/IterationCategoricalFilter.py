@@ -2,19 +2,18 @@ from typing import List
 
 import pandas as pd
 
-from melanoma_phd.database.filter.BaseFilter import BaseFilter
-from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
-from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
+from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
+from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
 
 
-class IterationScalarFilter(BaseFilter):
+class IterationCategoricalFilter(CategoricalFilter):
     def __init__(
         self,
         name: str,
-        reference_variable: ReferenceIterationVariable,
-        iteration_variables: List[IterationScalarVariable],
+        reference_variable: IterationCategoricalVariable,
+        iteration_variables: List[IterationCategoricalVariable],
     ) -> None:
-        super().__init__()
+        super().__init__(variable=reference_variable)
         self._name = name
         self._reference_variable = reference_variable
         self._iteration_variables = iteration_variables
@@ -23,12 +22,12 @@ class IterationScalarFilter(BaseFilter):
     def name(self) -> str:
         return self._name
 
-    def interval(self) -> pd.Interval:
-        return self._reference_variable.interval
+    def filter(self, dataframe: pd.DataFrame, options: List[str]) -> pd.DataFrame:
+        if not options:
+            return dataframe
 
-    def filter(self, dataframe: pd.DataFrame, intervals: List[pd.Interval]) -> pd.DataFrame:
         filter_dataframe = self._reference_variable.get_filter_dataframe(
-            dataframe=dataframe, intervals=intervals
+            dataframe=dataframe, category_options=options
         )
         mask_series = filter_dataframe.any(skipna=True, axis=1)
         dataframe = dataframe.loc[mask_series]
