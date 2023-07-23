@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 import streamlit as st
@@ -28,9 +28,13 @@ class RangeSliderFilter:
         self._selected_intervals.clear()
         for index in range(self._sliders_number):
             index_postfix = f" #{index+1}" if self._sliders_number > 1 else ""
+            slider_name = f"{self._filter.name}{index_postfix}"
             selected_interval = st.slider(
-                label=f"{self._filter.name}{index_postfix}",
-                value=tuple([self._min_value, self._max_value]),
+                label=slider_name,
+                min_value=self._min_value,
+                max_value=self._max_value,
+                value=self.__get_current_value(slider_name),
+                key=slider_name,
             )
             if selected_interval[0] != self._min_value or selected_interval[1] != self._max_value:
                 self._selected_intervals.append(
@@ -44,3 +48,9 @@ class RangeSliderFilter:
             return self._filter.filter(dataframe=dataframe, intervals=self._selected_intervals)
         else:
             return dataframe
+
+    def __get_current_value(self, slider_name: str) -> Tuple[Union[int, float]]:
+        value = tuple([self._min_value, self._max_value])
+        if slider_name in st.session_state:
+            value = st.session_state[slider_name]
+        return value

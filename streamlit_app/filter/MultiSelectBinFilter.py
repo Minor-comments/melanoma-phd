@@ -37,6 +37,7 @@ class MultiSelectBinFilter:
         self._selected_options = st.multiselect(
             label=self._filter.name,
             options=self._bins.keys(),
+            key=self._filter.name,
         )
 
     def filter(self, dataframe: pd.DataFrame) -> pd.DataFrame:
