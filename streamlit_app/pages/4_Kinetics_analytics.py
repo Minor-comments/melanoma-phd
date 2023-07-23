@@ -7,7 +7,7 @@ import streamlit as st
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)  # isort: skip <- Force to be after workaround
+)  # isort: skip
 from melanoma_phd.database.Patient import Patient
 from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
 from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable

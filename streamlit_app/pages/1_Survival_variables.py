@@ -4,16 +4,17 @@ import sys
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)  # isort: skip
 from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlotter
 from streamlit_app.AppLoader import (
+    AppLoader,
     create_database_section,
     filter_database,
     select_filters,
     select_group_by,
 )
-
-from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
 
 if __name__ == "__main__":
     st.title("Melanoma Survival variables")

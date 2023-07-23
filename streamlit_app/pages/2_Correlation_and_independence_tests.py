@@ -4,10 +4,8 @@ import sys
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from melanoma_phd.database.Correlationer import (
-    Correlationer,
-)  # isort: skip <- Force to be after workaround
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
+from melanoma_phd.database.Correlationer import Correlationer
 from melanoma_phd.database.IndependenceTester import IndependenceTester
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable

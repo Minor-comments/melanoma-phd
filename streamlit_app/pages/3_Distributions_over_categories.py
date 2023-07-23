@@ -4,9 +4,7 @@ import sys
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)  # isort: skip <- Force to be after workaround
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.visualizer.BoxPlotter import BoxPlotter
