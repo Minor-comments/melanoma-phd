@@ -3,6 +3,8 @@ import sys
 
 import streamlit as st
 
+from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
+
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
@@ -63,7 +65,7 @@ if __name__ == "__main__":
             assert len(categorical_variable) == 1, "Only one categorical variable allowed"
             st.subheader("Histogram")
             st.plotly_chart(
-                StackedHistogram().plot(
+                StackedHistogram(color_generator=ColorGenerator(color_cache=st.session_state)).plot(
                     distribution_variables=distribution_variables,
                     categorical_variable=categorical_variable[0],
                     dataframe=filtered_df,
