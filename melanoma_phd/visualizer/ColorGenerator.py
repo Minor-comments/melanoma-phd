@@ -13,9 +13,9 @@ class ColorGenerator:
             colorscale,
             [(1 / len(variable_names) * (i + 1)) for i in range(len(variable_names))],
         )
-        for i, variable_name in enumerate(variable_names):
-            if self._cache and variable_name in self._cache:
-                sample_colors[i] = self._cache[variable_name]
+        cache_key = "-".join(sorted(variable_names))
+        if self._cache and cache_key in self._cache:
+            sample_colors = self._cache[cache_key]
         return sample_colors
 
     def __get_colorscale(self, distribution_variable_names: List[str]) -> str:
