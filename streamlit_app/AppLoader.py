@@ -38,7 +38,7 @@ class SelectVariableConfig:
 
 @st.cache_data
 def dataframe_to_csv(df: pd.DataFrame) -> bytes:
-    return df.to_csv(index=False).encode("utf-8")
+    return df.to_csv(index=False, sep=",", decimal=",", float_format="%.2f").encode("utf-8")
 
 
 def reload_database(database: PatientDatabase) -> None:
