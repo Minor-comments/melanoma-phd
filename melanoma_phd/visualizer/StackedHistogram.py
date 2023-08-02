@@ -23,6 +23,7 @@ class StackedHistogram:
         reference_variable_name: Optional[str] = None,
         percentage_values: bool = False,
     ) -> plotly_go.Figure:
+        distribution_variables = sorted(distribution_variables, key=lambda variable: variable.name)
         distribution_data = [
             variable.get_series(dataframe).values for variable in distribution_variables
         ]
