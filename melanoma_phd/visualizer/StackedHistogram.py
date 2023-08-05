@@ -6,10 +6,6 @@ import pandas as pd
 import plotly.graph_objs as plotly_go
 
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
-from melanoma_phd.database.variable.RemainingDistributionVariable import (
-    RemainingDistributionVariable,
-    RemainingDistributionVariableConfig,
-)
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
 from melanoma_phd.visualizer.DistributionPlotterHelper import DistributionPlotterHelper
@@ -34,7 +30,9 @@ class StackedHistogram:
         distribution_variable_names = [variable.name for variable in distribution_variables]
         categorical_variable_name = categorical_variable.name
         categorical_data = categorical_variable.get_series(dataframe)
-        categorical_unique_data = list(categorical_data.unique()) + ["All"]
+        categorical_unique_data = list(categorical_data.unique())
+        if len(categorical_unique_data) > 1:
+            categorical_unique_data += ["All"]
         plot_df = pd.DataFrame(
             zip(*distribution_data, categorical_data),
             columns=distribution_variable_names + [categorical_variable_name],
