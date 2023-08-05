@@ -95,8 +95,6 @@ class BoxPlotter:
             )
             // 5
         )
-        print(count_dict)
-        print(fig.layout["annotations"])
 
         annotation_kwargs = dict(
             xanchor="center",
