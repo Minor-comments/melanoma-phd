@@ -20,7 +20,7 @@ class DistributionPlotterHelper:
             [
                 variable.name
                 for variable in self._distribution_variables
-                if has_others and variable.name != RemainingDistributionVariable.DEFAULT_NAME
+                if variable.name != RemainingDistributionVariable.DEFAULT_NAME
             ]
         )
         if has_others:
