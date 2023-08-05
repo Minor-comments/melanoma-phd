@@ -6,8 +6,14 @@ import pandas as pd
 import plotly.graph_objs as plotly_go
 
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.RemainingDistributionVariable import (
+    RemainingDistributionVariable,
+    RemainingDistributionVariableConfig,
+)
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
+from melanoma_phd.visualizer.DistributionPlotterHelper import DistributionPlotterHelper
+from melanoma_phd.visualizer.PlotlyAxisUpdater import PlotlyAxisUpdater, PlotlyAxisUpdaterConfig
 
 
 class StackedHistogram:
@@ -19,9 +25,7 @@ class StackedHistogram:
         distribution_variables: List[ScalarVariable],
         categorical_variable: CategoricalVariable,
         dataframe: pd.DataFrame,
-        y_max_value: Optional[float] = None,
-        reference_variable_name: Optional[str] = None,
-        percentage_values: bool = False,
+        axis_config: Optional[PlotlyAxisUpdaterConfig] = None,
     ) -> plotly_go.Figure:
         distribution_variables = sorted(distribution_variables, key=lambda variable: variable.name)
         distribution_data = [
@@ -43,8 +47,6 @@ class StackedHistogram:
                 errors_by_category[distribution_variable_name][category_name] = float(
                     np.nanstd(grouped_by_data[distribution_variable_name])
                 )
-
-        title = f"Distribution of {' / '.join(distribution_variable_names)} over {categorical_variable_name}"
 
         fig = plotly_go.Figure()
         color_samples = (
@@ -89,24 +91,20 @@ class StackedHistogram:
                     },
                 )
             )
+
+        distribution_plotter_helper = DistributionPlotterHelper(
+            distribution_variables=distribution_variables,
+        )
+
+        title = distribution_plotter_helper.generate_title(categorical_variable)
         fig.update_layout(
             barmode="stack",
             title=title,
-            xaxis_title=categorical_variable_name,
             legend_title="variable",
             hoverlabel_align="left",
-            yaxis_title="Mean value",
         )
 
-        if reference_variable_name:
-            percentage_values = True
-            fig.update_yaxes(title=f"Mean (% of {reference_variable_name})")
-        elif percentage_values:
-            fig.update_yaxes(title=f"Mean (%)")
-        else:
-            fig.update_yaxes(title=f"Mean")
-
-        if y_max_value:
-            fig.update_yaxes(range=[0, y_max_value])
+        if axis_config:
+            fig = PlotlyAxisUpdater.update_axis(fig, axis_config)
 
         return fig

@@ -6,7 +6,13 @@ import plotly.express as px
 import plotly.graph_objs as plotly_go
 
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
+from melanoma_phd.database.variable.RemainingDistributionVariable import (
+    RemainingDistributionVariable,
+    RemainingDistributionVariableConfig,
+)
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.visualizer.DistributionPlotterHelper import DistributionPlotterHelper
+from melanoma_phd.visualizer.PlotlyAxisUpdater import PlotlyAxisUpdater, PlotlyAxisUpdaterConfig
 
 
 class BoxPlotter:
@@ -21,12 +27,12 @@ class BoxPlotter:
         dataframe: pd.DataFrame,
         categorical_variable: Optional[CategoricalVariable] = None,
         show_points: bool = False,
-        y_max_value: Optional[float] = None,
-        reference_variable_name: Optional[str] = None,
-        percentage_values: bool = False,
+        axis_config: Optional[PlotlyAxisUpdaterConfig] = None,
     ) -> plotly_go.Figure:
-        distribution_variable_names = [variable.name for variable in distribution_variables]
-        title = f"Distribution of {' / '.join(distribution_variable_names)}"
+        distribution_plotter_helper = DistributionPlotterHelper(
+            distribution_variables=distribution_variables,
+        )
+
         plot_kwargs = {"y": "value", "x": "variable"}
         if show_points:
             plot_kwargs["points"] = "all"
@@ -42,7 +48,10 @@ class BoxPlotter:
                 [
                     (
                         value,
-                        f"{variable.name}<br>N = {distribution_variable_lengths[i]}",
+                        distribution_plotter_helper.generate_variable_name_with_n_size(
+                            variable_index=i,
+                            n=distribution_variable_lengths[i],
+                        ),
                         categorical_data.iloc[j],
                     )
                     for i, variable in enumerate(distribution_variables)
@@ -50,35 +59,29 @@ class BoxPlotter:
                 ],
                 columns=["value", "variable"] + [categorical_variable_name],
             )
-            title += f" over {categorical_variable_name}"
             plot_kwargs.update({"color": categorical_variable_name})
         else:
             plot_df = pd.DataFrame(
                 [
-                    (value, f"{variable.name}<br>N = {distribution_variable_lengths[i]}")
+                    (
+                        value,
+                        distribution_plotter_helper.generate_variable_name_with_n_size(
+                            variable_index=i,
+                            n=distribution_variable_lengths[i],
+                        ),
+                    )
                     for i, variable in enumerate(distribution_variables)
                     for value in variable.get_series(dataframe).values
                 ],
                 columns=["value", "variable"],
             )
+
+        title = distribution_plotter_helper.generate_title(categorical_variable)
         plot_kwargs.update({"title": title})
 
         fig = px.box(plot_df, **plot_kwargs)
 
-        if reference_variable_name:
-            percentage_values = True
-            fig.update_yaxes(title=f"Mean (% of {reference_variable_name})")
-        elif percentage_values:
-            fig.update_yaxes(title=f"Mean (%)")
-        else:
-            fig.update_yaxes(title=f"Mean")
+        if axis_config:
+            fig = PlotlyAxisUpdater.update_axis(fig, axis_config)
 
-        if y_max_value:
-            fig.update_yaxes(range=[0, y_max_value])
-
-        if categorical_variable:
-            xaxis_title = categorical_variable_name
-        else:
-            xaxis_title = ""
-        fig.update_xaxes(title=xaxis_title)
         return fig
