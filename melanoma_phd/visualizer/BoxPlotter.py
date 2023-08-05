@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List, Optional
 
 import numpy as np
@@ -59,6 +60,9 @@ class BoxPlotter:
                 ],
                 columns=["value", "variable"] + [categorical_variable_name],
             )
+            plot_df_all = deepcopy(plot_df)
+            plot_df_all[categorical_variable_name] = "All"
+            plot_df = pd.concat([plot_df, plot_df_all], ignore_index=True).reset_index(drop=True)
             plot_kwargs.update({"color": categorical_variable_name})
         else:
             plot_df = pd.DataFrame(
