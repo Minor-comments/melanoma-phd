@@ -28,8 +28,10 @@ class CategoricalVariable(BaseVariable):
     @classmethod
     def get_numeric(cls, series: pd.Series) -> pd.Series:
         if str(series.dtype) in ["object", "category"]:
-            unique = series.unique()
-            return series.map({value: i for i, value in enumerate(unique)}).astype(int)
+            unique = series.dropna().unique()
+            return series.map(
+                {value: i for i, value in enumerate(unique)}, na_action="ignore"
+            ).astype(int, errors="ignore")
         return series
 
     @property
