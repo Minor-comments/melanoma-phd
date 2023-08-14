@@ -662,6 +662,45 @@ sections:
               5: "voluntarios sanos" 
               6: "progresores que inicialmente responden y extracción hecha en el momento de PD"
 
+        - BORORRvsPD+SD:
+            id: "BORORRvsPD+SD"
+            name: "BORORRvsPD+SD"
+            type: boolean
+
+        - BORORRvsPD:
+            id: "BORORRvsPD"
+            name: "BORORRvsPD"
+            type: boolean
+        
+        - BORCRvsPD:
+            id: "BORCRvsPD"
+            name: "BORCRvsPD"
+            type: boolean
+
+        - BORPRvsPD:
+            id: "BORPRvsPD"
+            name: "BORPRvsPD"
+            type: boolean
+
+        - ORRmantenidavsPD+SD:
+            id: "ORRmantenidavsPD+SD"
+            name: "ORRmantenidavsPD+SD"
+            type: boolean
+
+        - ORRmantenidavsPD:
+            id: "ORRmantenidavsPD"
+            name: "ORRmantenidavsPD"
+            type: boolean
+
+        - CRmantenidavsPD:
+            id: "CRmantenidavsPD"
+            name: "CRmantenidavsPD"
+            type: boolean
+
+        - PRmantenidavsPD:
+            id: "PRmantenidavsPD"
+            name: "PRmantenidavsPD"
+            type: boolean
 
       dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
         - PFS:
@@ -1500,6 +1539,31 @@ sections:
             _iteration_selectable: true
             _iteration_reference_variable_id: "TIEMPO IT{N}"
             _iteration_type: IterationScalarVariable
+
+        - ctDNA evol:
+            id: "ctDNA evol"
+            name: "ctDNA evol"
+            type: categorical
+            categories:
+                1: "siempre positivo"
+                2: "siempre negativo"
+                3: "aumento"
+                4: "disminución sin negativización"
+                5: "disminución hasta negativización"
+                6: "disminución con posterior aumento"
+
+        - ctDNA evol simplif: 
+            id: "ctDNA evol simplif"
+            name: "ctDNA evol simplif"
+            type: categorical
+            categories:
+                1: 1+3+6
+                2: 2+4+5
+
+        - ctDNA decreasing time:
+            id: "ctDNA decreasing time"
+            name: "ctDNA decreasing time"
+            type: scalar
 
   - radiological_tests_database:
       name: "PRUEBAS RADIOLÓGICAS"
