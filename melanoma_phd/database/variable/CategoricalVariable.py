@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableStatisticalType
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
@@ -17,6 +17,10 @@ class CategoricalVariable(BaseVariable):
     def __init__(self, config: CategoricalVariableConfig) -> None:
         super().__init__(config=config)
         self._categories = config.categories
+
+    @staticmethod
+    def statistical_type() -> VariableStatisticalType:
+        return VariableStatisticalType.CATEGORICAL
 
     def get_numeric_series(self, data: Union[pd.DataFrame, pd.Series]) -> pd.Series:
         if isinstance(data, pd.Series):

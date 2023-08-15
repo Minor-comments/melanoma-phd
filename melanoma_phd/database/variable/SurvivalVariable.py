@@ -7,7 +7,7 @@ from lifelines import KaplanMeierFitter
 from lifelines.statistics import StatisticalResult, logrank_test
 from lifelines.utils import median_survival_times
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableStatisticalType
 from melanoma_phd.database.variable.VariableDynamicMixin import (
     BaseDynamicVariableConfig,
     VariableDynamicMixin,
@@ -44,6 +44,10 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
         super().__init__(config=config)
         self._duration_variable_id = config.duration_variable_id
         self._events_variable_id = config.events_variable_id
+
+    @staticmethod
+    def statistical_type() -> VariableStatisticalType:
+        return VariableStatisticalType.SCALAR
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)

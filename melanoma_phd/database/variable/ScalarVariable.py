@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableStatisticalType
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
@@ -19,6 +19,10 @@ class ScalarVariable(BaseVariable):
     def __init__(self, config: ScalarVariableConfig) -> None:
         super().__init__(config=config)
         self._interval: Optional[pd.Interval] = None
+
+    @staticmethod
+    def statistical_type() -> VariableStatisticalType:
+        return VariableStatisticalType.SCALAR
 
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         super().init_from_dataframe(dataframe=dataframe)

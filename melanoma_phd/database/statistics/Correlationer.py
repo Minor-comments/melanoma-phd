@@ -1,5 +1,7 @@
 import logging
-from typing import Any, List, Optional, Tuple, Union
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import scipy.stats as stats
@@ -8,13 +10,33 @@ import statsmodels.formula.api as sfa
 from dython.nominal import theils_u
 from sklearn.metrics import matthews_corrcoef
 
-from melanoma_phd.database.HomogenityTester import HomogenityTester
-from melanoma_phd.database.NormalityTester import NormalityTester
+from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
+from melanoma_phd.database.statistics.NormalityTester import NormalityTester
+from melanoma_phd.database.statistics.VariableStatisticalProperties import \
+    VariableStatisticalProperties
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.Variable import PValueType
+
+
+class CorrelationTestType(Enum):
+    PEARSON = "Pearson"
+    SPEARMAN = "Spearman"
+    POINT_BISERIAL = "Point biserial"
+    OMEGA_SQUARED = "omega squared (ANOVA)"
+    EPSILON_SQUARED = "epsilon squared (Kruskal-Wallis H)"
+    MATTHEWS_CORRELATION_COEFFICIENT = "Matthews correlation coefficient"
+    THEILS_U = "Theil's U"
+
+
+@dataclass
+class CorrelationResult:
+    variables: Dict[BaseVariable, VariableStatisticalProperties]
+    homogeneity: bool
+    type: CorrelationTestType
+    coefficient: PValueType
 
 
 class Correlationer:
@@ -32,7 +54,7 @@ class Correlationer:
 
     def correlate(
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
-    ) -> PValueType:
+    ) -> CorrelationResult:
         self._check_variables(dataframe, variable, other_variable)
         first_variable, second_variable = self._order_variables(variable, other_variable)
         first_variable.init_from_dataframe(dataframe=dataframe)
@@ -40,21 +62,55 @@ class Correlationer:
         first_series, second_series = self._remove_nulls_from_any_serie_to_all(
             dataframe, first_variable, second_variable
         )
+        variable_0_prop = VariableStatisticalProperties(
+            type=first_variable.statistical_type(),
+            normality=False,
+        )
+        variable_1_prop = VariableStatisticalProperties(
+            type=second_variable.statistical_type(),
+            normality=False,
+        )
         try:
             if isinstance(first_variable, ScalarVariable):
-                normal_data = self._normality_tester.test_series(first_series)
+                variable_0_prop.normality = self._normality_tester.test_series(first_series)
                 if isinstance(second_variable, ScalarVariable):
-                    normal_data = normal_data and self._normality_tester.test_series(second_series)
-                    homogenuos_data = self._homogeneity_tester.test(first_series, second_series)
-                    if normal_data and homogenuos_data:
-                        return stats.pearsonr(first_series, second_series).statistic
+                    variable_1_prop.normality = self._normality_tester.test_series(second_series)
+                    homogenuos_data = self._homogeneity_tester.test_series(
+                        first_series, second_series
+                    )
+                    if variable_0_prop.normality and variable_1_prop.normality and homogenuos_data:
+                        return CorrelationResult(
+                            variables={
+                                first_variable: variable_0_prop,
+                                second_variable: variable_1_prop,
+                            },
+                            homogeneity=homogenuos_data,
+                            type=CorrelationTestType.PEARSON,
+                            coefficient=stats.pearsonr(first_series, second_series).statistic,
+                        )
                     else:
-                        return stats.spearmanr(first_series, second_series).statistic
+                        return CorrelationResult(
+                            variables={
+                                first_variable: variable_0_prop,
+                                second_variable: variable_1_prop,
+                            },
+                            homogeneity=homogenuos_data,
+                            type=CorrelationTestType.SPEARMAN,
+                            coefficient=stats.spearmanr(first_series, second_series).statistic,
+                        )
                 elif isinstance(second_variable, CategoricalVariable):
                     if isinstance(second_variable, BooleanVariable):
-                        return stats.pointbiserialr(
-                            first_series, CategoricalVariable.get_numeric(second_series)
-                        ).statistic
+                        return CorrelationResult(
+                            variables={
+                                first_variable: variable_0_prop,
+                                second_variable: variable_1_prop,
+                            },
+                            homogeneity=False,
+                            type=CorrelationTestType.POINT_BISERIAL,
+                            coefficient=stats.pointbiserialr(
+                                first_series, CategoricalVariable.get_numeric(second_series)
+                            ).statistic,
+                        )
                     else:
                         # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
                         series_by_categories = first_variable.get_data_by_categories(
@@ -63,37 +119,79 @@ class Correlationer:
                             remove_nulls=True,
                             remove_short_categories=True,
                         )
-                        homogenuos_data = self._homogeneity_tester.test(*series_by_categories)
-                        if normal_data and homogenuos_data:
-                            return self._calculate_omega_square(
-                                continuous_series=first_series, categorical_series=second_series
+                        homogenuos_data = self._homogeneity_tester.test_series(
+                            *series_by_categories
+                        )
+                        if variable_0_prop.normality and homogenuos_data:
+                            return CorrelationResult(
+                                variables={
+                                    first_variable: variable_0_prop,
+                                    second_variable: variable_1_prop,
+                                },
+                                homogeneity=homogenuos_data,
+                                type=CorrelationTestType.OMEGA_SQUARED,
+                                coefficient=self._calculate_omega_square(
+                                    continuous_series=first_series, categorical_series=second_series
+                                ),
                             )
                         else:
-                            return self._calculate_epsilon_squared(
-                                h_statistic=stats.kruskal(*series_by_categories).statistic,
-                                n=len(first_series),
+                            return CorrelationResult(
+                                variables={
+                                    first_variable: variable_0_prop,
+                                    second_variable: variable_1_prop,
+                                },
+                                homogeneity=homogenuos_data,
+                                type=CorrelationTestType.EPSILON_SQUARED,
+                                coefficient=self._calculate_epsilon_squared(
+                                    h_statistic=stats.kruskal(*series_by_categories).statistic,
+                                    n=len(first_series),
+                                ),
                             )
             elif isinstance(first_variable, BooleanVariable) and isinstance(
                 second_variable, CategoricalVariable
             ):
                 if isinstance(second_variable, BooleanVariable):
-                    return matthews_corrcoef(first_series, second_series)
+                    return CorrelationResult(
+                        variables={
+                            first_variable: variable_0_prop,
+                            second_variable: variable_1_prop,
+                        },
+                        homogeneity=False,
+                        type=CorrelationTestType.MATTHEWS_CORRELATION_COEFFICIENT,
+                        coefficient=matthews_corrcoef(first_series, second_series),
+                    )
                 elif isinstance(second_variable, CategoricalVariable):
                     # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
                     # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
-                    return theils_u(
-                        *self._remove_nulls_from_any_serie_to_all(
-                            dataframe, variable, other_variable
-                        )
+                    return CorrelationResult(
+                        variables={
+                            first_variable: variable_0_prop,
+                            second_variable: variable_1_prop,
+                        },
+                        homogeneity=False,
+                        type=CorrelationTestType.THEILS_U,
+                        coefficient=theils_u(
+                            *self._remove_nulls_from_any_serie_to_all(
+                                dataframe, variable, other_variable
+                            )
+                        ),
                     )
-            if isinstance(first_variable, CategoricalVariable):
+            elif isinstance(first_variable, CategoricalVariable):
                 # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
                 if isinstance(second_variable, CategoricalVariable):
                     # Using directly `variable` and `other_variable` due to the asymmetry of Theil's U calculation
-                    return theils_u(
-                        *self._remove_nulls_from_any_serie_to_all(
-                            dataframe, variable, other_variable
-                        )
+                    return CorrelationResult(
+                        variables={
+                            first_variable: variable_0_prop,
+                            second_variable: variable_1_prop,
+                        },
+                        homogeneity=False,
+                        type=CorrelationTestType.THEILS_U,
+                        coefficient=theils_u(
+                            *self._remove_nulls_from_any_serie_to_all(
+                                dataframe, variable, other_variable
+                            )
+                        ),
                     )
         except ValueError as e:
             raise ValueError(
@@ -106,10 +204,25 @@ class Correlationer:
 
     def table(self, dataframe: pd.DataFrame, variables: List[BaseVariable]) -> pd.DataFrame:
         self._check_variables(dataframe, *variables)
+        results: List[List[CorrelationResult]] = []
+        columns: List[str] = []
+        index: List[str] = []
+        for v1 in variables:
+            v1_results = [self.correlate(dataframe, v1, v2) for v2 in variables]
+            results.append(v1_results)
+            var_title = f"{v1.name} [{v1_results[-1].variables[v1].type.value}] Normality={v1_results[-1].variables[v1].normality}"
+            columns.append(var_title)
+            index.append(var_title)
         return pd.DataFrame(
-            [[self.correlate(dataframe, v1, v2) for v2 in variables] for v1 in variables],
-            columns=[v.name for v in variables],
-            index=[v.name for v in variables],
+            data=[
+                [
+                    f"{result.coefficient:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
+                    for result in result_row
+                ]
+                for result_row in results
+            ],
+            columns=columns,
+            index=index,
         )
 
     def _order_variables(self, *variables: BaseVariable) -> Tuple[BaseVariable, ...]:

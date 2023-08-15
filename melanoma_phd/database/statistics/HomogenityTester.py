@@ -3,7 +3,7 @@ from typing import Union
 import pandas as pd
 import scipy.stats as stats
 
-from melanoma_phd.database.NormalityTester import NormalityTester
+from melanoma_phd.database.statistics.NormalityTester import NormalityTester
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.database.variable.Variable import PValueType
@@ -16,7 +16,7 @@ class HomogenityTester:
         self._null_hypothesis = null_hypothesis
         self._normality_tester = NormalityTester(normality_null_hypothesis)
 
-    def test(self, *series: pd.Series) -> bool:
+    def test_series(self, *series: pd.Series) -> bool:
         if self._normality_tester.test_many_series(*series):
             homogenity_test = stats.bartlett
         else:
@@ -29,7 +29,7 @@ class HomogenityTester:
     def test_variable(self, data: Union[pd.DataFrame, pd.Series], variable: ScalarVariable) -> bool:
         series = variable.get_non_na_series(data=data)
         try:
-            return self.test(series)
+            return self.test_series(series)
         except ValueError as e:
             raise ValueError(f"Variable '{variable.name}': {e}")
 
@@ -48,4 +48,4 @@ class HomogenityTester:
             remove_nulls=True,
             remove_short_categories=True,
         )
-        return self.test(*series_by_categories)
+        return self.test_series(*series_by_categories)

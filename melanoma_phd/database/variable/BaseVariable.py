@@ -18,6 +18,13 @@ class VariableType(Enum):
     ITERATED_CATEGORICAL = "iterated_categorical"
 
 
+class VariableStatisticalType(Enum):
+    SCALAR = "scalar"
+    CATEGORICAL = "categorical"
+    BOOLEAN = "boolean"
+    DATETIME = "datetime"
+
+
 class BaseVariable(ABC):
     """Base class for all variables, static or dynamic."""
 
@@ -30,6 +37,11 @@ class BaseVariable(ABC):
 
     def __hash__(self) -> int:
         return hash(self.id)
+
+    @staticmethod
+    @abstractmethod
+    def statistical_type() -> VariableStatisticalType:
+        pass
 
     @abstractmethod
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:

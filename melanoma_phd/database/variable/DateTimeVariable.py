@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Union
 
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
+from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableStatisticalType
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 
 
@@ -16,6 +16,10 @@ class DateTimeVariable(BaseVariable):
     def __init__(self, config: DateTimeVariableConfig) -> None:
         super().__init__(config=config)
         self._interval: Optional[pd.Interval] = None
+
+    @staticmethod
+    def statistical_type() -> VariableStatisticalType:
+        return VariableStatisticalType.DATETIME
 
     @property
     def interval(self) -> pd.Interval:
