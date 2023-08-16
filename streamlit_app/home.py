@@ -71,7 +71,8 @@ if __name__ == "__main__":
         selected_variables = select_variables_by_checkbox(
             database=database,
             select_variable_config=SelectVariableConfig(
-                "Descriptive statistics",
+                variable_selection_name="Descriptive statistics",
+                unique_title="Variables to select",
                 variable_types=[
                     ScalarVariable,
                     CategoricalVariable,

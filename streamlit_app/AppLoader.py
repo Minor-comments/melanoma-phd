@@ -32,8 +32,8 @@ from streamlit_app.VariableSelector import VariableSelector
 @dataclass
 class SelectVariableConfig:
     variable_selection_name: str
+    unique_title: str
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None
-    displayed_title: Optional[str] = None
 
 
 @st.cache_data
@@ -106,9 +106,9 @@ def select_group_by(database: PatientDatabase) -> List[BaseVariable]:
         selected_group_by = simple_select_variables_by_checkbox(
             database,
             SelectVariableConfig(
-                "Categorical Group By",
+                variable_selection_name="Categorical Group By",
+                unique_title="Categorical Group By variables",
                 variable_types=CategoricalVariable,
-                displayed_title="Categorical Group By variables",
             ),
         )
         st.form_submit_button("Group By")
@@ -125,7 +125,7 @@ def filter_database(database: PatientDatabase, filters: List[Filter]) -> Patient
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="filter_database_variable_selection",
-                displayed_title="Variables to display",
+                unique_title="Variables to display",
             ),
         )
         df_result_to_display = df_result
@@ -150,7 +150,6 @@ def select_variables_by_checkbox(
 ) -> List[BaseVariable]:
     variable_selection_name = select_variable_config.variable_selection_name
     variable_types = select_variable_config.variable_types
-    displayed_title = select_variable_config.displayed_title
 
     uploaded_file = st.file_uploader(
         label=f"Upload a '{variable_selection_name}' variable selection ⬆️", type=["json"]
@@ -158,9 +157,8 @@ def select_variables_by_checkbox(
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
         VariableSelector.select_variables_from_file(variable_selection_name, file_contents)
-    selected_variables = []
-    displayed_title = displayed_title or "Variables to select"
-    with st.expander(displayed_title):
+    selected_variables: List[BaseVariable] = []
+    with st.expander(select_variable_config.unique_title):
         selector = VariableSelector(database)
         variables_to_select = selector.get_variables_to_select(variable_types)
         st.checkbox(
@@ -218,8 +216,7 @@ def select_several_variables_by_checkbox(
 def simple_select_variables_by_checkbox(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
-    displayed_title = select_variable_config.displayed_title or "Variables to select"
-    with st.expander(displayed_title):
+    with st.expander(select_variable_config.unique_title):
         selector = VariableSelector(database)
         variables_to_select = selector.get_variables_to_select(
             select_variable_config.variable_types
@@ -241,8 +238,7 @@ def select_one_variable(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> BaseVariable:
     selected_variable = None
-    displayed_title = select_variable_config.displayed_title or "Variable to select"
-    with st.form(displayed_title):
+    with st.form(select_variable_config.unique_title):
         selector = VariableSelector(database)
         variables = selector.get_variables_to_select(select_variable_config.variable_types)
         variable_ids = [variable.id for variable in variables]
@@ -260,8 +256,7 @@ def select_variables_by_multiselect(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     selected_variables = []
-    displayed_title = select_variable_config.displayed_title or "Variables to select"
-    with st.form(displayed_title):
+    with st.form(select_variable_config.unique_title):
         variables = database.get_variables_by_type(select_variable_config.variable_types)
         variable_ids = [variable.id for variable in variables]
         selected_variables_ids = st.multiselect(

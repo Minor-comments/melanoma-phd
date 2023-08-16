@@ -34,7 +34,8 @@ if __name__ == "__main__":
         selected_variables = select_variables_by_checkbox(
             database=database,
             select_variable_config=SelectVariableConfig(
-                "Correlation and Independence analysis",
+                variable_selection_name="Correlation and Independence analysis",
+                unique_title="Variables to analyze",
                 variable_types=[
                     ScalarVariable,
                     CategoricalVariable,

@@ -40,18 +40,18 @@ if __name__ == "__main__":
         distribution_variables, categorical_variable = select_several_variables_by_checkbox(
             database,
             SelectVariableConfig(
-                "Distribution variables",
+                variable_selection_name="Distribution variables",
+                unique_title="Distribution variables to select",
                 variable_types=[
                     ScalarVariable,
                 ],
-                displayed_title="Distribution variables to select",
             ),
             SelectVariableConfig(
-                "Categorical variables",
+                variable_selection_name="Categorical variables",
+                unique_title="Categorical variables to select",
                 variable_types=[
                     CategoricalVariable,
                 ],
-                displayed_title="Categorical variables to select",
             ),
         )
 

@@ -50,8 +50,8 @@ if __name__ == "__main__":
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="kinetics itreated variable",
+                unique_title="Select iterated variable",
                 variable_types=[IterationScalarVariable],
-                displayed_title="Select iterated variable",
             ),
         )
         if variable:
