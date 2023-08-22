@@ -63,7 +63,7 @@ class IndependenceTester:
             normality=False,
         )
         variable_1_prop = VariableStatisticalProperties(
-            type=first_variable.statistical_type(),
+            type=second_variable.statistical_type(),
             normality=False,
         )
         try:
