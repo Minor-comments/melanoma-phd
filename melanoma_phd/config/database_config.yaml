@@ -1539,6 +1539,22 @@ sections:
             _iteration_selectable: true
             _iteration_reference_variable_id: "TIEMPO IT{N}"
             _iteration_type: IterationScalarVariable
+        - Tcm/Teff(1..10):
+            id: "Tcm/Teff ({N})"
+            name: "Tcm/Teff"
+            _iterated_type: iterated_scalar
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationScalarVariable
+        - Teff/Treg(1..10):
+            id: "Teff/Treg ({N})"
+            name: "Teff/Treg"
+            _iterated_type: iterated_scalar
+            _iterated_selectable: false
+            _iteration_selectable: true
+            _iteration_reference_variable_id: "TIEMPO IT{N}"
+            _iteration_type: IterationScalarVariable
 
         - ctDNA evol:
             id: "ctDNA evol"
