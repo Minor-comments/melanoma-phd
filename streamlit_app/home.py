@@ -13,16 +13,10 @@ from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.visualizer.PiePlotter import PiePlotter
-from streamlit_app.AppLoader import (
-    SelectVariableConfig,
-    create_database_section,
-    download_statistics,
-    filter_database,
-    plot_statistics,
-    select_filters,
-    select_group_by,
-    select_variables_by_checkbox,
-)
+from streamlit_app.AppLoader import (SelectVariableConfig, create_database_section,
+                                     download_statistics, filter_database_section, plot_statistics,
+                                     select_filters_sidebar, select_group_by_sidebar,
+                                     select_variables_by_checkbox)
 
 from streamlit_app.AppLoader import AppLoader  # isort: skip <- Force to be after workaround
 
@@ -62,9 +56,9 @@ if __name__ == "__main__":
         database = app.database
         create_database_section(database)
 
-        filters = select_filters(database)
-        selected_group_by = select_group_by(database)
-        db_view = filter_database(database=database, filters=filters)
+        filters = select_filters_sidebar(database)
+        selected_group_by = select_group_by_sidebar(database)
+        db_view = filter_database_section(database=database, filters=filters)
         filtered_df = db_view.dataframe
 
         st.subheader("Variable selection")
@@ -72,7 +66,7 @@ if __name__ == "__main__":
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="Descriptive statistics",
-                unique_title="Variables to select",
+                unique_form_title="Variables to select",
                 variable_types=[
                     ScalarVariable,
                     CategoricalVariable,

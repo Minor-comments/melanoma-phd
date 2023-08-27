@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -91,7 +92,8 @@ class PatientDatabase(AbstractPatientDatabaseView):
     def filter(self, filters: List[BaseFilter]) -> PatientDatabaseView:
         dataframe_to_filter = self.dataframe.copy()
         df_result = PatientDataFilterer().filter(dataframe_to_filter, filters)
-        return PatientDatabaseView(dataframe=df_result, variables=self.variables)
+        variables = [deepcopy(variable) for variable in self.variables]
+        return PatientDatabaseView(dataframe=df_result, variables=variables)
 
     def __check_equal_column_data(
         self, left_dataframe: pd.DataFrame, right_dataframe: pd.DataFrame

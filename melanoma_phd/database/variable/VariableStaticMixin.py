@@ -18,5 +18,5 @@ class VariableStaticMixin:
         return deepcopy(dataframe[self.id])
 
     def _check_valid_id(self: Variable, dataframe: pd.DataFrame) -> None:
-        if self.id not in dataframe.columns:
+        if self.id not in dataframe.columns and self.id != dataframe.index.name:
             raise ValueError(f"'{self.id}' not present in dataframe")

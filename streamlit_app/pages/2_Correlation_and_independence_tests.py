@@ -14,8 +14,8 @@ from streamlit_app.AppLoader import (
     AppLoader,
     SelectVariableConfig,
     create_database_section,
-    filter_database,
-    select_filters,
+    filter_database_section,
+    select_filters_sidebar,
     select_variables_by_checkbox,
 )
 
@@ -26,8 +26,8 @@ if __name__ == "__main__":
         database = app.database
         create_database_section(database)
 
-        filters = select_filters(database)
-        db_view = filter_database(database=database, filters=filters)
+        filters = select_filters_sidebar(database)
+        db_view = filter_database_section(database=database, filters=filters)
         filtered_df = db_view.dataframe
 
         st.subheader("Variable selection")
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="Correlation and Independence analysis",
-                unique_title="Variables to analyze",
+                unique_form_title="Variables to analyze",
                 variable_types=[
                     ScalarVariable,
                     CategoricalVariable,

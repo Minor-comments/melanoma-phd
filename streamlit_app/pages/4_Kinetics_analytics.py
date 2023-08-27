@@ -16,8 +16,8 @@ from streamlit_app.AppLoader import (
     AppLoader,
     SelectVariableConfig,
     create_database_section,
-    filter_database,
-    select_filters,
+    filter_database_section,
+    select_filters_sidebar,
     select_one_variable,
 )
 
@@ -44,13 +44,13 @@ if __name__ == "__main__":
     with AppLoader() as app:
         database = app.database
         create_database_section(database)
-        filters = select_filters(database)
-        db_view = filter_database(database=database, filters=filters)
+        filters = select_filters_sidebar(database)
+        db_view = filter_database_section(database=database, filters=filters)
         variable = select_one_variable(
             database=database,
             select_variable_config=SelectVariableConfig(
                 variable_selection_name="kinetics itreated variable",
-                unique_title="Select iterated variable",
+                unique_form_title="Select iterated variable",
                 variable_types=[IterationScalarVariable],
             ),
         )

@@ -20,8 +20,8 @@ from streamlit_app.AppLoader import (
     AppLoader,
     SelectVariableConfig,
     create_database_section,
-    filter_database,
-    select_filters,
+    filter_database_section,
+    select_filters_sidebar,
     select_several_variables_by_checkbox,
 )
 
@@ -32,8 +32,8 @@ if __name__ == "__main__":
         database = app.database
         create_database_section(database)
 
-        filters = select_filters(database)
-        db_view = filter_database(database=database, filters=filters)
+        filters = select_filters_sidebar(database)
+        db_view = filter_database_section(database=database, filters=filters)
         filtered_df = db_view.dataframe
 
         st.subheader("Variable selection")
@@ -41,14 +41,14 @@ if __name__ == "__main__":
             database,
             SelectVariableConfig(
                 variable_selection_name="Distribution variables",
-                unique_title="Distribution variables to select",
+                unique_form_title="Distribution variables to select",
                 variable_types=[
                     ScalarVariable,
                 ],
             ),
             SelectVariableConfig(
                 variable_selection_name="Categorical variables",
-                unique_title="Categorical variables to select",
+                unique_form_title="Categorical variables to select",
                 variable_types=[
                     CategoricalVariable,
                 ],

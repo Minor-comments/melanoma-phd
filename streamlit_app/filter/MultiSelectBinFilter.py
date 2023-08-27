@@ -25,7 +25,8 @@ def parse_interval(interval_str: str) -> pd.Interval:
 
 
 class MultiSelectBinFilter:
-    def __init__(self, filter: ScalarFilter, bins: Dict[str, str]) -> None:
+    def __init__(self, key_context: str, filter: ScalarFilter, bins: Dict[str, str]) -> None:
+        self._key = f"{key_context}_{filter.name}"
         self._filter = filter
         interval_bins = {}
         for bin_name, interval_str in bins.items():
@@ -37,7 +38,7 @@ class MultiSelectBinFilter:
         self._selected_options = st.multiselect(
             label=self._filter.name,
             options=self._bins.keys(),
-            key=self._filter.name,
+            key=self._key,
         )
 
     def filter(self, dataframe: pd.DataFrame) -> pd.DataFrame:

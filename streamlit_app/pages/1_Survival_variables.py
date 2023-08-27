@@ -11,9 +11,9 @@ from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlot
 from streamlit_app.AppLoader import (
     AppLoader,
     create_database_section,
-    filter_database,
-    select_filters,
-    select_group_by,
+    filter_database_section,
+    select_filters_sidebar,
+    select_group_by_sidebar,
 )
 
 if __name__ == "__main__":
@@ -22,11 +22,11 @@ if __name__ == "__main__":
         database = app.database
         create_database_section(database)
 
-        filters = select_filters(database)
-        db_view = filter_database(database=database, filters=filters)
+        filters = select_filters_sidebar(database)
+        db_view = filter_database_section(database=database, filters=filters)
         filtered_df = db_view.dataframe
 
-        selected_group_by = select_group_by(database)
+        selected_group_by = select_group_by_sidebar(database)
         if not selected_group_by:
             selected_group_by = None
         elif len(selected_group_by) == 1:

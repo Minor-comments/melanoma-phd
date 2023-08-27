@@ -7,7 +7,8 @@ from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 
 
 class MultiSelectFilter:
-    def __init__(self, filter: CategoricalFilter) -> None:
+    def __init__(self, key_context: str, filter: CategoricalFilter) -> None:
+        self._key = f"{key_context}_{filter.name}"
         self._filter = filter
         self._selected_options = []
 
@@ -16,7 +17,7 @@ class MultiSelectFilter:
         self._selected_options = st.multiselect(
             label=self._filter.name,
             options=self._filter.options(),
-            key=self._filter.name,
+            key=self._key,
             default=options,
         )
 
@@ -25,6 +26,6 @@ class MultiSelectFilter:
 
     def __get_current_options(self) -> List[str]:
         options = []
-        if self._filter.name in st.session_state:
-            options = st.session_state[self._filter.name]
+        if self._key in st.session_state:
+            options = st.session_state[self._key]
         return options

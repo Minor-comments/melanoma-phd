@@ -59,6 +59,15 @@ class VariableSelector:
         ).encode("utf-8")
 
     @staticmethod
+    def get_selected_variables_from_file(
+        context_uid: str, file_contents: bytes, variables: List[BaseVariable]
+    ) -> List[BaseVariable]:
+        loaded_variables = json.loads(file_contents.decode("utf-8"))[
+            f"{context_uid}_selected_variables_uids"
+        ]
+        return [variable for variable in variables if variable.unique_id in loaded_variables]
+
+    @staticmethod
     def select_variables_from_file(context_uid: str, file_contents: str) -> None:
         file_json = json.loads(file_contents)
         for variable_uid in file_json[f"{context_uid}_selected_variables_uids"]:

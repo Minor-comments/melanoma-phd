@@ -11,6 +11,7 @@ import pandas as pd
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
+from melanoma_phd.database.AbstractPatientDatabaseView import AbstractPatientDatabaseView
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.IterationCategoricalFilter import IterationCategoricalFilter
 from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
@@ -32,7 +33,7 @@ from streamlit_app.VariableSelector import VariableSelector
 @dataclass
 class SelectVariableConfig:
     variable_selection_name: str
-    unique_title: str
+    unique_form_title: str
     variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None
 
 
@@ -54,60 +55,101 @@ def create_database_section(database: PatientDatabase) -> None:
         st.dataframe(database.dataframe)
 
 
-def select_filters(database: PatientDatabase) -> List[Filter]:
+def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
+    # TODO: Create filter factory from .yaml file
+    reference_iteration_variable = database.get_variable("TIEMPO IT{N}")
+    filters: List[Filter] = [
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("GRUPO TTM CORREGIDO")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("GRANDES GRUPOS")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("TIPO TTM ACTUAL")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context, filter=CategoricalFilter(database.get_variable("BOR"))
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("PROGRESIÓN EXTRACRANIAL")),
+        ),
+        RangeSliderFilter(
+            key_context=key_context,
+            filter=IterationScalarFilter(
+                name="At least one extraction time at X months",
+                reference_variable=reference_iteration_variable,
+                iteration_variables=database.get_iteration_variables_of(
+                    reference_variable=reference_iteration_variable
+                ),
+            ),
+            sliders_number=2,
+        ),
+        RangeSliderFilter(
+            key_context=key_context,
+            filter=IterationScalarFilter(
+                name="Extraction time at X months",
+                reference_variable=reference_iteration_variable,
+                iteration_variables=database.get_iteration_variables_of(
+                    reference_variable=reference_iteration_variable
+                ),
+            ),
+            sliders_number=1,
+        ),
+        MultiSelectFilter(
+            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 24"))
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=IterationCategoricalFilter(
+                name="IT PD",
+                reference_variable=database.get_variable("IT{N} PD"),
+                iteration_variables=database.get_iteration_variables_of(
+                    reference_variable=reference_iteration_variable
+                ),
+            ),
+        ),
+    ]
+    return filters
+
+
+def select_filters_sidebar(database: PatientDatabase) -> List[Filter]:
     with st.sidebar.form("Patients Filter"):
-        # TODO: Create filter factory from .yaml file
-        reference_iteration_variable = database.get_variable("TIEMPO IT{N}")
-        filters: List[Filter] = [
-            MultiSelectFilter(CategoricalFilter(database.get_variable("GRUPO TTM CORREGIDO"))),
-            MultiSelectFilter(CategoricalFilter(database.get_variable("GRANDES GRUPOS"))),
-            MultiSelectFilter(CategoricalFilter(database.get_variable("TIPO TTM ACTUAL"))),
-            MultiSelectFilter(CategoricalFilter(database.get_variable("BOR"))),
-            MultiSelectFilter(CategoricalFilter(database.get_variable("PROGRESIÓN EXTRACRANIAL"))),
-            RangeSliderFilter(
-                filter=IterationScalarFilter(
-                    name="At least one extraction time at X months",
-                    reference_variable=reference_iteration_variable,
-                    iteration_variables=database.get_iteration_variables_of(
-                        reference_variable=reference_iteration_variable
-                    ),
-                ),
-                sliders_number=2,
-            ),
-            RangeSliderFilter(
-                filter=IterationScalarFilter(
-                    name="Extraction time at X months",
-                    reference_variable=reference_iteration_variable,
-                    iteration_variables=database.get_iteration_variables_of(
-                        reference_variable=reference_iteration_variable
-                    ),
-                ),
-                sliders_number=1,
-            ),
-            MultiSelectFilter(CategoricalFilter(database.get_variable("PFS 24"))),
-            MultiSelectFilter(
-                filter=IterationCategoricalFilter(
-                    name="IT PD",
-                    reference_variable=database.get_variable("IT{N} PD"),
-                    iteration_variables=database.get_iteration_variables_of(
-                        reference_variable=reference_iteration_variable
-                    ),
-                ),
-            ),
-        ]
+        filters = create_filters(key_context="sidebar filter", database=database)
         for filter in filters:
             filter.select()
         st.form_submit_button("Filter")
         return filters
 
 
-def select_group_by(database: PatientDatabase) -> List[BaseVariable]:
+def select_population_section(
+    population_name: str, database: PatientDatabase
+) -> PatientDatabaseView:
+    st.subheader(f"Filter {population_name}")
+    with st.form(population_name):
+        filters = create_filters(key_context=population_name, database=database)
+        for filter in filters:
+            filter.select()
+        st.form_submit_button("Filter")
+    st.subheader(f"Filtered {population_name}")
+    return filter_database(
+        unique_form_title=f"{population_name} variables to display",
+        database=database,
+        filters=filters,
+    )
+
+
+def select_group_by_sidebar(database: PatientDatabase) -> List[BaseVariable]:
     with st.sidebar.form("Group by"):
         selected_group_by = simple_select_variables_by_checkbox(
             database,
             SelectVariableConfig(
                 variable_selection_name="Categorical Group By",
-                unique_title="Categorical Group By variables",
+                unique_form_title="Categorical Group By variables",
                 variable_types=CategoricalVariable,
             ),
         )
@@ -115,34 +157,44 @@ def select_group_by(database: PatientDatabase) -> List[BaseVariable]:
         return selected_group_by
 
 
-def filter_database(database: PatientDatabase, filters: List[Filter]) -> PatientDatabaseView:
+def filter_database(
+    unique_form_title: str, database: PatientDatabase, filters: List[Filter]
+) -> PatientDatabaseView:
+    db_view = database.filter(filters)
+    df_result = db_view.dataframe
+    st.text(f"{len(df_result.index)} patients match with selected filters")
+    selected_variables = select_variables_by_multiselect(
+        database=database,
+        select_variable_config=SelectVariableConfig(
+            variable_selection_name=f"{unique_form_title}_filter_database_variable_selection",
+            unique_form_title=unique_form_title,
+        ),
+    )
+    df_result_to_display = df_result
+    if selected_variables:
+        df_result_to_display = df_result[
+            [selected_variable.id for selected_variable in selected_variables]
+        ]
+    st.dataframe(df_result_to_display)
+    file_name = "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+    csv = dataframe_to_csv(df_result_to_display)
+    st.download_button(
+        label=f"Download filtered dataframe ⬇️ ",
+        data=csv,
+        mime="text/csv",
+        file_name=file_name,
+    )
+    return db_view
+
+
+def filter_database_section(
+    database: PatientDatabase, filters: List[Filter]
+) -> PatientDatabaseView:
     st.subheader("Filtered data")
     with st.expander(f"Filtered dataframe"):
-        db_view = database.filter(filters)
-        df_result = db_view.dataframe
-        st.text(f"{len(df_result.index)} patients match with selected filters")
-        selected_variables = select_variables_by_multiselect(
-            database=database,
-            select_variable_config=SelectVariableConfig(
-                variable_selection_name="filter_database_variable_selection",
-                unique_title="Variables to display",
-            ),
+        return filter_database(
+            unique_form_title="Variables to display", database=database, filters=filters
         )
-        df_result_to_display = df_result
-        if selected_variables:
-            df_result_to_display = df_result[
-                [selected_variable.id for selected_variable in selected_variables]
-            ]
-        st.dataframe(df_result_to_display)
-        file_name = "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
-        csv = dataframe_to_csv(df_result_to_display)
-        st.download_button(
-            label=f"Download filtered dataframe ⬇️ ",
-            data=csv,
-            mime="text/csv",
-            file_name=file_name,
-        )
-        return db_view
 
 
 def select_variables_by_checkbox(
@@ -158,7 +210,7 @@ def select_variables_by_checkbox(
         file_contents = uploaded_file.getvalue().decode("utf-8")
         VariableSelector.select_variables_from_file(variable_selection_name, file_contents)
     selected_variables: List[BaseVariable] = []
-    with st.expander(select_variable_config.unique_title):
+    with st.expander(select_variable_config.unique_form_title):
         selector = VariableSelector(database)
         variables_to_select = selector.get_variables_to_select(variable_types)
         st.checkbox(
@@ -216,7 +268,7 @@ def select_several_variables_by_checkbox(
 def simple_select_variables_by_checkbox(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
-    with st.expander(select_variable_config.unique_title):
+    with st.expander(select_variable_config.unique_form_title):
         selector = VariableSelector(database)
         variables_to_select = selector.get_variables_to_select(
             select_variable_config.variable_types
@@ -238,7 +290,7 @@ def select_one_variable(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> BaseVariable:
     selected_variable = None
-    with st.form(select_variable_config.unique_title):
+    with st.form(select_variable_config.unique_form_title):
         selector = VariableSelector(database)
         variables = selector.get_variables_to_select(select_variable_config.variable_types)
         variable_ids = [variable.id for variable in variables]
@@ -256,16 +308,46 @@ def select_variables_by_multiselect(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     selected_variables = []
-    with st.form(select_variable_config.unique_title):
-        variables = database.get_variables_by_type(select_variable_config.variable_types)
+    variables = database.get_variables_by_type(select_variable_config.variable_types)
+    uploaded_file = st.file_uploader(
+        label=f"Upload a filtered dataframe variable selection ⬆️", type=["json"]
+    )
+    default_selected_variables = []
+    if uploaded_file:
+        file_contents = uploaded_file.getvalue()
+        default_selected_variables = VariableSelector.get_selected_variables_from_file(
+            context_uid=select_variable_config.variable_selection_name,
+            file_contents=file_contents,
+            variables=variables,
+        )
+    with st.form(select_variable_config.unique_form_title):
         variable_ids = [variable.id for variable in variables]
+        default_variable_ids = [variable.id for variable in default_selected_variables]
         selected_variables_ids = st.multiselect(
             label="Select variables to display",
             options=variable_ids,
+            default=default_variable_ids,
             key=select_variable_config.variable_selection_name,
         )
         if st.form_submit_button("Display variables"):
             selected_variables = database.get_variables(selected_variables_ids)
+            data_to_save = VariableSelector.selected_variables_to_file(
+                context_uid=select_variable_config.variable_selection_name,
+                variables=selected_variables,
+            )
+
+        file_name = (
+            select_variable_config.variable_selection_name
+            + datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
+            + ".json"
+        )
+    if selected_variables:
+        st.download_button(
+            label=f"Download '{select_variable_config.variable_selection_name}' variable selection ⬇️ ",
+            data=data_to_save,
+            file_name=file_name,
+        )
+
     return selected_variables
 
 

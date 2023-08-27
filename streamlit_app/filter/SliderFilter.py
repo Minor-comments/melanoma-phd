@@ -7,7 +7,8 @@ from melanoma_phd.database.filter.ScalarFilter import ScalarFilter
 
 
 class SliderFilter:
-    def __init__(self, filter: ScalarFilter) -> None:
+    def __init__(self, key_context: str, filter: ScalarFilter) -> None:
+        self._key = f"{key_context}_{filter.name}"
         self._filter = filter
         self._selected_interval = None
 
@@ -28,6 +29,6 @@ class SliderFilter:
 
     def __get_current_value(self) -> Tuple[Union[int, float]]:
         value = tuple([self._filter.interval().left.item(), self._filter.interval().right.item()])
-        if self._filter.name in st.session_state:
-            value = st.session_state[self._filter.name]
+        if self._key in st.session_state:
+            value = st.session_state[self._key]
         return value
