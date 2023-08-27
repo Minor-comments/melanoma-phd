@@ -11,7 +11,6 @@ import pandas as pd
 import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
-from melanoma_phd.database.AbstractPatientDatabaseView import AbstractPatientDatabaseView
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
 from melanoma_phd.database.filter.IterationCategoricalFilter import IterationCategoricalFilter
 from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
