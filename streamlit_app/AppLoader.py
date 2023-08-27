@@ -256,16 +256,46 @@ def select_variables_by_multiselect(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     selected_variables = []
+    variables = database.get_variables_by_type(select_variable_config.variable_types)
+    uploaded_file = st.file_uploader(
+        label=f"Upload a filtered dataframe variable selection ⬆️", type=["json"]
+    )
+    default_selected_variables = []
+    if uploaded_file:
+        file_contents = uploaded_file.getvalue()
+        default_selected_variables = VariableSelector.get_selected_variables_from_file(
+            context_uid=select_variable_config.variable_selection_name,
+            file_contents=file_contents,
+            variables=variables,
+        )
     with st.form(select_variable_config.unique_title):
-        variables = database.get_variables_by_type(select_variable_config.variable_types)
         variable_ids = [variable.id for variable in variables]
+        default_variable_ids = [variable.id for variable in default_selected_variables]
         selected_variables_ids = st.multiselect(
             label="Select variables to display",
             options=variable_ids,
+            default=default_variable_ids,
             key=select_variable_config.variable_selection_name,
         )
         if st.form_submit_button("Display variables"):
             selected_variables = database.get_variables(selected_variables_ids)
+            data_to_save = VariableSelector.selected_variables_to_file(
+                context_uid=select_variable_config.variable_selection_name,
+                variables=selected_variables,
+            )
+
+        file_name = (
+            select_variable_config.variable_selection_name
+            + datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
+            + ".json"
+        )
+    if selected_variables:
+        st.download_button(
+            label=f"Download '{select_variable_config.variable_selection_name}' variable selection ⬇️ ",
+            data=data_to_save,
+            file_name=file_name,
+        )
+
     return selected_variables
 
 
