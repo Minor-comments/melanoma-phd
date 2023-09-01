@@ -21,7 +21,7 @@ from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariab
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from streamlit_app.filter.Filter import Filter
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
-from streamlit_app.filter.RangeSliderFilter import RangeSliderFilter
+from streamlit_app.filter.RangeInputFilter import RangeInputFilter
 from streamlit_app.logger.StreamlitLogHandler import StreamlitLogHandler
 from streamlit_app.table.CsvTable import CsvTable
 from streamlit_app.table.MarkdownTable import MarkdownTable
@@ -77,7 +77,7 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             key_context=key_context,
             filter=CategoricalFilter(database.get_variable("PROGRESIÓN EXTRACRANIAL")),
         ),
-        RangeSliderFilter(
+        RangeInputFilter(
             key_context=key_context,
             filter=IterationScalarFilter(
                 name="At least one extraction time at X months",
@@ -86,9 +86,9 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
                     reference_variable=reference_iteration_variable
                 ),
             ),
-            sliders_number=2,
+            ranges_number=2,
         ),
-        RangeSliderFilter(
+        RangeInputFilter(
             key_context=key_context,
             filter=IterationScalarFilter(
                 name="Extraction time at X months",
@@ -97,7 +97,7 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
                     reference_variable=reference_iteration_variable
                 ),
             ),
-            sliders_number=1,
+            ranges_number=1,
         ),
         MultiSelectFilter(
             key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 24"))
