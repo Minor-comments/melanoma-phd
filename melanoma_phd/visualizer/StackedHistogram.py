@@ -24,20 +24,18 @@ class StackedHistogram:
         axis_config: Optional[PlotlyAxisUpdaterConfig] = None,
     ) -> plotly_go.Figure:
         distribution_variables = sorted(distribution_variables, key=lambda variable: variable.name)
-        distribution_data = [
-            variable.get_series(dataframe).values for variable in distribution_variables
-        ]
+        data = []
+        for variable in distribution_variables + [categorical_variable]:
+            serie = variable.get_series(dataframe)
+            serie.name = variable.name
+            data.append(serie)
+        plot_df = pd.concat(data, axis=1)
+
         distribution_variable_names = [variable.name for variable in distribution_variables]
         categorical_variable_name = categorical_variable.name
-        categorical_data = categorical_variable.get_series(dataframe)
-        categorical_unique_data = list(categorical_data.unique())
+        categorical_unique_data = list(categorical_variable.get_series(dataframe).unique())
         if len(categorical_unique_data) > 1:
             categorical_unique_data += ["All"]
-        plot_df = pd.DataFrame(
-            zip(*distribution_data, categorical_data),
-            columns=distribution_variable_names + [categorical_variable_name],
-            index=categorical_data.index,
-        )
 
         errors_by_category = defaultdict(dict)
         for category_name, grouped_by_data in plot_df.groupby(categorical_variable_name):
@@ -58,9 +56,12 @@ class StackedHistogram:
             x_names = []
             for category_name in categorical_unique_data:
                 if category_name == "All":
-                    filtered_df = plot_df
+                    filtered_df = plot_df[plot_df[name].notnull()]
                 else:
-                    filtered_df = plot_df[plot_df[categorical_variable_name] == category_name]
+                    filtered_df = plot_df[
+                        (plot_df[categorical_variable_name] == category_name)
+                        & (plot_df[name].notnull())
+                    ]
                 minus_errors.append(float(np.nanstd(filtered_df[name]) / 2))
                 means.append(float(np.nanmean(filtered_df[name])))
                 x_names.append(f"{category_name}<br>N = {len(filtered_df)}")

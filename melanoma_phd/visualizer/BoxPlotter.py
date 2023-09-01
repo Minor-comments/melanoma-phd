@@ -41,10 +41,10 @@ class BoxPlotter:
                     (
                         value,
                         variable.name if len(distribution_variables) > 1 else "",
-                        categorical_data.iloc[j],
+                        categorical_data[index],
                     )
                     for i, variable in enumerate(distribution_variables)
-                    for j, value in enumerate(variable.get_series(dataframe).values)
+                    for index, value in variable.get_series(dataframe).items()
                 ],
                 columns=["value", "variable"] + [categorical_variable_name],
             )
