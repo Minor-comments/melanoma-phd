@@ -3,18 +3,17 @@ import sys
 
 import streamlit as st
 
+# workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
+from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.RemainingDistributionVariable import (
     RemainingDistributionVariable,
     RemainingDistributionVariableConfig,
 )
-from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
-from melanoma_phd.visualizer.PlotlyAxisUpdater import PlotlyAxisUpdaterConfig
-
-# workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
-from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
 from melanoma_phd.visualizer.BoxPlotter import BoxPlotter
+from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
+from melanoma_phd.visualizer.PlotlyAxisUpdater import PlotlyAxisUpdaterConfig
 from melanoma_phd.visualizer.StackedHistogram import StackedHistogram
 from streamlit_app.AppLoader import (
     AppLoader,
