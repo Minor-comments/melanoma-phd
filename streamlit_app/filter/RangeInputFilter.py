@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import streamlit as st
@@ -29,37 +29,35 @@ class RangeInputFilter:
         self._max_value = max_value if max_value and max_value > max_iteration else max_iteration
 
     def select(self) -> None:
-        self._selected_intervals.clear()
+        selected_intervals: List[pd.Interval] = []
         for index in range(self._ranges_number):
-            index_postfix = f" #{index+1}" if self._ranges_number > 1 else ""
-            range_name = f"{self._filter.name}{index_postfix}"
-            range_key = f"{self._key}{index_postfix}"
+            range_name, range_key_min, range_key_max = self.__get_number_input_name_key(index)
             st.write(range_name)
             col0, col1 = st.columns(2)
             with col0:
-                range_key_min = f"{range_key}_min"
                 selected_min_value = st.number_input(
                     label="Minimum",
                     min_value=self._min_value,
                     max_value=self._max_value,
                     step=self._step,
-                    value=self.__get_current_value(range_key_min, self._min_value),
                     key=range_key_min,
+                    value=self.__get_current_min_value(index, range_key_min, self._min_value),
                 )
             with col1:
-                range_key_max = f"{range_key}_max"
                 selected_max_value = st.number_input(
                     label="Maximum",
                     min_value=self._min_value,
                     max_value=self._max_value,
                     step=self._step,
-                    value=self.__get_current_value(range_key_max, self._max_value),
                     key=range_key_max,
+                    value=self.__get_current_max_value(index, range_key_max, self._max_value),
                 )
             if selected_min_value != self._min_value or selected_max_value != self._max_value:
-                self._selected_intervals.append(
+                selected_intervals.append(
                     pd.Interval(left=selected_min_value, right=selected_max_value, closed="both")
                 )
+
+        self._selected_intervals = selected_intervals
 
     def filter(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         if self._selected_intervals:
@@ -67,7 +65,45 @@ class RangeInputFilter:
         else:
             return dataframe
 
-    def __get_current_value(self, key: str, default: Union[int, float]) -> Union[int, float]:
-        if key in st.session_state:
+    def __get_current_min_value(
+        self, index: int, key: str, default: Union[int, float]
+    ) -> Union[int, float]:
+        if self._selected_intervals and index < len(self._selected_intervals):
+            return self._selected_intervals[index].left
+        elif key in st.session_state:
             return st.session_state[key]
-        return default
+        else:
+            return default
+
+    def __get_current_max_value(
+        self, index: int, key: str, default: Union[int, float]
+    ) -> Union[int, float]:
+        if self._selected_intervals and index < len(self._selected_intervals):
+            return self._selected_intervals[index].right
+        elif key in st.session_state:
+            return st.session_state[key]
+        else:
+            return default
+
+    def __get_number_input_name_key(self, index: int) -> Tuple[str, str, str]:
+        index_postfix = f" #{index+1}" if self._ranges_number > 1 else ""
+        range_name = f"{self._filter.name}{index_postfix}"
+        range_key = f"{self._key}{index_postfix}"
+        range_key_min = f"{range_key}_min"
+        range_key_max = f"{range_key}_max"
+        return range_name, range_key_min, range_key_max
+
+    def save_to_dict(self, dict: Dict[str, Any]) -> None:
+        for index, interval in enumerate(self._selected_intervals):
+            _, range_key_min, range_key_max = self.__get_number_input_name_key(index)
+            dict[range_key_min] = interval.left
+            dict[range_key_max] = interval.right
+
+    def load_from_dict(self, dict: Dict[str, Any]) -> None:
+        self._selected_intervals.clear()
+        for index in range(self._ranges_number):
+            _, range_key_min, range_key_max = self.__get_number_input_name_key(index)
+            if range_key_min in dict and range_key_max in dict:
+                self._selected_intervals.append(
+                    pd.Interval(left=dict[range_key_min], right=dict[range_key_max], closed="both")
+                )

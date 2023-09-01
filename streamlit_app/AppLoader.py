@@ -20,6 +20,7 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from streamlit_app.filter.Filter import Filter
+from streamlit_app.filter.FilterSelection import FilterSelection
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
 from streamlit_app.filter.RangeInputFilter import RangeInputFilter
 from streamlit_app.logger.StreamlitLogHandler import StreamlitLogHandler
@@ -55,7 +56,6 @@ def create_database_section(database: PatientDatabase) -> None:
 
 
 def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
-    # TODO: Create filter factory from .yaml file
     reference_iteration_variable = database.get_variable("TIEMPO IT{N}")
     filters: List[Filter] = [
         MultiSelectFilter(
@@ -129,16 +129,37 @@ def select_population_section(
     population_name: str, database: PatientDatabase
 ) -> PatientDatabaseView:
     st.subheader(f"Filter {population_name}")
+    uploaded_file = st.file_uploader(
+        label=f"Upload a filter selection ⬆️", type=["json"], key=population_name
+    )
+    custom_population_name = st.text_input("Filtered population name", value=population_name)
+    filters = create_filters(key_context=population_name, database=database)
+    filter_selection = FilterSelection(name=population_name, filters=filters)
+    if uploaded_file:
+        filter_selection.load_from_file(file_contents=uploaded_file.getvalue())
     with st.form(population_name):
-        filters = create_filters(key_context=population_name, database=database)
-        for filter in filters:
-            filter.select()
-        st.form_submit_button("Filter")
+        filter_selection.select()
+        filtered = st.form_submit_button("Filter")
+        if filtered:
+            data_to_save = filter_selection.save_to_file()
+            file_name = (
+                f"filter_selection_{custom_population_name}"
+                + datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
+                + ".json"
+            )
+    if filtered:
+        st.download_button(
+            label=f"Download filter selection ⬇️",
+            data=data_to_save,
+            file_name=file_name,
+            key=f"download_button_{population_name}",
+        )
     st.subheader(f"Filtered {population_name}")
     return filter_database(
         unique_form_title=f"{population_name} variables to display",
         database=database,
         filters=filters,
+        population_name=custom_population_name,
     )
 
 
@@ -157,9 +178,9 @@ def select_group_by_sidebar(database: PatientDatabase) -> List[BaseVariable]:
 
 
 def filter_database(
-    unique_form_title: str, database: PatientDatabase, filters: List[Filter]
+    unique_form_title: str, database: PatientDatabase, filters: List[Filter], population_name: str
 ) -> PatientDatabaseView:
-    db_view = database.filter(filters)
+    db_view = database.filter(filters=filters, name=population_name)
     df_result = db_view.dataframe
     st.text(f"{len(df_result.index)} patients match with selected filters")
     selected_variables = select_variables_by_multiselect(
@@ -192,7 +213,10 @@ def filter_database_section(
     st.subheader("Filtered data")
     with st.expander(f"Filtered dataframe"):
         return filter_database(
-            unique_form_title="Variables to display", database=database, filters=filters
+            unique_form_title="Variables to display",
+            database=database,
+            filters=filters,
+            population_name="",
         )
 
 
@@ -309,7 +333,9 @@ def select_variables_by_multiselect(
     selected_variables = []
     variables = database.get_variables_by_type(select_variable_config.variable_types)
     uploaded_file = st.file_uploader(
-        label=f"Upload a filtered dataframe variable selection ⬆️", type=["json"]
+        label=f"Upload a filtered dataframe variable selection ⬆️",
+        type=["json"],
+        key="file_uploader_" + select_variable_config.variable_selection_name,
     )
     default_selected_variables = []
     if uploaded_file:

@@ -89,9 +89,11 @@ class PatientDatabase(AbstractPatientDatabaseView):
     def reload(self) -> None:
         self.__load()
 
-    def filter(self, filters: List[BaseFilter]) -> PatientDatabaseView:
+    def filter(self, filters: List[BaseFilter], name: Optional[str] = None) -> PatientDatabaseView:
         dataframe_to_filter = self.dataframe.copy()
         df_result = PatientDataFilterer().filter(dataframe_to_filter, filters)
+        if name:
+            df_result.name = name
         variables = [deepcopy(variable) for variable in self.variables]
         return PatientDatabaseView(dataframe=df_result, variables=variables)
 

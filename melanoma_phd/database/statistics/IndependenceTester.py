@@ -1,21 +1,30 @@
 import logging
+import operator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Tuple
+from typing import Dict, List, cast
 
-import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
+from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
 from melanoma_phd.database.statistics.VariableStatisticalProperties import (
     VariableStatisticalProperties,
 )
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
-from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
-from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
+from melanoma_phd.database.variable.BooleanVariableStatic import BooleanVariableStatic
+from melanoma_phd.database.variable.CategoricalVariable import (
+    CategoricalVariable,
+    CategoricalVariableConfig,
+)
+from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
+from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
+from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
+from melanoma_phd.database.variable.ScalarVariable import ScalarVariable, ScalarVariableConfig
+from melanoma_phd.database.variable.ScalarVariableStatic import ScalarVariableStatic
 from melanoma_phd.database.variable.Variable import PValueType
 
 
@@ -55,9 +64,17 @@ class IndependenceTester:
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
     ) -> IndependenceTestResult:
         self._check_variables(dataframe, variable, other_variable)
-        first_variable, second_variable = self._order_variables(variable, other_variable)
-        first_variable.init_from_dataframe(dataframe=dataframe)
-        second_variable.init_from_dataframe(dataframe=dataframe)
+        variable_dataframe_0, variable_dataframe_1 = (
+            VariableDataframe(variable=variable, dataframe=dataframe),
+            VariableDataframe(variable=other_variable, dataframe=dataframe),
+        )
+        first_variable_dataframe, second_variable_dataframe = sorted(
+            [variable_dataframe_0, variable_dataframe_1]
+        )
+        first_variable, second_variable = (
+            first_variable_dataframe.variable,
+            second_variable_dataframe.variable,
+        )
         variable_0_prop = VariableStatisticalProperties(
             type=first_variable.statistical_type(),
             normality=False,
@@ -68,8 +85,8 @@ class IndependenceTester:
         )
         try:
             if isinstance(first_variable, ScalarVariable):
-                first_series, second_series = self._remove_nulls_from_any_serie_to_all(
-                    dataframe, first_variable, second_variable
+                first_series, second_series = first_variable_dataframe.merge_and_remove_nulls(
+                    second_variable_dataframe
                 )
                 variable_0_prop.normality = self._normality_tester.test_series(first_series)
                 if isinstance(second_variable, ScalarVariable):
@@ -152,8 +169,8 @@ class IndependenceTester:
                 second_variable, CategoricalVariable
             ):
                 # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
-                serie = self._remove_nulls_from_any_serie_to_all(
-                    dataframe, first_variable, second_variable, only_numeric=True
+                serie = first_variable_dataframe.merge_and_remove_nulls(
+                    second_variable_dataframe, only_numeric=True
                 )
                 table = stats.contingency.crosstab(*serie).count
                 if table.size < 2:
@@ -211,21 +228,97 @@ class IndependenceTester:
             index=index,
         )
 
-    def _order_variables(self, *variables: BaseVariable) -> Tuple[BaseVariable, ...]:
-        already_ordered_index = set()
-        ordered_variables = []
-        for variable_type in [ScalarVariable, BooleanVariable, CategoricalVariable]:
-            for i, variable in enumerate(variables):
-                if i in already_ordered_index:
-                    continue
+    def test_two_population(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
+    ) -> IndependenceTestResult:
+        variable_dataframe_0 = VariableDataframe(variable, dataframe_0)
+        variable_dataframe_1 = VariableDataframe(variable, dataframe_1)
+        value_series = pd.concat(
+            [
+                variable_dataframe_0.get_series(only_numeric=True),
+                variable_dataframe_1.get_series(only_numeric=True),
+            ],
+            ignore_index=True,
+        )
+        group_series = pd.concat(
+            [pd.Series([0] * len(dataframe_0)), pd.Series([1] * len(dataframe_1))],
+            ignore_index=True,
+        )
+        dataframe = pd.DataFrame(
+            {variable.id: value_series, "group": group_series},
+            columns=[variable.id, "group"],
+        )
+        reference_variable = variable
+        if isinstance(variable, IterationScalarVariable):
+            reference_variable = ScalarVariableStatic(
+                ScalarVariableConfig(id=variable.id, name=variable.name, selectable=False)
+            )
+            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
+        elif isinstance(variable, IterationCategoricalVariable):
+            categories = {
+                key: value
+                for key, value in zip(
+                    cast(IterationCategoricalVariable, variable).category_names,
+                    cast(IterationCategoricalVariable, variable).category_values,
+                )
+            }
+            reference_variable = CategoricalVariableStatic(
+                CategoricalVariableConfig(
+                    id=variable.id,
+                    name=variable.name,
+                    selectable=False,
+                    categories=categories,
+                )
+            )
+            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
 
-                if isinstance(variable, variable_type):
-                    ordered_variables.append(variable)
-                    already_ordered_index.add(i)
+        group_variable = BooleanVariableStatic(
+            BooleanVariableConfig(
+                id="group",
+                name="group",
+                selectable=False,
+                categories={0: "No", 1: "Yes"},
+            )
+        )
+        group_variable.init_from_dataframe(dataframe=dataframe)
+        return (
+            self.test(dataframe, reference_variable, group_variable),
+            reference_variable,
+            group_variable,
+        )
 
-            if len(variables) == len(ordered_variables):
-                break
-        return tuple(ordered_variables)
+    def table_two_population(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variables: List[BaseVariable]
+    ) -> pd.DataFrame:
+        self._check_variables(dataframe_0, *variables)
+        self._check_variables(dataframe_1, *variables)
+        results: List[List[IndependenceTestResult]] = []
+        columns: List[str] = []
+        index: List[str] = []
+
+        for variable in variables:
+            variable_results_tuple = [
+                self.test_two_population(dataframe_0, dataframe_1, variable) for _ in variables
+            ]
+            variable_results_tuple = list(zip(*variable_results_tuple))
+            variable_results = variable_results_tuple[0]
+            results.append(variable_results)
+            reference_variable = variable_results_tuple[1][-1]
+            var_title_index = f"{dataframe_0.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
+            var_title_column = f"{dataframe_1.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
+            columns.append(var_title_index)
+            index.append(var_title_column)
+        return pd.DataFrame(
+            data=[
+                [
+                    f"{result.p_value:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
+                    for result in result_row
+                ]
+                for result_row in results
+            ],
+            columns=columns,
+            index=index,
+        )
 
     def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
         empty_variables = []
@@ -238,36 +331,3 @@ class IndependenceTester:
             error_msg = f"{self.__class__.__name__}: variables {[variable.name for variable in empty_variables]} are empty for the given filters. Please review database or filters."
             logging.error(error_msg)
             raise ValueError(error_msg)
-
-    def _remove_nulls_from_any_serie_to_all(
-        self, dataframe: pd.DataFrame, *variables: BaseVariable, only_numeric: bool = False
-    ) -> Tuple[pd.Series, ...]:
-        series = []
-        serie = self.__get_data(variables[0], dataframe, only_numeric=only_numeric)
-        series.append(serie)
-        index = serie.index.values
-        null_mask = serie.isnull()
-        for variable in variables[1:]:
-            serie = self.__get_data(variable, dataframe, only_numeric=only_numeric)
-            assert all(
-                np.equal(serie.index.values, index)
-            ), "Indexes of all series must be the same"
-            series.append(serie)
-            null_mask |= serie.isnull()
-        if sum(null_mask):
-            logging.info(
-                f"{self.__class__.__name__}: {sum(null_mask)} nulls removed out of {len(null_mask)} values from variables {[variable.name for variable in variables]}"
-            )
-        return tuple(serie[~null_mask] for serie in series)
-
-    def __get_data(
-        self, variable: BaseVariable, dataframe: pd.DataFrame, only_numeric: bool = False
-    ) -> pd.Series:
-        if only_numeric:
-            if isinstance(variable, CategoricalVariable):
-                return variable.get_numeric_series(dataframe)
-            else:
-                logging.warning(
-                    f"Trying to get numeric series for `{variable.name}` ({variable.__class__.__name__}) but it is not a categorical variable, defaulting to get_series"
-                )
-        return variable.get_series(dataframe)

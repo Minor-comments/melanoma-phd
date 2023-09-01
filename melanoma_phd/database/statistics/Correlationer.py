@@ -12,6 +12,7 @@ from sklearn.metrics import matthews_corrcoef
 
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
+from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
 from melanoma_phd.database.statistics.VariableStatisticalProperties import \
     VariableStatisticalProperties
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -56,11 +57,19 @@ class Correlationer:
         self, dataframe: pd.DataFrame, variable: BaseVariable, other_variable: BaseVariable
     ) -> CorrelationResult:
         self._check_variables(dataframe, variable, other_variable)
-        first_variable, second_variable = self._order_variables(variable, other_variable)
-        first_variable.init_from_dataframe(dataframe=dataframe)
-        second_variable.init_from_dataframe(dataframe=dataframe)
-        first_series, second_series = self._remove_nulls_from_any_serie_to_all(
-            dataframe, first_variable, second_variable
+        variable_dataframe_0, variable_dataframe_1 = (
+            VariableDataframe(variable=variable, dataframe=dataframe),
+            VariableDataframe(variable=other_variable, dataframe=dataframe),
+        )
+        first_variable_dataframe, second_variable_dataframe = sorted(
+            [variable_dataframe_0, variable_dataframe_1]
+        )
+        first_variable, second_variable = (
+            first_variable_dataframe.variable,
+            second_variable_dataframe.variable,
+        )
+        first_series, second_series = first_variable_dataframe.merge_and_remove_nulls(
+            second_variable_dataframe
         )
         variable_0_prop = VariableStatisticalProperties(
             type=first_variable.statistical_type(),
@@ -170,11 +179,7 @@ class Correlationer:
                         },
                         homogeneity=False,
                         type=CorrelationTestType.THEILS_U,
-                        coefficient=theils_u(
-                            *self._remove_nulls_from_any_serie_to_all(
-                                dataframe, variable, other_variable
-                            )
-                        ),
+                        coefficient=theils_u(x=first_series, y=second_series),
                     )
             elif isinstance(first_variable, CategoricalVariable):
                 # TODO: Differentitate between Ordinal (same as ScalarVariable non-normal) and Nominal (as is here) categorical variables
@@ -187,11 +192,7 @@ class Correlationer:
                         },
                         homogeneity=False,
                         type=CorrelationTestType.THEILS_U,
-                        coefficient=theils_u(
-                            *self._remove_nulls_from_any_serie_to_all(
-                                dataframe, variable, other_variable
-                            )
-                        ),
+                        coefficient=theils_u(x=first_series, y=second_series),
                     )
         except ValueError as e:
             raise ValueError(
@@ -225,22 +226,6 @@ class Correlationer:
             index=index,
         )
 
-    def _order_variables(self, *variables: BaseVariable) -> Tuple[BaseVariable, ...]:
-        already_ordered_index = set()
-        ordered_variables = []
-        for variable_type in [ScalarVariable, BooleanVariable, CategoricalVariable]:
-            for i, variable in enumerate(variables):
-                if i in already_ordered_index:
-                    continue
-
-                if isinstance(variable, variable_type):
-                    ordered_variables.append(variable)
-                    already_ordered_index.add(i)
-
-            if len(variables) == len(ordered_variables):
-                break
-        return tuple(ordered_variables)
-
     def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
         empty_variables = []
         for variable in variables:
@@ -252,37 +237,6 @@ class Correlationer:
             error_msg = f"{self.__class__.__name__}: variables {[variable.name for variable in empty_variables]} are empty for the given filters. Please review database or filters."
             logging.error(error_msg)
             raise ValueError(error_msg)
-
-    def _remove_nulls_from_any_serie_to_all(
-        self, dataframe: pd.DataFrame, *variables: BaseVariable, only_numeric: bool = False
-    ) -> Tuple[pd.Series, ...]:
-        series = []
-        serie = self.__get_data(variables[0], dataframe, only_numeric=only_numeric)
-        series.append(serie)
-        index = serie.index.values
-        null_mask = serie.isnull()
-        for variable in variables[1:]:
-            serie = self.__get_data(variable, dataframe, only_numeric=only_numeric)
-            assert all(serie.index.values == index), "Indexes of all series must be the same"
-            series.append(serie)
-            null_mask |= serie.isnull()
-        if sum(null_mask):
-            logging.info(
-                f"{self.__class__.__name__}: {sum(null_mask)} nulls removed out of {len(null_mask)} values from variables {[variable.name for variable in variables]}"
-            )
-        return tuple(serie[~null_mask] for serie in series)
-
-    def __get_data(
-        self, variable: BaseVariable, dataframe: pd.DataFrame, only_numeric: bool = False
-    ) -> pd.Series:
-        if only_numeric:
-            if isinstance(variable, CategoricalVariable):
-                return variable.get_numeric_series(dataframe)
-            else:
-                logging.warning(
-                    f"Trying to get numeric series for `{variable.name}` ({variable.__class__.__name__}) but it is not a categorical variable, defaulting to get_series"
-                )
-        return variable.get_series(dataframe)
 
     def _calculate_omega_square(self, continuous_series: pd.Series, categorical_series: pd.Series):
         anova = self._calculate_anova(
