@@ -1,7 +1,11 @@
 import os
 import sys
+from typing import Dict
 
+import pandas as pd
 import streamlit as st
+
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(
@@ -12,6 +16,7 @@ from streamlit_app.AppLoader import (
     AppLoader,
     create_database_section,
     filter_database_section,
+    plot_statistics,
     select_filters_sidebar,
     select_group_by_sidebar,
 )
@@ -52,3 +57,24 @@ if __name__ == "__main__":
         st.pyplot(
             SurvivalFunctionPlotter(database.get_variable("TFS")).plot(**survival_plot_config)
         )
+
+        st.header("Statistics")
+        variables_statistics: Dict[BaseVariable, pd.DataFrame] = {}
+        for variable_name in ["PFS", "OS", "TFS"]:
+            try:
+                variable = database.get_variable(variable_name)
+                variables_statistics[variable] = variable.descriptive_statistics(
+                    filtered_df, group_by=selected_group_by
+                )
+                st.write(
+                    f"{variable.name}"
+                    + (
+                        f" by {[variable.name for variable in selected_group_by]}"
+                        if selected_group_by
+                        else ""
+                    )
+                )
+                st.dataframe(variables_statistics[variable])
+            except Exception as e:
+                st.markdown(f":red[Error generating '{variable.name}' variable statistics: {e}]")
+        plot_statistics(variables_statistics)

@@ -59,6 +59,7 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
         self,
         dataframe: pd.DataFrame,
         group_by: Optional[Union[BaseVariable, List[BaseVariable]]] = None,
+        percentile: float = 0.75,
         alpha: float = 0.05,
         **kwargs: Any,
     ) -> pd.DataFrame:
@@ -75,7 +76,7 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
 
         labels = self.get_labels(group_by_data=group_by_data)
         kaplan_meier_fitters = self.calculate_kaplan_meier_fitters(
-            dataframe=dataframe, group_by_data=group_by_data, group_by_id=group_by_id
+            dataframe=dataframe, group_by_data=group_by_data, group_by_id=group_by_id, alpha=alpha
         )
         median_confidence_intervals_ = [
             median_survival_times(kaplan_meier_fitter.confidence_interval_)
@@ -96,6 +97,10 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
                     median_confidence_intervals_[i].iloc[0, 1]
                     for i in range(len(kaplan_meier_fitters))
                 ],
+                f"percentile {percentile}": [
+                    kaplan_meier_fitter.percentile(percentile)
+                    for kaplan_meier_fitter in kaplan_meier_fitters
+                ],
             },
             index=[label for label in labels] if len(labels) > 1 else [0],
         )
@@ -108,9 +113,20 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
         self,
         dataframe: pd.DataFrame,
     ) -> List[List[str]]:
-        raise NotImplementedError(
-            f"Survival variable '{self.id}' has no format descriptive statistics implementation"
-        )
+        column_median = dataframe["median"]
+        column_median_lower = dataframe[
+            dataframe.columns[dataframe.columns.str.startswith(f"median_lower")]
+        ].iloc[:, 0]
+        column_median_upper = dataframe[
+            dataframe.columns[dataframe.columns.str.startswith(f"median_upper")]
+        ].iloc[:, 0]
+        column_percentile = dataframe[
+            dataframe.columns[dataframe.columns.str.startswith(f"percentile")]
+        ].iloc[:, 0]
+        row_name = f"{self.name} {column_median.name} ({column_median_lower.name}, {column_median_upper.name}) {column_percentile.name}"
+        value_name = ""
+        value = f"{column_median.values} {column_median_lower.values},{column_median_upper.values}) {column_percentile.values}"
+        return [[row_name, value_name, value]]
 
     def calculate_kaplan_meier_fitters(
         self,
@@ -146,10 +162,8 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
     def get_events_durations(self, dataframe: pd.DataFrame) -> EventsDurations:
         durations = dataframe[self._duration_variable_id].dropna()
         events = dataframe[self._events_variable_id].dropna() != 0
-        if len(durations) > len(events):
-            durations = durations.loc[events.index]
-        elif len(durations) < len(events):
-            events = events.loc[durations.index]
+        durations = durations.loc[durations.index.isin(events.index)]
+        events = events.loc[events.index.isin(durations.index)]
 
         return EventsDurations(
             events=events.to_numpy(),
