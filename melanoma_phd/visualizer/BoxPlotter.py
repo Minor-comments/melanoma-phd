@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from typing import List, Optional, Tuple
 
@@ -73,7 +74,7 @@ class BoxPlotter:
                 ],
                 columns=["value", "variable"],
             )
-            plot_kwargs.update({"x": "variable"})
+            plot_kwargs.update({"x": "variable", "color": "variable"})
 
         title = distribution_plotter_helper.generate_title(categorical_variable)
         plot_kwargs.update({"title": title})
@@ -113,6 +114,8 @@ class BoxPlotter:
                 for count_key, count in count_dict.items():
                     count_variable_name = count_key[0]
                     if variable_name == count_variable_name:
+                        fig.layout["xaxis" + xaxis_index].pop("title")
+
                         categories = fig.layout["xaxis" + xaxis_index]["categoryarray"]
                         x = self.__calculate_x_annotation(
                             category_index=categories.index(count_key[1]),
@@ -129,6 +132,7 @@ class BoxPlotter:
         else:
             distribution_variable_names = [variable.name for variable in distribution_variables]
             for i, count_variable_name in enumerate(distribution_variable_names):
+                count_variable_name = count_variable_name if len(distribution_variables) > 1 else ""
                 count = count_dict[count_variable_name]
                 x = self.__calculate_x_annotation(
                     category_index=i,
@@ -142,6 +146,7 @@ class BoxPlotter:
                     text=f"N = {count}",
                     **annotation_kwargs,
                 )
+        fig.update_xaxes(showticklabels=False)
 
         return fig
 
