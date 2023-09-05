@@ -10,13 +10,16 @@ import scipy.stats as stats
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
 from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
-from melanoma_phd.database.statistics.VariableStatisticalProperties import \
-    VariableStatisticalProperties
+from melanoma_phd.database.statistics.VariableStatisticalProperties import (
+    VariableStatisticalProperties,
+)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
 from melanoma_phd.database.variable.BooleanVariableStatic import BooleanVariableStatic
-from melanoma_phd.database.variable.CategoricalVariable import (CategoricalVariable,
-                                                                CategoricalVariableConfig)
+from melanoma_phd.database.variable.CategoricalVariable import (
+    CategoricalVariable,
+    CategoricalVariableConfig,
+)
 from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
 from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
 from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
@@ -296,31 +299,22 @@ class IndependenceTester:
     ) -> pd.DataFrame:
         self._check_variables(dataframe_0, *variables)
         self._check_variables(dataframe_1, *variables)
-        results: List[Tuple[IndependenceTestResult, ...]] = []
+        results: List[IndependenceTestResult] = []
         columns: List[str] = []
         index: List[str] = []
 
+        columns.append(f"{dataframe_0.name} vs {dataframe_1.name} p value")
         for variable in variables:
-            variable_results_data = [
-                self._test_two_population(dataframe_0, dataframe_1, variable) for _ in variables
-            ]
-            variable_results_tuple = tuple(
-                zip(*variable_results_data)
+            test_result, reference_variable, _ = self._test_two_population(
+                dataframe_0, dataframe_1, variable
             )
-            variable_results = variable_results_tuple[0]
-            results.append(variable_results)
-            reference_variable = variable_results_tuple[1][-1]
-            var_title_index = f"{dataframe_0.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
-            var_title_column = f"{dataframe_1.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
-            columns.append(var_title_index)
-            index.append(var_title_column)
+            results.append(test_result)
+            var_title_index = f"{variable.id} [{test_result.variables[reference_variable].type.value}] Normality={test_result.variables[reference_variable].normality}"
+            index.append(var_title_index)
         return pd.DataFrame(
             data=[
-                [
-                    f"{result.p_value:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
-                    for result in result_row
-                ]
-                for result_row in results
+                f"{result.p_value:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
+                for result in results
             ],
             columns=columns,
             index=index,
