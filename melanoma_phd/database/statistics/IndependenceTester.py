@@ -2,7 +2,7 @@ import logging
 import operator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, cast
+from typing import Dict, List, Tuple, cast
 
 import pandas as pd
 import scipy.stats as stats
@@ -10,16 +10,13 @@ import scipy.stats as stats
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
 from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
-from melanoma_phd.database.statistics.VariableStatisticalProperties import (
-    VariableStatisticalProperties,
-)
+from melanoma_phd.database.statistics.VariableStatisticalProperties import \
+    VariableStatisticalProperties
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
 from melanoma_phd.database.variable.BooleanVariableStatic import BooleanVariableStatic
-from melanoma_phd.database.variable.CategoricalVariable import (
-    CategoricalVariable,
-    CategoricalVariableConfig,
-)
+from melanoma_phd.database.variable.CategoricalVariable import (CategoricalVariable,
+                                                                CategoricalVariableConfig)
 from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
 from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
 from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
@@ -231,6 +228,13 @@ class IndependenceTester:
     def test_two_population(
         self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
     ) -> IndependenceTestResult:
+        return self._test_two_population(
+            dataframe_0=dataframe_0, dataframe_1=dataframe_1, variable=variable
+        )[0]
+
+    def _test_two_population(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
+    ) -> Tuple[IndependenceTestResult, BaseVariable, BooleanVariableStatic]:
         variable_dataframe_0 = VariableDataframe(variable, dataframe_0)
         variable_dataframe_1 = VariableDataframe(variable, dataframe_1)
         value_series = pd.concat(
@@ -245,7 +249,7 @@ class IndependenceTester:
             ignore_index=True,
         )
         dataframe = pd.DataFrame(
-            {variable.id: value_series, "group": group_series},
+            {variable.id: value_series.values, "group": group_series.values},
             columns=[variable.id, "group"],
         )
         reference_variable = variable
@@ -292,15 +296,17 @@ class IndependenceTester:
     ) -> pd.DataFrame:
         self._check_variables(dataframe_0, *variables)
         self._check_variables(dataframe_1, *variables)
-        results: List[List[IndependenceTestResult]] = []
+        results: List[Tuple[IndependenceTestResult, ...]] = []
         columns: List[str] = []
         index: List[str] = []
 
         for variable in variables:
-            variable_results_tuple = [
-                self.test_two_population(dataframe_0, dataframe_1, variable) for _ in variables
+            variable_results_data = [
+                self._test_two_population(dataframe_0, dataframe_1, variable) for _ in variables
             ]
-            variable_results_tuple = list(zip(*variable_results_tuple))
+            variable_results_tuple = tuple(
+                zip(*variable_results_data)
+            )
             variable_results = variable_results_tuple[0]
             results.append(variable_results)
             reference_variable = variable_results_tuple[1][-1]
