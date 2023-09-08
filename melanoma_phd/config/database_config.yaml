@@ -642,6 +642,16 @@ sections:
               0: "< 24"
               1: ">= 24"
 
+        - PFS event:
+            id: "PFS event"
+            name: "PFS event"
+            type: boolean
+
+        - OS event:
+            id: "OS event"
+            name: "OS event"
+            type: boolean
+
         - ldh_al_dx:
             id: "LDH AL DX (SIMPLIF)"
             name: "LDH AL DX (SIMPLIF)"
@@ -708,13 +718,13 @@ sections:
             id: "PFS"
             name: "Progression free survival"
             duration_variable_id: "PFS DURATION"
-            events_variable_id: "PROGRESIÓN EXTRACRANIAL"
+            events_variable_id: "PFS event"
         - OS:
             type: "SurvivalVariable"
             id: "OS"
             name: "Overall survival"
             duration_variable_id: "OS DURATION"
-            events_variable_id: "EXITUS"
+            events_variable_id: "OS event"
         - TFS:
             type: "SurvivalVariable"
             id: "TFS"
