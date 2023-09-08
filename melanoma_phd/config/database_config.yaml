@@ -634,6 +634,14 @@ sections:
               1: "Rel mel"
               2: "No rel mel"
 
+        - PFS 12m (%75):
+            id: "PFS 12m (%75)"
+            name: "PFS >= 12m (%75)"
+            type: boolean
+            categories:
+              0: "< 12m"
+              1: ">= 12m"
+
         - PFS 24:
             id: "PFS 24"
             name: "PFS >= 24"
@@ -651,6 +659,14 @@ sections:
             id: "OS event"
             name: "OS event"
             type: boolean
+
+        - OS 41m (%75):
+            id: "OS 41m (%75)"
+            name: "OS >= 41m (%75)"
+            type: boolean
+            categories:
+              0: "< 41m"
+              1: ">= 41m"
 
         - ldh_al_dx:
             id: "LDH AL DX (SIMPLIF)"
@@ -1634,4 +1650,27 @@ sections:
               1: "BRAF V600"
               2: "NRAS"
         
+        - BRAF non-mutant:
+            id: "BRAF non-mutant"
+            name: "BRAF non-mutant"
+            type: boolean
+            categories:
+              0: "True"
+              1: "False"
 
+        - BRAFV600:
+            id: "BRAFV600"
+            name: "BRAFV600"
+            type: boolean
+            categories:
+              0: "True"
+              1: "False"
+
+        - RAS mutant:
+            id: "RAS mutant"
+            name: "RAS mutant"
+            type: boolean
+            categories:
+              0: "True"
+              1: "False"
+        

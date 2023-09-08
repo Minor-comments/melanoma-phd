@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -160,10 +160,7 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
         return kaplan_meier_fitters
 
     def get_events_durations(self, dataframe: pd.DataFrame) -> EventsDurations:
-        durations = dataframe[self._duration_variable_id].dropna()
-        events = dataframe[self._events_variable_id].dropna() != 0
-        durations = durations.loc[durations.index.isin(events.index)]
-        events = events.loc[events.index.isin(durations.index)]
+        events, durations = self.__filter_events_durations_common_index(dataframe=dataframe)
 
         return EventsDurations(
             events=events.to_numpy(),
@@ -199,13 +196,16 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
         alpha: float = 0.05,
     ) -> Optional[StatisticalResult]:
         labels = self.get_labels(group_by_data=group_by_data)
-        if len(labels) == 2:
+        if len(labels) == 2 and group_by_data is not None:
+            events_series, durations_series = self.__filter_events_durations_common_index(
+                dataframe=dataframe
+            )
+            group_by_data, _ = self.__filter_common_index(group_by_data, events_series)
             class1 = group_by_data == labels[0]
             class2 = group_by_data == labels[1]
 
-            events_durations = self.get_events_durations(dataframe=dataframe)
-            durations = events_durations.durations
-            events = events_durations.events
+            durations = durations_series.to_numpy()
+            events = events_series.to_numpy()
 
             output_logrank = logrank_test(
                 durations[class1],
@@ -216,3 +216,18 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
             )
             return output_logrank
         return None
+
+    def __filter_events_durations_common_index(
+        self, dataframe: pd.DataFrame
+    ) -> Tuple[pd.Series, pd.Series]:
+        events = dataframe[self._events_variable_id].dropna() != 0
+        durations = dataframe[self._duration_variable_id].dropna()
+        return self.__filter_common_index(events, durations)
+
+    def __filter_common_index(
+        self, series0: pd.Series, series1: pd.Series
+    ) -> Tuple[pd.Series, pd.Series]:
+        return (
+            series0[series0.index.isin(series1.index)],
+            series1[series1.index.isin(series0.index)],
+        )

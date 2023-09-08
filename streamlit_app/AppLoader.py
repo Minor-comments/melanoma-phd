@@ -104,6 +104,13 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
         ),
         MultiSelectFilter(
             key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("PFS 12m (%75)")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context, filter=CategoricalFilter(database.get_variable("OS 41m (%75)"))
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
             filter=IterationCategoricalFilter(
                 name="IT PD",
                 reference_variable=database.get_variable("IT{N} PD"),
