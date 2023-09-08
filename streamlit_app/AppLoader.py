@@ -107,7 +107,8 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             filter=CategoricalFilter(database.get_variable("PFS 12m (%75)")),
         ),
         MultiSelectFilter(
-            key_context=key_context, filter=CategoricalFilter(database.get_variable("OS 41m (%75)"))
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("OS 41m (%75)")),
         ),
         MultiSelectFilter(
             key_context=key_context,
@@ -210,6 +211,7 @@ def filter_database(
         data=csv,
         mime="text/csv",
         file_name=file_name,
+        key=f"download_button_{unique_form_title}_filter_database",
     )
     return db_view
 
