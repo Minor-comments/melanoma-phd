@@ -73,6 +73,6 @@ if __name__ == "__main__":
                     + (f" by {selected_group_by.name}" if selected_group_by else "")
                 )
                 st.dataframe(variables_statistics[variable])
-            except AttributeError as e:
+            except Exception as e:
                 st.markdown(f":red[Error generating '{variable.name}' variable statistics: {e}]")
         plot_statistics(variables_statistics)
