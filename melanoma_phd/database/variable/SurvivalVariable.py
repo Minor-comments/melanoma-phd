@@ -169,7 +169,7 @@ class SurvivalVariable(VariableDynamicMixin, BaseVariable):
 
     def get_labels(self, group_by_data: Optional[pd.Series] = None) -> List[Any]:
         if group_by_data is not None:
-            labels = list(group_by_data.unique())
+            labels = list(group_by_data.dropna().unique())
         else:
             labels = [""]
         return labels
