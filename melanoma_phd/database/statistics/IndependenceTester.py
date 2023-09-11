@@ -238,54 +238,9 @@ class IndependenceTester:
     def _test_two_population(
         self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
     ) -> Tuple[IndependenceTestResult, BaseVariable, BooleanVariableStatic]:
-        value_series = pd.concat(
-            [
-                dataframe_0[variable.id],
-                dataframe_1[variable.id],
-            ],
-            ignore_index=True,
+        dataframe, reference_variable, group_variable = self.create_two_population_dataframe(
+            dataframe_0=dataframe_0, dataframe_1=dataframe_1, variable=variable
         )
-        group_series = pd.concat(
-            [pd.Series([0] * len(dataframe_0)), pd.Series([1] * len(dataframe_1))],
-            ignore_index=True,
-        )
-        dataframe = pd.DataFrame(
-            {variable.id: value_series.values, "group": group_series.values},
-            columns=[variable.id, "group"],
-        )
-        reference_variable = variable
-        if isinstance(variable, IterationScalarVariable):
-            reference_variable = ScalarVariableStatic(
-                ScalarVariableConfig(id=variable.id, name=variable.name, selectable=False)
-            )
-            reference_variable.init_from_dataframe(dataframe=dataframe_0)
-        elif isinstance(variable, IterationCategoricalVariable):
-            categories = {
-                key: value
-                for key, value in zip(
-                    cast(IterationCategoricalVariable, variable).category_names,
-                    cast(IterationCategoricalVariable, variable).category_values,
-                )
-            }
-            reference_variable = CategoricalVariableStatic(
-                CategoricalVariableConfig(
-                    id=variable.id,
-                    name=variable.name,
-                    selectable=False,
-                    categories=categories,
-                )
-            )
-            reference_variable.init_from_dataframe(dataframe=dataframe_0)
-
-        group_variable = BooleanVariableStatic(
-            BooleanVariableConfig(
-                id="group",
-                name="group",
-                selectable=False,
-                categories={0: "No", 1: "Yes"},
-            )
-        )
-        group_variable.init_from_dataframe(dataframe=dataframe)
         return (
             self.test(dataframe, reference_variable, group_variable),
             reference_variable,
@@ -317,6 +272,59 @@ class IndependenceTester:
             columns=columns,
             index=index,
         )
+
+    def create_two_population_dataframe(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
+    ) -> Tuple[pd.DataFrame, BaseVariable, BooleanVariableStatic]:
+        value_series = pd.concat(
+            [
+                dataframe_0[variable.id],
+                dataframe_1[variable.id],
+            ],
+            ignore_index=True,
+        )
+        group_series = pd.concat(
+            [pd.Series([0] * len(dataframe_0)), pd.Series([1] * len(dataframe_1))],
+            ignore_index=True,
+        )
+        dataframe = pd.DataFrame(
+            {variable.id: value_series.values, "population": group_series.values},
+            columns=[variable.id, "population"],
+        )
+        reference_variable = variable
+        if isinstance(variable, IterationScalarVariable):
+            reference_variable = ScalarVariableStatic(
+                ScalarVariableConfig(id=variable.id, name=variable.name, selectable=False)
+            )
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
+        elif isinstance(variable, IterationCategoricalVariable):
+            categories = {
+                key: value
+                for key, value in zip(
+                    cast(IterationCategoricalVariable, variable).category_names,
+                    cast(IterationCategoricalVariable, variable).category_values,
+                )
+            }
+            reference_variable = CategoricalVariableStatic(
+                CategoricalVariableConfig(
+                    id=variable.id,
+                    name=variable.name,
+                    selectable=False,
+                    categories=categories,
+                )
+            )
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
+
+        group_variable = BooleanVariableStatic(
+            BooleanVariableConfig(
+                id="population",
+                name="Population",
+                selectable=False,
+                categories={0: dataframe_0.name, 1: dataframe_1.name},
+            )
+        )
+        group_variable.init_from_dataframe(dataframe=dataframe)
+        return dataframe, reference_variable, group_variable
 
     def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
         empty_variables = []
