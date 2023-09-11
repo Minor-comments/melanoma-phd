@@ -238,12 +238,10 @@ class IndependenceTester:
     def _test_two_population(
         self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
     ) -> Tuple[IndependenceTestResult, BaseVariable, BooleanVariableStatic]:
-        variable_dataframe_0 = VariableDataframe(variable, dataframe_0)
-        variable_dataframe_1 = VariableDataframe(variable, dataframe_1)
         value_series = pd.concat(
             [
-                variable_dataframe_0.get_series(only_numeric=True),
-                variable_dataframe_1.get_series(only_numeric=True),
+                dataframe_0[variable.id],
+                dataframe_1[variable.id],
             ],
             ignore_index=True,
         )
@@ -260,7 +258,7 @@ class IndependenceTester:
             reference_variable = ScalarVariableStatic(
                 ScalarVariableConfig(id=variable.id, name=variable.name, selectable=False)
             )
-            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
         elif isinstance(variable, IterationCategoricalVariable):
             categories = {
                 key: value
@@ -277,7 +275,7 @@ class IndependenceTester:
                     categories=categories,
                 )
             )
-            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
 
         group_variable = BooleanVariableStatic(
             BooleanVariableConfig(
