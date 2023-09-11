@@ -1597,10 +1597,10 @@ sections:
         - ctDNA evol simplif: 
             id: "ctDNA evol simplif"
             name: "ctDNA evol simplif"
-            type: categorical
+            type: boolean
             categories:
-                1: 1+3+6
-                2: 2+4+5
+                0: 1+3+6
+                1: 2+4+5
 
         - ctDNA decreasing time:
             id: "ctDNA decreasing time"
