@@ -13,8 +13,9 @@ from sklearn.metrics import matthews_corrcoef
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
 from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
-from melanoma_phd.database.statistics.VariableStatisticalProperties import \
-    VariableStatisticalProperties
+from melanoma_phd.database.statistics.VariableStatisticalProperties import (
+    VariableStatisticalProperties,
+)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable

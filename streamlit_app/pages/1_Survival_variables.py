@@ -36,7 +36,9 @@ if __name__ == "__main__":
             selected_group_by = None
         elif len(selected_group_by) == 1:
             selected_group_by = selected_group_by[0]
-
+        elif len(selected_group_by) > 1:
+            selected_group_by = None
+            st.error("Group by only supports one variable.")
         survival_plot_config = dict(
             dataframe=filtered_df,
             group_by=selected_group_by,
@@ -68,11 +70,7 @@ if __name__ == "__main__":
                 )
                 st.write(
                     f"{variable.name}"
-                    + (
-                        f" by {[variable.name for variable in selected_group_by]}"
-                        if selected_group_by
-                        else ""
-                    )
+                    + (f" by {selected_group_by.name}" if selected_group_by else "")
                 )
                 st.dataframe(variables_statistics[variable])
             except Exception as e:

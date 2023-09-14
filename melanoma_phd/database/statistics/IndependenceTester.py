@@ -10,13 +10,16 @@ import scipy.stats as stats
 from melanoma_phd.database.statistics.HomogenityTester import HomogenityTester
 from melanoma_phd.database.statistics.NormalityTester import NormalityTester
 from melanoma_phd.database.statistics.VariableDataframe import VariableDataframe
-from melanoma_phd.database.statistics.VariableStatisticalProperties import \
-    VariableStatisticalProperties
+from melanoma_phd.database.statistics.VariableStatisticalProperties import (
+    VariableStatisticalProperties,
+)
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.database.variable.BooleanVariable import BooleanVariable, BooleanVariableConfig
 from melanoma_phd.database.variable.BooleanVariableStatic import BooleanVariableStatic
-from melanoma_phd.database.variable.CategoricalVariable import (CategoricalVariable,
-                                                                CategoricalVariableConfig)
+from melanoma_phd.database.variable.CategoricalVariable import (
+    CategoricalVariable,
+    CategoricalVariableConfig,
+)
 from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
 from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
 from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
@@ -235,12 +238,48 @@ class IndependenceTester:
     def _test_two_population(
         self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
     ) -> Tuple[IndependenceTestResult, BaseVariable, BooleanVariableStatic]:
-        variable_dataframe_0 = VariableDataframe(variable, dataframe_0)
-        variable_dataframe_1 = VariableDataframe(variable, dataframe_1)
+        dataframe, reference_variable, group_variable = self.create_two_population_dataframe(
+            dataframe_0=dataframe_0, dataframe_1=dataframe_1, variable=variable
+        )
+        return (
+            self.test(dataframe, reference_variable, group_variable),
+            reference_variable,
+            group_variable,
+        )
+
+    def table_two_population(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variables: List[BaseVariable]
+    ) -> pd.DataFrame:
+        self._check_variables(dataframe_0, *variables)
+        self._check_variables(dataframe_1, *variables)
+        results: List[IndependenceTestResult] = []
+        columns: List[str] = []
+        index: List[str] = []
+
+        columns.append(f"{dataframe_0.name} vs {dataframe_1.name} p value")
+        for variable in variables:
+            test_result, reference_variable, _ = self._test_two_population(
+                dataframe_0, dataframe_1, variable
+            )
+            results.append(test_result)
+            var_title_index = f"{variable.id} [{test_result.variables[reference_variable].type.value}] Normality={test_result.variables[reference_variable].normality}"
+            index.append(var_title_index)
+        return pd.DataFrame(
+            data=[
+                f"{result.p_value:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
+                for result in results
+            ],
+            columns=columns,
+            index=index,
+        )
+
+    def create_two_population_dataframe(
+        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variable: BaseVariable
+    ) -> Tuple[pd.DataFrame, BaseVariable, BooleanVariableStatic]:
         value_series = pd.concat(
             [
-                variable_dataframe_0.get_series(only_numeric=True),
-                variable_dataframe_1.get_series(only_numeric=True),
+                dataframe_0[variable.id],
+                dataframe_1[variable.id],
             ],
             ignore_index=True,
         )
@@ -249,15 +288,15 @@ class IndependenceTester:
             ignore_index=True,
         )
         dataframe = pd.DataFrame(
-            {variable.id: value_series.values, "group": group_series.values},
-            columns=[variable.id, "group"],
+            {variable.id: value_series.values, "population": group_series.values},
+            columns=[variable.id, "population"],
         )
         reference_variable = variable
         if isinstance(variable, IterationScalarVariable):
             reference_variable = ScalarVariableStatic(
                 ScalarVariableConfig(id=variable.id, name=variable.name, selectable=False)
             )
-            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
         elif isinstance(variable, IterationCategoricalVariable):
             categories = {
                 key: value
@@ -274,57 +313,18 @@ class IndependenceTester:
                     categories=categories,
                 )
             )
-            reference_variable.init_from_dataframe(dataframe=variable_dataframe_0.dataframe)
+            reference_variable.init_from_dataframe(dataframe=dataframe_0)
 
         group_variable = BooleanVariableStatic(
             BooleanVariableConfig(
-                id="group",
-                name="group",
+                id="population",
+                name="Population",
                 selectable=False,
-                categories={0: "No", 1: "Yes"},
+                categories={0: dataframe_0.name, 1: dataframe_1.name},
             )
         )
         group_variable.init_from_dataframe(dataframe=dataframe)
-        return (
-            self.test(dataframe, reference_variable, group_variable),
-            reference_variable,
-            group_variable,
-        )
-
-    def table_two_population(
-        self, dataframe_0: pd.DataFrame, dataframe_1: pd.DataFrame, variables: List[BaseVariable]
-    ) -> pd.DataFrame:
-        self._check_variables(dataframe_0, *variables)
-        self._check_variables(dataframe_1, *variables)
-        results: List[Tuple[IndependenceTestResult, ...]] = []
-        columns: List[str] = []
-        index: List[str] = []
-
-        for variable in variables:
-            variable_results_data = [
-                self._test_two_population(dataframe_0, dataframe_1, variable) for _ in variables
-            ]
-            variable_results_tuple = tuple(
-                zip(*variable_results_data)
-            )
-            variable_results = variable_results_tuple[0]
-            results.append(variable_results)
-            reference_variable = variable_results_tuple[1][-1]
-            var_title_index = f"{dataframe_0.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
-            var_title_column = f"{dataframe_1.name}.{variable.id} [{variable_results[-1].variables[reference_variable].type.value}] Normality={variable_results[-1].variables[reference_variable].normality}"
-            columns.append(var_title_index)
-            index.append(var_title_column)
-        return pd.DataFrame(
-            data=[
-                [
-                    f"{result.p_value:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
-                    for result in result_row
-                ]
-                for result_row in results
-            ],
-            columns=columns,
-            index=index,
-        )
+        return dataframe, reference_variable, group_variable
 
     def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
         empty_variables = []
