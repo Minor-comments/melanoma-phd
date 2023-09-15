@@ -37,30 +37,23 @@ class StackedHistogram:
         if len(categorical_unique_data) > 1:
             categorical_unique_data += ["All"]
 
-        errors_by_category = defaultdict(dict)
-        for category_name, grouped_by_data in plot_df.groupby(categorical_variable_name):
-            for distribution_variable_name in distribution_variable_names:
-                errors_by_category[distribution_variable_name][category_name] = float(
-                    np.nanstd(grouped_by_data[distribution_variable_name])
-                )
-
         fig = plotly_go.Figure()
         color_samples = (
             self._color_generator.generate(distribution_variable_names)
             if self._color_generator
             else None
         )
+        not_null_mask = plot_df[distribution_variable_names].notnull().all(axis=1)
         for index, name in enumerate(distribution_variable_names):
             minus_errors = []
             means = []
             x_names = []
             for category_name in categorical_unique_data:
                 if category_name == "All":
-                    filtered_df = plot_df[plot_df[name].notnull()]
+                    filtered_df = plot_df[not_null_mask]
                 else:
                     filtered_df = plot_df[
-                        (plot_df[categorical_variable_name] == category_name)
-                        & (plot_df[name].notnull())
+                        (plot_df[categorical_variable_name] == category_name) & (not_null_mask)
                     ]
                 minus_errors.append(float(np.nanstd(filtered_df[name]) / 2))
                 means.append(float(np.nanmean(filtered_df[name])))
