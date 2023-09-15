@@ -100,15 +100,30 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             ranges_number=1,
         ),
         MultiSelectFilter(
-            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 24"))
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("PFS 12m")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 24m"))
+        ),
+        MultiSelectFilter(
+            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 36m"))
         ),
         MultiSelectFilter(
             key_context=key_context,
-            filter=CategoricalFilter(database.get_variable("PFS 12m (%75)")),
+            filter=CategoricalFilter(database.get_variable("OS 12m")),
         ),
         MultiSelectFilter(
             key_context=key_context,
-            filter=CategoricalFilter(database.get_variable("OS 41m (%75)")),
+            filter=CategoricalFilter(database.get_variable("OS 24m")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("OS 36m")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("OS 41m")),
         ),
         MultiSelectFilter(
             key_context=key_context,

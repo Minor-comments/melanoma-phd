@@ -334,6 +334,14 @@ sections:
               1: nivolumab
               2: otros
 
+        - iRAE si/no:
+            id: "iRAE si/no"
+            name: "iRAE si/no"
+            type: boolean
+            categories:
+              0: "no"
+              1: "si"
+
         - irae_1:
             id: "IRAEs (1)"
             name: "IRAEs (1)"
@@ -634,21 +642,29 @@ sections:
               1: "Rel mel"
               2: "No rel mel"
 
-        - PFS 12m (%75):
-            id: "PFS 12m (%75)"
-            name: "PFS >= 12m (%75)"
+        - PFS 12m:
+            id: "PFS 12m"
+            name: "PFS >= 12m"
             type: boolean
             categories:
               0: "< 12m"
               1: ">= 12m"
 
-        - PFS 24:
-            id: "PFS 24"
-            name: "PFS >= 24"
+        - PFS 24m:
+            id: "PFS 24m"
+            name: "PFS >= 24m"
             type: boolean
             categories:
-              0: "< 24"
-              1: ">= 24"
+              0: "< 24m"
+              1: ">= 24m"
+
+        - PFS 36m:
+            id: "PFS 36m"
+            name: "PFS >= 36m"
+            type: boolean
+            categories:
+              0: "< 36m"
+              1: ">= 36m"
 
         - PFS event:
             id: "PFS event"
@@ -660,9 +676,33 @@ sections:
             name: "OS event"
             type: boolean
 
-        - OS 41m (%75):
-            id: "OS 41m (%75)"
-            name: "OS >= 41m (%75)"
+        - OS 12m:
+            id: "OS 12m"
+            name: "OS >= 12m"
+            type: boolean
+            categories:
+              0: "< 12m"
+              1: ">= 12m"
+
+        - OS 24m:
+            id: "OS 24m"
+            name: "OS >= 24m"
+            type: boolean
+            categories:
+              0: "< 24m"
+              1: ">= 24m"
+
+        - OS 36m:
+            id: "OS 36m"
+            name: "OS >= 36m"
+            type: boolean
+            categories:
+              0: "< 36m"
+              1: ">= 36m"
+
+        - OS 41m:
+            id: "OS 41m"
+            name: "OS >= 41m"
             type: boolean
             categories:
               0: "< 41m"
@@ -726,6 +766,16 @@ sections:
         - PRmantenidavsPD:
             id: "PRmantenidavsPD"
             name: "PRmantenidavsPD"
+            type: boolean
+        
+        - Clinical benefit vs PD:
+            id: "Clinical benefit vs PD"
+            name: "Clinical benefit vs PD"
+            type: boolean
+        
+        - Clinical benefit mantenido vs PD:
+            id: "Clinical benefit mantenido vs PD"
+            name: "Clinical benefit mantenido vs PD"
             type: boolean
 
       dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
