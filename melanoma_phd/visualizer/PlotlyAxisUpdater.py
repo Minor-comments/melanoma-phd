@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -14,6 +15,7 @@ class PlotlyAxisUpdaterConfig:
     percentage_values: bool = False
     categorical_variable: Optional[CategoricalVariable] = None
     distribution_variables: Optional[List[ScalarVariable]] = None
+    y_log_axis: bool = False
 
 
 class PlotlyAxisUpdater:
@@ -32,8 +34,16 @@ class PlotlyAxisUpdater:
             yaxes_title += f" (%)"
         fig.update_yaxes(title=yaxes_title)
 
+        if config.y_log_axis:
+            fig.update_yaxes(type="log")
+
         if config.y_max_value:
-            fig.update_yaxes(range=[0, config.y_max_value])
+            fig.update_yaxes(
+                range=[
+                    0,
+                    math.log10(config.y_max_value) if config.y_log_axis else config.y_max_value,
+                ]
+            )
 
         if config.categorical_variable:
             xaxis_title = config.categorical_variable.name

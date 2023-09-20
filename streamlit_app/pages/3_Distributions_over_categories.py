@@ -72,6 +72,7 @@ if __name__ == "__main__":
             help="Leave empty if no remaining distribution variable is desired",
         )
         show_points = st.checkbox("Show points on box plot", value=True)
+        y_log_axis = st.checkbox("Y axis with logarithmic scale", value=False)
         st.divider()
 
         if remaining_distribution_variable_name:
@@ -100,6 +101,7 @@ if __name__ == "__main__":
                         percentage_values=percentage_values,
                         categorical_variable=categorical_variable[0],
                         distribution_variables=distribution_variables,
+                        y_log_axis=y_log_axis,
                     ),
                 )
             )
@@ -122,6 +124,7 @@ if __name__ == "__main__":
                         if categorical_variable
                         else None,
                         distribution_variables=distribution_variables,
+                        y_log_axis=y_log_axis,
                     ),
                 )
             )
