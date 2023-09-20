@@ -94,12 +94,18 @@ class PcaProcessor:
             pca = PCA(n_components=self._n_components)
             components = pca.fit_transform(normalize(pca_df))
 
-            importance = pd.DataFrame(pca.components_, columns=pca_df.columns, index=["PC1", "PC2"])
+            pca_component_names = [f"PC{i+1}" for i in range(self._n_components)]
+
+            importance = pd.DataFrame(
+                pca.components_, columns=pca_df.columns, index=pca_component_names
+            )
             importance = importance.T / (importance.max(axis=1) - importance.min(axis=1)).T
 
             return PcaProcessorResult(
                 pca_df=pca_df,
-                components=pd.DataFrame(components, columns=["PC1", "PC2"], index=pca_df.index),
+                components=pd.DataFrame(
+                    components, columns=pca_component_names, index=pca_df.index
+                ),
                 importance=importance,
                 explained_variance_ratio=pca.explained_variance_ratio_,
                 cleaned_data=cleaned_data,

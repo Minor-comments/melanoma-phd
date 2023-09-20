@@ -50,8 +50,6 @@ if __name__ == "__main__":
             ),
         )
 
-        st.subheader("PCA")
-
         if pca_feature_variables and legend_variables:
             missing_values_threshold = st.number_input(
                 "Missing values threshold", value=0.05, min_value=0.0, max_value=1.0
@@ -87,12 +85,26 @@ if __name__ == "__main__":
                 st.subheader("Preprocessed dataframe")
                 st.dataframe(pca_result.pca_df)
 
+                st.subheader("PCA with 2 components")
                 pca_plotter = PcaPlotter()
                 st.plotly_chart(pca_plotter.plot_importance(pca_result))
-                st.plotly_chart(
-                    pca_plotter.plot_pca(
-                        pca_result, df=filtered_df, legend_variables=legend_variables
-                    )
+                for fig in pca_plotter.plot_pca(
+                    pca_result, df=filtered_df, legend_variables=legend_variables
+                ):
+                    st.plotly_chart(fig)
+
+                st.subheader("PCA with 3 components")
+                pca_processor = PcaProcessor(
+                    pca_feature_variables=pca_feature_variables,
+                    n_components=3,
+                    missing_values_threshold=missing_values_threshold,
                 )
+                pca_result = pca_processor.process(filtered_df)
+
+                st.plotly_chart(pca_plotter.plot_importance(pca_result))
+                for fig in pca_plotter.plot_pca(
+                    pca_result, df=filtered_df, legend_variables=legend_variables
+                ):
+                    st.plotly_chart(fig)
             else:
                 st.warning("PCA Dataframe is empty")
