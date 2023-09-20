@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 import pandas as pd
-from numpy import ndarray
+from numpy import log, ndarray
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 
@@ -26,6 +26,8 @@ class PcaProcessorResult:
 
 
 class PcaProcessor:
+    LOG_COLUMN_SUBSTRINGS = ["Fluo", "Abs"]
+
     def __init__(
         self,
         pca_feature_variables: List[ScalarVariable],
@@ -43,6 +45,15 @@ class PcaProcessor:
         pca_df = pd.concat(
             [variable.get_series(df) for variable in self._pca_feature_variables],
             axis=1,
+        )
+        for i, log_column_substring in enumerate(self.LOG_COLUMN_SUBSTRINGS):
+            mask = pca_df.columns.str.contains(log_column_substring)
+            if i == 0:
+                columns_to_log = mask
+            else:
+                columns_to_log |= mask
+        pca_df.loc[:, columns_to_log] = pca_df.loc[:, columns_to_log].apply(
+            lambda serie: log(serie, where=(serie.notnull()) & (serie != 0))
         )
 
         patient_mask = ~pca_df.isnull().all(axis=1)
