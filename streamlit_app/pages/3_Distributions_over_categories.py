@@ -115,6 +115,7 @@ if __name__ == "__main__":
                     distribution_variables=distribution_variables,
                     categorical_variable=categorical_variable[0] if categorical_variable else None,
                     dataframe=filtered_df,
+                    show_all=True,
                     show_points=show_points,
                     axis_config=PlotlyAxisUpdaterConfig(
                         y_max_value=max_value_y_axis if enable_max_value_y_axis else None,

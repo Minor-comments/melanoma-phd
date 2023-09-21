@@ -82,6 +82,7 @@ if __name__ == "__main__":
                         distribution_variables=[reference_variable],
                         dataframe=dataframe,
                         categorical_variable=group_variable,
+                        show_all=False,
                     )
                 )
         else:

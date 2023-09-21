@@ -1,6 +1,5 @@
-from collections import defaultdict
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import pandas as pd
 import plotly.express as px
@@ -22,6 +21,7 @@ class BoxPlotter:
         distribution_variables: List[ScalarVariable],
         dataframe: pd.DataFrame,
         categorical_variable: Optional[CategoricalVariable] = None,
+        show_all: bool = True,
         show_points: bool = False,
         axis_config: Optional[PlotlyAxisUpdaterConfig] = None,
     ) -> plotly_go.Figure:
@@ -48,7 +48,7 @@ class BoxPlotter:
                 ],
                 columns=["value", "variable"] + [categorical_variable_name],
             )
-            if categorical_data.nunique() > 1:
+            if show_all and categorical_data.nunique() > 1:
                 plot_df_all = deepcopy(plot_df)
                 plot_df_all[categorical_variable_name] = "All"
                 plot_df = pd.concat([plot_df, plot_df_all], ignore_index=True).reset_index(
