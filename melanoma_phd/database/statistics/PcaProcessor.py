@@ -26,7 +26,7 @@ class PcaProcessorResult:
 
 
 class PcaProcessor:
-    LOG_COLUMN_SUBSTRINGS = ["Fluo", "Abs"]
+    LOG_COLUMN_SUBSTRINGS = ["Fluo", "Abs", "Tcm/Teff ({N})", "Teff/Treg ({N})"]
 
     def __init__(
         self,
