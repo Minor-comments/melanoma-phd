@@ -111,7 +111,7 @@ if __name__ == "__main__":
             assert len(categorical_variable) <= 1, "No categorical variable or only one allowed"
             st.subheader("Box plot")
             st.plotly_chart(
-                BoxPlotter().plot(
+                BoxPlotter(color_generator=ColorGenerator(color_cache=st.session_state)).plot(
                     distribution_variables=distribution_variables,
                     categorical_variable=categorical_variable[0] if categorical_variable else None,
                     dataframe=filtered_df,

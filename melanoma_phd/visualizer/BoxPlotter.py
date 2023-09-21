@@ -8,15 +8,14 @@ import plotly.graph_objs as plotly_go
 
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariable
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
+from melanoma_phd.visualizer.ColorGenerator import ColorGenerator
 from melanoma_phd.visualizer.DistributionPlotterHelper import DistributionPlotterHelper
 from melanoma_phd.visualizer.PlotlyAxisUpdater import PlotlyAxisUpdater, PlotlyAxisUpdaterConfig
 
 
 class BoxPlotter:
-    def __init__(
-        self,
-    ) -> None:
-        pass
+    def __init__(self, color_generator: Optional[ColorGenerator] = None) -> None:
+        self._color_generator = color_generator
 
     def plot(
         self,
@@ -75,6 +74,15 @@ class BoxPlotter:
                 columns=["value", "variable"],
             )
             plot_kwargs.update({"x": "variable", "color": "variable"})
+
+            if self._color_generator:
+                plot_kwargs.update(
+                    {
+                        "color_discrete_sequence": self._color_generator.generate(
+                            [variable.name for i, variable in enumerate(distribution_variables)]
+                        )
+                    }
+                )
 
         title = distribution_plotter_helper.generate_title(categorical_variable)
         plot_kwargs.update({"title": title})
