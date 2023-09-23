@@ -84,6 +84,8 @@ class BaseIterationScalarVariable(VariableDynamicMixin, ScalarVariable):
         series = self.get_series(dataframe=dataframe).dropna()
         count = series.count()
         median = series.median()
+        q1 = series.quantile(0.25)
+        q3 = series.quantile(0.75)
         mean = series.mean()
         std_deviation = series.std()
         min = series.min()
@@ -96,6 +98,8 @@ class BaseIterationScalarVariable(VariableDynamicMixin, ScalarVariable):
                 StatisticFieldName.STD_DEVIATION.value: std_deviation,
                 StatisticFieldName.MIN_VALUE.value: min,
                 StatisticFieldName.MAX_VALUE.value: max,
+                StatisticFieldName.QUARTILE_1.value: q1,
+                StatisticFieldName.QUARTILE_3.value: q3,
             },
             index=[0],
         )
@@ -110,6 +114,7 @@ class BaseIterationScalarVariable(VariableDynamicMixin, ScalarVariable):
             f"{dataframe.iloc[0][StatisticFieldName.MEAN.value]:.2f} ± {dataframe.iloc[0][StatisticFieldName.STD_DEVIATION.value]:.2f}"
             f" ({dataframe.iloc[0][StatisticFieldName.MIN_VALUE.value]:.2f}-{dataframe.iloc[0][StatisticFieldName.MAX_VALUE.value]:.2f})"
             f" {dataframe.iloc[0][StatisticFieldName.MEDIAN.value]:.2f}"
+            f" ({dataframe.iloc[0][StatisticFieldName.QUARTILE_1.value]:.2f}-{dataframe.iloc[0][StatisticFieldName.QUARTILE_3.value]:.2f})"
         )
         return [[row_name, value_name, value]]
 
