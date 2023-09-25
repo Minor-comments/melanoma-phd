@@ -5,12 +5,11 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable
-
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )  # isort: skip
+from melanoma_phd.database.variable.BaseVariable import BaseVariable
 from melanoma_phd.visualizer.SurvivalFunctionPlotter import SurvivalFunctionPlotter
 from streamlit_app.AppLoader import (
     AppLoader,
