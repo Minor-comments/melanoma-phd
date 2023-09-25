@@ -56,7 +56,9 @@ if __name__ == "__main__":
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
             )
-            independence_table = independence_tester.table(filtered_df, selected_variables)
+            independence_table, errors = independence_tester.table(filtered_df, selected_variables)
+            for error in errors:
+                st.error(error)
             st.dataframe(independence_table)
 
             st.header("Correlation")
@@ -64,7 +66,9 @@ if __name__ == "__main__":
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
             )
-            correlation_table = correlationer.table(filtered_df, selected_variables)
+            correlation_table, errors = correlationer.table(filtered_df, selected_variables)
+            for error in errors:
+                st.error(error)
             st.dataframe(correlation_table)
         else:
             st.text("Select variables to analyze :)")

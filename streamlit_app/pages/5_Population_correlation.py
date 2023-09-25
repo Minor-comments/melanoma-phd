@@ -57,11 +57,13 @@ if __name__ == "__main__":
                 normality_null_hypothesis=normality_null_hypothesis,
                 homogeneity_null_hypothesis=homogeneity_null_hypothesis,
             )
-            independence_table = independence_tester.table_two_population(
+            independence_table, errors = independence_tester.table_two_population(
                 dataframe_0=db_view_1.dataframe,
                 dataframe_1=db_view_2.dataframe,
                 variables=selected_variables,
             )
+            for error in errors:
+                st.error(error)
             st.dataframe(independence_table)
             scalar_variables = [
                 variable for variable in selected_variables if isinstance(variable, ScalarVariable)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from enum import Enum
@@ -39,6 +41,23 @@ class CorrelationResult:
     homogeneity: bool
     type: CorrelationTestType
     coefficient: PValueType
+    error: Optional[ValueError] = None
+
+    @property
+    def succeded(self) -> bool:
+        return self.error is None
+
+    @classmethod
+    def from_error(
+        cls, variables: Dict[BaseVariable, VariableStatisticalProperties], error: ValueError
+    ) -> CorrelationResult:
+        return cls(
+            variables=variables,
+            homogeneity=False,
+            type=CorrelationTestType.PEARSON,
+            coefficient=0,
+            error=error,
+        )
 
 
 class Correlationer:
@@ -196,15 +215,31 @@ class Correlationer:
                         coefficient=theils_u(x=first_series, y=second_series),
                     )
         except ValueError as e:
-            raise ValueError(
+            error = ValueError(
                 f"Independence test could not be done for `{variable.name}` and `{other_variable.name}` due to: {e}"
             )
+            return CorrelationResult.from_error(
+                variables={
+                    first_variable: variable_0_prop,
+                    second_variable: variable_1_prop,
+                },
+                error=error,
+            )
 
-        raise ValueError(
+        error = ValueError(
             f"Combination of `{variable.__class__.__name__}` and `{other_variable.__class__.__name__}` variable types is not supported"
         )
+        return CorrelationResult.from_error(
+            variables={
+                first_variable: variable_0_prop,
+                second_variable: variable_1_prop,
+            },
+            error=error,
+        )
 
-    def table(self, dataframe: pd.DataFrame, variables: List[BaseVariable]) -> pd.DataFrame:
+    def table(
+        self, dataframe: pd.DataFrame, variables: List[BaseVariable]
+    ) -> Tuple[pd.DataFrame, List[ValueError]]:
         self._check_variables(dataframe, *variables)
         results: List[List[CorrelationResult]] = []
         columns: List[str] = []
@@ -219,13 +254,15 @@ class Correlationer:
             data=[
                 [
                     f"{result.coefficient:.4f} (Homogeneity={result.homogeneity}, {result.type.value})"
+                    if result.succeded
+                    else "ERROR"
                     for result in result_row
                 ]
                 for result_row in results
             ],
             columns=columns,
             index=index,
-        )
+        ), [result.error for result_row in results for result in result_row if not result.succeded]
 
     def _check_variables(self, dataframe: pd.DataFrame, *variables: BaseVariable):
         empty_variables = []
