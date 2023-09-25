@@ -1,3 +1,5 @@
+import math
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -52,8 +54,8 @@ class PcaProcessor:
                 columns_to_log = mask
             else:
                 columns_to_log |= mask
-        pca_df.loc[:, columns_to_log] = pca_df.loc[:, columns_to_log].apply(
-            lambda serie: log(serie, where=(serie.notnull()) & (serie != 0))
+        pca_df.loc[:, columns_to_log] = pca_df.loc[:, columns_to_log].applymap(
+            lambda value: math.log(value) if value is not None and value != 0 else value
         )
 
         patient_mask = ~pca_df.isnull().all(axis=1)
@@ -91,7 +93,7 @@ class PcaProcessor:
                 cleaned_data=cleaned_data,
             )
         else:
-            pca = PCA(n_components=self._n_components)
+            pca = PCA(n_components=self._n_components, svd_solver="full")
             components = pca.fit_transform(normalize(pca_df))
 
             pca_component_names = [f"PC{i+1}" for i in range(self._n_components)]
