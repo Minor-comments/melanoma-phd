@@ -10,67 +10,76 @@ from melanoma_phd.database.variable.BaseVariable import BaseVariable
 
 
 class PcaPlotter:
-    def plot_importance(self, pca_result: PcaProcessorResult) -> plotly_go.Figure:
-        labels = self.__generate_labels(pca_result)
-        title = f"PCA feature importance<br>{self.__generate_explained_variance_title(pca_result)}"
+    def plot_importance(self, pca_result: PcaProcessorResult) -> Optional[plotly_go.Figure]:
+        if pca_result.importance is not None:
+            labels = self.__generate_labels(pca_result)
+            title = (
+                f"PCA feature importance<br>{self.__generate_explained_variance_title(pca_result)}"
+            )
 
-        plot_kwargs = dict(
-            data_frame=pca_result.importance,
-            x="PC1",
-            y="PC2",
-            labels=labels,
-            title=title,
-            hover_name=pca_result.importance.index,
-        )
-        if len(pca_result.importance.columns) == 2:
-            fig = px.scatter(**plot_kwargs)
-            fig.add_traces(
-                [
-                    plotly_go.Scatter(
-                        x=[0, pca_values["PC1"]],
-                        y=[0, pca_values["PC2"]],
-                        name=variable_name,
-                        hoverinfo="skip",
-                        mode="lines",
-                    )
-                    for variable_name, pca_values in pca_result.importance.T.items()
-                ]
+            plot_kwargs = dict(
+                data_frame=pca_result.importance,
+                x="PC1",
+                y="PC2",
+                labels=labels,
+                title=title,
+                hover_name=pca_result.importance.index,
             )
-        elif len(pca_result.importance.columns) == 3:
-            fig = px.scatter_3d(z="PC3", **plot_kwargs)
-            fig.add_traces(
-                [
-                    plotly_go.Scatter3d(
-                        x=[0, pca_values["PC1"]],
-                        y=[0, pca_values["PC2"]],
-                        z=[0, pca_values["PC3"]],
-                        name=variable_name,
-                        hoverinfo="skip",
-                        mode="lines",
-                    )
-                    for variable_name, pca_values in pca_result.importance.T.items()
-                ]
-            )
-        return fig
+            if len(pca_result.importance.columns) == 2:
+                fig = px.scatter(**plot_kwargs)
+                fig.add_traces(
+                    [
+                        plotly_go.Scatter(
+                            x=[0, pca_values["PC1"]],
+                            y=[0, pca_values["PC2"]],
+                            name=variable_name,
+                            hoverinfo="skip",
+                            mode="lines",
+                        )
+                        for variable_name, pca_values in pca_result.importance.T.items()
+                    ]
+                )
+            elif len(pca_result.importance.columns) == 3:
+                fig = px.scatter_3d(z="PC3", **plot_kwargs)
+                fig.add_traces(
+                    [
+                        plotly_go.Scatter3d(
+                            x=[0, pca_values["PC1"]],
+                            y=[0, pca_values["PC2"]],
+                            z=[0, pca_values["PC3"]],
+                            name=variable_name,
+                            hoverinfo="skip",
+                            mode="lines",
+                        )
+                        for variable_name, pca_values in pca_result.importance.T.items()
+                    ]
+                )
+            else:
+                raise ValueError(
+                    f"PCA feature importance cannot be plotted with {len(pca_result.importance.columns)} components"
+                )
+            return fig
+        return None
 
     def plot_pca(
         self,
         pca_result: PcaProcessorResult,
         df: pd.DataFrame,
-        legend_variables: Optional[List[Optional[BaseVariable]]] = None,
+        legend_variables: Optional[List[BaseVariable]] = None,
     ) -> List[plotly_go.Figure]:
         if not legend_variables:
             legend_variables = [None]
 
         figures = []
         for legend_variable in legend_variables:
-            if legend_variable:
-                color = legend_variable.get_series(df).loc[pca_result.pca_df.index]
-            else:
-                color = None
-
             labels = self.__generate_labels(pca_result)
             title = f"Patient PCA{f' by {legend_variable.name}' if legend_variable else ''}<br>{self.__generate_explained_variance_title(pca_result)}"
+
+            if legend_variable:
+                color = legend_variable.get_series(df).loc[pca_result.pca_df.index]
+                labels["color"] = legend_variable.name
+            else:
+                color = None
 
             plot_kwargs = dict(
                 labels=labels,

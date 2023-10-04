@@ -3,19 +3,16 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
-from numpy import log, ndarray
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import normalize
+import prince
+from numpy import ndarray
+from sklearn.decomposition import PCA, FactorAnalysis, KernelPCA
+from sklearn.preprocessing import PowerTransformer
 
+from melanoma_phd.database.statistics.DataCleaner import CleanedDataInfo, DataCleaner
+from melanoma_phd.database.statistics.PreProcessor import PreProcessor
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariable
-
-
-@dataclass
-class PcaProcessorCleanedData:
-    rows_missing_values_over_threshold: List[int]
-    columns_missing_values_over_threshold: List[str]
-    other_rows_with_missing_values: List[int]
 
 
 @dataclass
@@ -24,21 +21,26 @@ class PcaProcessorResult:
     components: Optional[pd.DataFrame]
     importance: Optional[pd.DataFrame]
     explained_variance_ratio: Optional[ndarray]
-    cleaned_data: PcaProcessorCleanedData
+    cleaned_data_info: CleanedDataInfo
 
 
 class PcaProcessor:
-    LOG_COLUMN_SUBSTRINGS = ["Fluo", "Abs", "Tcm/Teff ({N})", "Teff/Treg ({N})"]
+    TRANSFORM_COLUMN_SUBSTRINGS = ["Fluo", "Abs", "Tcm/Teff", "Teff/Treg", "EDAD"]
 
     def __init__(
         self,
         pca_feature_variables: List[ScalarVariable],
         n_components: int = 2,
         missing_values_threshold: float = 0.05,
+        use_factor_analysis: bool = False,
     ) -> None:
         self._pca_feature_variables = pca_feature_variables
         self._n_components = n_components
-        self._missing_values_threshold = missing_values_threshold
+        self._use_factor_analysis = use_factor_analysis
+        self._data_cleaner = DataCleaner(missing_values_threshold=missing_values_threshold)
+        self._preprocessor = PreProcessor(
+            transform_floats=True, substring_transform_columns=self.TRANSFORM_COLUMN_SUBSTRINGS
+        )
 
     def process(
         self,
@@ -48,41 +50,9 @@ class PcaProcessor:
             [variable.get_series(df) for variable in self._pca_feature_variables],
             axis=1,
         )
-        for i, log_column_substring in enumerate(self.LOG_COLUMN_SUBSTRINGS):
-            mask = pca_df.columns.str.contains(log_column_substring)
-            if i == 0:
-                columns_to_log = mask
-            else:
-                columns_to_log |= mask
-        pca_df.loc[:, columns_to_log] = pca_df.loc[:, columns_to_log].applymap(
-            lambda value: math.log(value) if value is not None and value != 0 else value
-        )
 
-        patient_mask = ~pca_df.isnull().all(axis=1)
-        rows_missing_values_over_threshold = list(pca_df[~patient_mask].index)
-        pca_df = pca_df[patient_mask]
-
-        feature_mask = ~pca_df.isnull().all(axis=0)
-        columns_missing_values_over_threshold = list(pca_df.loc[:, ~feature_mask].columns)
-        pca_df = pca_df.loc[:, feature_mask]
-
-        patient_mask = pca_df.isnull().sum(axis=1) <= self._missing_values_threshold
-        rows_missing_values_over_threshold += list(pca_df[~patient_mask].index)
-        pca_df = pca_df[patient_mask]
-
-        feature_mask = pca_df.isnull().sum(axis=0) <= self._missing_values_threshold
-        columns_missing_values_over_threshold += list(pca_df.loc[:, ~feature_mask].columns)
-        pca_df = pca_df.loc[:, feature_mask]
-
-        all_mask = pca_df.notnull().all(axis=1)
-        other_rows_with_missing_values = list(pca_df[~all_mask].index)
-        pca_df = pca_df[all_mask]
-
-        cleaned_data = PcaProcessorCleanedData(
-            rows_missing_values_over_threshold=sorted(rows_missing_values_over_threshold),
-            columns_missing_values_over_threshold=sorted(columns_missing_values_over_threshold),
-            other_rows_with_missing_values=other_rows_with_missing_values,
-        )
+        cleaned_data = self._data_cleaner.clean_dataframe(pca_df)
+        pca_df = cleaned_data.data
 
         if len(pca_df.index) == 0:
             return PcaProcessorResult(
@@ -90,18 +60,50 @@ class PcaProcessor:
                 components=None,
                 importance=None,
                 explained_variance_ratio=None,
-                cleaned_data=cleaned_data,
+                cleaned_data_info=cleaned_data.info,
             )
         else:
-            pca = PCA(n_components=self._n_components, svd_solver="full")
-            components = pca.fit_transform(normalize(pca_df))
-
             pca_component_names = [f"PC{i+1}" for i in range(self._n_components)]
+            transformed_pca_df = self._preprocessor.preprocess(pca_df)
 
-            importance = pd.DataFrame(
-                pca.components_, columns=pca_df.columns, index=pca_component_names
-            )
-            importance = importance.T / (importance.max(axis=1) - importance.min(axis=1)).T
+            if self._use_factor_analysis:
+                famd = prince.FAMD(
+                    n_components=self._n_components,
+                    copy=True,
+                    check_input=True,
+                    engine="scipy",
+                    handle_unknown="error",
+                )
+                components = famd.fit_transform(transformed_pca_df, as_array=True)
+
+                explained_variance_ratio = famd.percentage_of_variance_ / 100
+
+                importance = pd.DataFrame(
+                    famd.column_contributions_.values,
+                    index=pca_df.columns,
+                    columns=pca_component_names,
+                )
+            else:
+                pca = PCA(n_components=self._n_components, svd_solver="full")
+                components = pca.fit_transform(transformed_pca_df)
+
+                explained_variance_ratio = pca.explained_variance_ratio_
+
+                importance = pd.DataFrame(
+                    pca.components_, columns=pca_df.columns, index=pca_component_names
+                ).T
+
+            importance = importance / (importance.max(axis=0) - importance.min(axis=0))
+            importance = importance.loc[
+                (
+                    importance.apply(
+                        lambda row: -float(np.linalg.norm(row * explained_variance_ratio)),
+                        axis=1,
+                    )
+                )
+                .sort_values()
+                .index
+            ]
 
             return PcaProcessorResult(
                 pca_df=pca_df,
@@ -109,6 +111,6 @@ class PcaProcessor:
                     components, columns=pca_component_names, index=pca_df.index
                 ),
                 importance=importance,
-                explained_variance_ratio=pca.explained_variance_ratio_,
-                cleaned_data=cleaned_data,
+                explained_variance_ratio=explained_variance_ratio,
+                cleaned_data_info=cleaned_data.info,
             )

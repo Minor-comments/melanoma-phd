@@ -30,6 +30,10 @@ if __name__ == "__main__":
         db_view = filter_database_section(database=database, filters=filters)
         filtered_df = db_view.dataframe
 
+        use_factor_analysis = st.checkbox(
+            "Use Factor Analysis (allow use of categorical features)", value=False
+        )
+
         st.subheader("Variable selection")
         pca_feature_variables, legend_variables = select_several_variables_by_checkbox(
             database,
@@ -38,7 +42,8 @@ if __name__ == "__main__":
                 unique_form_title="Variables for featuring PCA to select",
                 variable_types=[
                     ScalarVariable,
-                ],
+                ]
+                + ([CategoricalVariable] if use_factor_analysis else []),
             ),
             SelectVariableConfig(
                 variable_selection_name="Legend variable",
@@ -49,16 +54,16 @@ if __name__ == "__main__":
                 ],
             ),
         )
+        missing_values_threshold = st.number_input(
+            "Missing values threshold", value=0.05, min_value=0.0, max_value=1.0
+        )
 
         if pca_feature_variables and legend_variables:
-            missing_values_threshold = st.number_input(
-                "Missing values threshold", value=0.05, min_value=0.0, max_value=1.0
-            )
-
             pca_processor = PcaProcessor(
                 pca_feature_variables=pca_feature_variables,
                 n_components=2,
                 missing_values_threshold=missing_values_threshold,
+                use_factor_analysis=use_factor_analysis,
             )
             pca_result = pca_processor.process(filtered_df)
 
@@ -70,13 +75,13 @@ if __name__ == "__main__":
                 )
             )
             st.info(
-                f"Removing {len(pca_result.cleaned_data.rows_missing_values_over_threshold)} patients due to having more than {missing_values_threshold:.0%} missing values: {pca_result.cleaned_data.rows_missing_values_over_threshold}"
+                f"Removing {len(pca_result.cleaned_data_info.rows_missing_values_over_threshold)} patients due to having more than {missing_values_threshold:.0%} missing values: {pca_result.cleaned_data_info.rows_missing_values_over_threshold}"
             )
             st.info(
-                f"Removing {len(pca_result.cleaned_data.columns_missing_values_over_threshold)} features due to having more than {missing_values_threshold:.0%} missing values: {pca_result.cleaned_data.columns_missing_values_over_threshold}"
+                f"Removing {len(pca_result.cleaned_data_info.columns_missing_values_over_threshold)} features due to having more than {missing_values_threshold:.0%} missing values: {pca_result.cleaned_data_info.columns_missing_values_over_threshold}"
             )
             st.info(
-                f"Removing {len(pca_result.cleaned_data.other_rows_with_missing_values)} patients due to having any missing value: {pca_result.cleaned_data.other_rows_with_missing_values}"
+                f"Removing {len(pca_result.cleaned_data_info.other_rows_with_missing_values)} patients due to having any missing value: {pca_result.cleaned_data_info.other_rows_with_missing_values}"
             )
             if pca_result.pca_df is not None:
                 st.info(
@@ -87,7 +92,11 @@ if __name__ == "__main__":
 
                 st.subheader("PCA with 2 components")
                 pca_plotter = PcaPlotter()
-                st.plotly_chart(pca_plotter.plot_importance(pca_result))
+                importance_plot = pca_plotter.plot_importance(pca_result)
+                if importance_plot:
+                    st.plotly_chart(importance_plot)
+                else:
+                    st.info("PCA feature importance cannot be calculated with current algorithm")
                 for fig in pca_plotter.plot_pca(
                     pca_result, df=filtered_df, legend_variables=legend_variables
                 ):
@@ -98,10 +107,15 @@ if __name__ == "__main__":
                     pca_feature_variables=pca_feature_variables,
                     n_components=3,
                     missing_values_threshold=missing_values_threshold,
+                    use_factor_analysis=use_factor_analysis,
                 )
                 pca_result = pca_processor.process(filtered_df)
 
-                st.plotly_chart(pca_plotter.plot_importance(pca_result))
+                importance_plot = pca_plotter.plot_importance(pca_result)
+                if importance_plot:
+                    st.plotly_chart(importance_plot)
+                else:
+                    st.info("PCA feature importance cannot be calculated with current algorithm")
                 for fig in pca_plotter.plot_pca(
                     pca_result, df=filtered_df, legend_variables=legend_variables
                 ):
