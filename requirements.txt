@@ -18,6 +18,7 @@ scikit-survival
 lifelines
 statsmodels
 dython
+prince
 
 # config
 pyyaml
