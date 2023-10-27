@@ -27,16 +27,50 @@ class CategoricalVariable(BaseVariable):
             series = data
         else:
             series = self.get_series(dataframe=data)
-        return self.get_numeric(series=series)
+        if all(isinstance(value, (int, float)) for value in self._categories.keys()):
+            categories = self._categories
+        else:
+            categories = None
+        return self.get_numeric(series=series, categories=categories)
 
     @classmethod
-    def get_numeric(cls, series: pd.Series) -> pd.Series:
-        if str(series.dtype) in ["object", "category"]:
-            unique = series.dropna().unique()
+    def get_original(cls, series: pd.Series, categories: Dict[Union[int, float], str]) -> pd.Series:
+        if str(series.dtype) not in ["object", "category"]:
             return series.map(
-                {value: i for i, value in enumerate(unique)}, na_action="ignore"
-            ).astype(int, errors="ignore")
+                {int(value): name for value, name in categories.items()}, na_action="ignore"
+            )
         return series
+
+    @classmethod
+    def get_numeric(
+        cls, series: pd.Series, categories: Optional[Dict[Union[int, float], str]] = None
+    ) -> pd.Series:
+        if not str(series.dtype).startswith("int") and not str(series.dtype).startswith("float"):
+            unique = series.dropna().unique()
+            if categories is not None:
+                if all(isinstance(value, (int, float)) for value in categories.keys()):
+                    if not set(categories.values()).issuperset(unique):
+                        raise ValueError(
+                            f"Categories {categories.values()} not including all categories from {unique}"
+                        )
+                    final_series = series.map(
+                        {name: int(value) for value, name in categories.items()}, na_action="ignore"
+                    )
+                else:
+                    raise ValueError(f"Categories {categories.keys()} should all be numeric values")
+            final_series = series.map(
+                {value: i for i, value in enumerate(unique)}, na_action="ignore"
+            )
+            try:
+                return final_series.astype(int)
+            except pd.errors.IntCastingNaNError:
+                print(f"Error converting {series.name} to int due to NaNs. Converting to float")
+                return final_series.astype(float)
+        return series
+
+    @property
+    def categories(self) -> Dict[Union[int, float, str], str]:
+        return self._categories
 
     @property
     def category_names(self) -> List[str]:
