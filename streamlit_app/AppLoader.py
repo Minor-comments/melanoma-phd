@@ -77,6 +77,10 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             key_context=key_context,
             filter=CategoricalFilter(database.get_variable("PROGRESIÓN EXTRACRANIAL")),
         ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("GRUPO NATERA")),
+        ),
         RangeInputFilter(
             key_context=key_context,
             filter=IterationScalarFilter(

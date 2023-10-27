@@ -19,6 +19,7 @@ lifelines
 statsmodels
 dython
 prince
+catboost
 
 # config
 pyyaml

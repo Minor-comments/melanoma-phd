@@ -778,6 +778,15 @@ sections:
                 name: "Clinical benefit mantenido vs PD"
                 type: boolean
 
+            - grupo_natera:
+                id: "GRUPO NATERA"
+                name: "GRUPO NATERA"
+                type: categorical
+                categories:
+                    1: "SCREENEADOS"
+                    2: "MUESTRA UNICA"
+                    3: "MUESTRAS SERIADAS"
+
         dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
             - PFS:
                 type: "SurvivalVariable"
