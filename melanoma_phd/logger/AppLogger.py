@@ -12,6 +12,6 @@ def init_logger(
     if log_filename:
         os.makedirs(os.path.dirname(log_filename), exist_ok=True)
         handlers += [logging.FileHandler(log_filename)]
-    if handlers:
+    if custom_handlers:
         handlers += custom_handlers
     logging.basicConfig(handlers=handlers, level=log_level)
