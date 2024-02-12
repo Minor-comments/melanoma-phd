@@ -33,7 +33,9 @@ from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
 
 class IntegrityError(Exception):
-    def __init__(self, source_sheet: str, target_sheet: str, columns: List[str]) -> None:
+    def __init__(
+        self, source_sheet: str, target_sheet: str, columns: List[str]
+    ) -> None:
         self.source_sheet: str = source_sheet
         self.target_sheet: str = target_sheet
         self.columns: List[str] = columns
@@ -89,7 +91,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
     def reload(self) -> None:
         self.__load()
 
-    def filter(self, filters: List[BaseFilter], name: Optional[str] = None) -> PatientDatabaseView:
+    def filter(
+        self, filters: List[BaseFilter], name: Optional[str] = None
+    ) -> PatientDatabaseView:
         dataframe_to_filter = self.dataframe.copy()
         df_result = PatientDataFilterer().filter(dataframe_to_filter, filters)
         if name:
@@ -117,7 +121,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
             drive_folder_id=self._config.get_setting("database/drive_folder_id"),
             database_file_path=database_file_path,
         )
-        self.__load_database(database_file=database_file, config_file=self._config.database_config)
+        self.__load_database(
+            database_file=database_file, config_file=self._config.database_config
+        )
 
     def __download_latest_version_file(
         self,
@@ -126,10 +132,13 @@ class PatientDatabase(AbstractPatientDatabaseView):
         database_file_path: str,
     ) -> str:
         drive_version_info = self.__get_latest_version_file(
-            google_service_account_info=google_service_account_info, drive_folder_id=drive_folder_id
+            google_service_account_info=google_service_account_info,
+            drive_folder_id=drive_folder_id,
         )
         if drive_version_info is None:
-            raise RuntimeError("Latest database version file not found in Goolge Drive!")
+            raise RuntimeError(
+                "Latest database version file not found in Goolge Drive!"
+            )
 
         self._file_info = drive_version_info
         database_file = self.__create_database_filename(
@@ -216,12 +225,19 @@ class PatientDatabase(AbstractPatientDatabaseView):
                 )
         self._dataframe.set_index(self._index_variable_name, inplace=True)
 
-    def __load_database_sheet(self, database_file: str, config: Dict[Any, Any]) -> DatabaseSheet:
+    def __load_database_sheet(
+        self, database_file: str, config: Dict[Any, Any]
+    ) -> DatabaseSheet:
         database_sheet_name = config["name"]
         sheet_names = config["sheets"]
         dataframe = None
         for sheet_name in sheet_names:
-            sheet_dataframe: pd.DataFrame = pd.read_excel(io=database_file, sheet_name=sheet_name)
+            sheet_dataframe: pd.DataFrame = pd.read_excel(
+                io=database_file, sheet_name=sheet_name
+            )
+            sheet_dataframe = sheet_dataframe.loc[
+                sheet_dataframe[self._index_variable_name].notna()
+            ]
             if dataframe is not None:
                 not_equal_columns = self.__check_equal_column_data(
                     left_dataframe=dataframe, right_dataframe=sheet_dataframe
@@ -238,10 +254,7 @@ class PatientDatabase(AbstractPatientDatabaseView):
 
         if dataframe is None:
             raise ValueError("Sheets not found in config file")
-        if self._index_variable_name is None:
-            raise ValueError("Index variable name not found in config")
 
-        dataframe = dataframe.loc[dataframe[self._index_variable_name].notna()]
         dataframe.name = database_sheet_name
         variables_config = config["variables"]
         variables = self.__load_sheet_variables(dataframe, variables_config)
@@ -252,7 +265,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
                 config=variables_config, dataframe=dataframe
             )
             variables.extend(dynamic_variables)
-        return DatabaseSheet(name=database_sheet_name, dataframe=dataframe, variables=variables)
+        return DatabaseSheet(
+            name=database_sheet_name, dataframe=dataframe, variables=variables
+        )
 
     def __load_sheet_variables(
         self, dataframe: pd.DataFrame, config: List[Dict[Any, Any]]
@@ -267,7 +282,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
             str(column) for column in dataframe if column not in config_variables.keys()
         ]
         for column in missing_columns:
-            new_variable = VariableFactory().create_from_series(dataframe=dataframe, id=column)
+            new_variable = VariableFactory().create_from_series(
+                dataframe=dataframe, id=column
+            )
             if new_variable:
                 variables.append(new_variable)
         return variables
@@ -280,8 +297,8 @@ class PatientDatabase(AbstractPatientDatabaseView):
         for variable_config in config:
             if IterationConfigGenerator.is_iteration(variable_config):
                 try:
-                    iterated_variable_configs = IterationConfigGenerator.generate_iterated(
-                        variable_config
+                    iterated_variable_configs = (
+                        IterationConfigGenerator.generate_iterated(variable_config)
                     )
                     iterated_variables = []
                     for variable in [
@@ -298,7 +315,10 @@ class PatientDatabase(AbstractPatientDatabaseView):
                     ) = IterationConfigGenerator.generate_iteration(variable_config)
                     if reference_variable_id:
                         reference_variable = created_variables[reference_variable_id]
-                        iteration_variable, dataframe = VariableFactory().create_iteration(
+                        (
+                            iteration_variable,
+                            dataframe,
+                        ) = VariableFactory().create_iteration(
                             dataframe=dataframe,
                             reference_variable=reference_variable,
                             iterated_variables=iterated_variables,
@@ -331,7 +351,9 @@ class PatientDatabase(AbstractPatientDatabaseView):
                     )
                     created_variables[variable.id] = variable
                 except ValueError as error:
-                    errors.append(f"Error creating variable '{variable_config}': {str(error)}")
+                    errors.append(
+                        f"Error creating variable '{variable_config}': {str(error)}"
+                    )
         if errors:
             raise ValueError(
                 f"Database configuration error. The next config variables could not been loaded:\n - "

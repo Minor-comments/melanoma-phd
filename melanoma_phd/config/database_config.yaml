@@ -778,6 +778,48 @@ sections:
                 name: "Clinical benefit mantenido vs PD"
                 type: boolean
 
+            - Setting of prior PD1 (adjuvant/metastatic):
+                id: "Setting of prior PD1 (adjuvant/metastatic)"
+                name: "Setting of prior PD1 (adjuvant/metastatic)"
+                type: categorical
+                categories:
+                    1: "Adjuvant"
+                    2: "Metastatic"
+
+            - Time from prior PD1 to start curret IO (menor o igual a 3m/mayor a 3m):
+                id: "Time from prior PD1 to start curret IO (menor o igual a 3m/mayor a 3m)"
+                name: "Time from prior PD1 to start curret IO (menor o igual a 3m/mayor a 3m)"
+                type: categorical
+                categories:
+                    1: "<=3m"
+                    2: ">3m"
+            
+            - Setting of prior BRAFi (adjuvant/metastatic):
+                id: "Setting of prior BRAFi (adjuvant/metastatic)"
+                name: "Setting of prior BRAFi (adjuvant/metastatic)"
+                type: categorical
+                categories:
+                    1: "Adjuvant"
+                    2: "Metastatic"
+            
+            - Time from prior BRAF inihibitor to start curret IO (menor o igual a 3m/mayor a 3m):
+                id: "Time from prior BRAF inihibitor to start curret IO (menor o igual a 3m/mayor a 3m)"
+                name: "Time from prior BRAF inihibitor to start curret IO (menor o igual a 3m/mayor a 3m)"
+                type: categorical
+                categories:
+                    1: "<=3m"
+                    2: ">3m"
+
+            - Line of treatment for the current treatment (advanced setting) eg 1L, 2L 3L…):
+                id: "Line of treatment for the current treatment (advanced setting) eg 1L, 2L 3L…)"
+                name: "Line of treatment for the current treatment (advanced setting) eg 1L, 2L 3L…)"
+                type: categorical
+                categories:
+                    1: "1L"
+                    2: "2L"
+                    3: "3L"
+                    4: "4L"
+
             - grupo_natera:
                 id: "GRUPO NATERA"
                 name: "GRUPO NATERA"
@@ -786,6 +828,7 @@ sections:
                     1: "SCREENEADOS"
                     2: "MUESTRA UNICA"
                     3: "MUESTRAS SERIADAS"
+                    4: "BRAF/MEK"
 
         dynamic_variables: # Orders matters if using dynamic_variable in another dynamic_variable
             - PFS:
@@ -1619,6 +1662,14 @@ sections:
             - Ki67+ Abs(1..10):
                 id: "Ki67+ Abs ({N})"
                 name: "Ki67+ Abs"
+                _iterated_type: iterated_scalar
+                _iterated_selectable: false
+                _iteration_selectable: true
+                _iteration_reference_variable_id: "TIEMPO IT{N}"
+                _iteration_type: IterationScalarVariable
+            - MTM(1..10):
+                id: "MTM ({N})"
+                name: "MTM"
                 _iterated_type: iterated_scalar
                 _iterated_selectable: false
                 _iteration_selectable: true
