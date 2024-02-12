@@ -778,6 +778,11 @@ sections:
                 name: "Clinical benefit mantenido vs PD"
                 type: boolean
 
+            - Prior PD1-Based therapy (Y/N):
+                id: "Prior PD1-Based therapy (Y/N)"
+                name: "Prior PD1-Based therapy (Y/N)"
+                type: boolean
+
             - Setting of prior PD1 (adjuvant/metastatic):
                 id: "Setting of prior PD1 (adjuvant/metastatic)"
                 name: "Setting of prior PD1 (adjuvant/metastatic)"
@@ -793,6 +798,11 @@ sections:
                 categories:
                     1: "<=3m"
                     2: ">3m"
+
+            - Prior Braf inhibitor (Y/N):
+                id: "Prior Braf inhibitor (Y/N)"
+                name: "Prior Braf inhibitor (Y/N)"
+                type: boolean
             
             - Setting of prior BRAFi (adjuvant/metastatic):
                 id: "Setting of prior BRAFi (adjuvant/metastatic)"

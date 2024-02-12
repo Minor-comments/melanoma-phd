@@ -12,7 +12,9 @@ import streamlit as st
 from PersistentSessionState import PersistentSessionState
 
 from melanoma_phd.database.filter.CategoricalFilter import CategoricalFilter
-from melanoma_phd.database.filter.IterationCategoricalFilter import IterationCategoricalFilter
+from melanoma_phd.database.filter.IterationCategoricalFilter import (
+    IterationCategoricalFilter,
+)
 from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
@@ -39,7 +41,9 @@ class SelectVariableConfig:
 
 @st.cache_data
 def dataframe_to_csv(df: pd.DataFrame) -> bytes:
-    return df.to_csv(index=False, sep=",", decimal=",", float_format="%.2f").encode("utf-8")
+    return df.to_csv(index=False, sep=",", decimal=",", float_format="%.2f").encode(
+        "utf-8"
+    )
 
 
 def reload_database(database: PatientDatabase) -> None:
@@ -50,7 +54,9 @@ def reload_database(database: PatientDatabase) -> None:
 def create_database_section(database: PatientDatabase) -> None:
     with st.expander(f"Database Source File"):
         st.subheader(f"{database.file_info}")
-        st.button(label="Reload", on_click=lambda database=database: reload_database(database))
+        st.button(
+            label="Reload", on_click=lambda database=database: reload_database(database)
+        )
         st.subheader(f"Datbase contents")
         st.dataframe(database.dataframe)
 
@@ -71,7 +77,8 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             filter=CategoricalFilter(database.get_variable("TIPO TTM ACTUAL")),
         ),
         MultiSelectFilter(
-            key_context=key_context, filter=CategoricalFilter(database.get_variable("BOR"))
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("BOR")),
         ),
         MultiSelectFilter(
             key_context=key_context,
@@ -80,6 +87,26 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
         MultiSelectFilter(
             key_context=key_context,
             filter=CategoricalFilter(database.get_variable("GRUPO NATERA")),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(
+                database.get_variable("Prior PD1-Based therapy (Y/N)")
+            ),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(
+                database.get_variable("Prior Braf inhibitor (Y/N)")
+            ),
+        ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(
+                database.get_variable(
+                    "Line of treatment for the current treatment (advanced setting) eg 1L, 2L 3L…)"
+                )
+            ),
         ),
         RangeInputFilter(
             key_context=key_context,
@@ -108,10 +135,12 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
             filter=CategoricalFilter(database.get_variable("PFS 12m")),
         ),
         MultiSelectFilter(
-            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 24m"))
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("PFS 24m")),
         ),
         MultiSelectFilter(
-            key_context=key_context, filter=CategoricalFilter(database.get_variable("PFS 36m"))
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("PFS 36m")),
         ),
         MultiSelectFilter(
             key_context=key_context,
@@ -159,7 +188,9 @@ def select_population_section(
     uploaded_file = st.file_uploader(
         label=f"Upload a filter selection ⬆️", type=["json"], key=population_name
     )
-    custom_population_name = st.text_input("Filtered population name", value=population_name)
+    custom_population_name = st.text_input(
+        "Filtered population name", value=population_name
+    )
     filters = create_filters(key_context=population_name, database=database)
     filter_selection = FilterSelection(name=population_name, filters=filters)
     if uploaded_file:
@@ -205,7 +236,10 @@ def select_group_by_sidebar(database: PatientDatabase) -> List[BaseVariable]:
 
 
 def filter_database(
-    unique_form_title: str, database: PatientDatabase, filters: List[Filter], population_name: str
+    unique_form_title: str,
+    database: PatientDatabase,
+    filters: List[Filter],
+    population_name: str,
 ) -> PatientDatabaseView:
     db_view = database.filter(filters=filters, name=population_name)
     df_result = db_view.dataframe
@@ -223,7 +257,9 @@ def filter_database(
             [selected_variable.id for selected_variable in selected_variables]
         ]
     st.dataframe(df_result_to_display)
-    file_name = "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+    file_name = (
+        "filtered_dataframe_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+    )
     csv = dataframe_to_csv(df_result_to_display)
     st.download_button(
         label=f"Download filtered dataframe ⬇️ ",
@@ -255,11 +291,14 @@ def select_variables_by_checkbox(
     variable_types = select_variable_config.variable_types
 
     uploaded_file = st.file_uploader(
-        label=f"Upload a '{variable_selection_name}' variable selection ⬆️", type=["json"]
+        label=f"Upload a '{variable_selection_name}' variable selection ⬆️",
+        type=["json"],
     )
     if uploaded_file:
         file_contents = uploaded_file.getvalue().decode("utf-8")
-        VariableSelector.select_variables_from_file(variable_selection_name, file_contents)
+        VariableSelector.select_variables_from_file(
+            variable_selection_name, file_contents
+        )
     selected_variables: List[BaseVariable] = []
     with st.expander(select_variable_config.unique_form_title):
         selector = VariableSelector(database)
@@ -267,11 +306,13 @@ def select_variables_by_checkbox(
         st.checkbox(
             label=f"Select All",
             key=f"select_variables_{variable_selection_name}",
-            on_change=lambda: selector.select_variables(
-                variable_selection_name, variables_to_select
-            )
-            if st.session_state[f"select_variables_{variable_selection_name}"]
-            else selector.deselect_variables(variable_selection_name, variables_to_select),
+            on_change=lambda: (
+                selector.select_variables(variable_selection_name, variables_to_select)
+                if st.session_state[f"select_variables_{variable_selection_name}"]
+                else selector.deselect_variables(
+                    variable_selection_name, variables_to_select
+                )
+            ),
         )
         with st.form(key=f"variable_selection_form_{variable_selection_name}"):
             selected_variables = []
@@ -292,7 +333,9 @@ def select_variables_by_checkbox(
                 selected_variables = []
         if selected_variables:
             file_name = (
-                "variable_selection_" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".json"
+                "variable_selection_"
+                + datetime.now().strftime("%d/%m/%Y_%H:%M:%S")
+                + ".json"
             )
             st.download_button(
                 label=f"Download '{variable_selection_name}' variable selection ⬇️ ",
@@ -310,7 +353,9 @@ def select_several_variables_by_checkbox(
     ):
         selected_variables = []
         for config in select_variable_config:
-            selected_variables.append(simple_select_variables_by_checkbox(database, config))
+            selected_variables.append(
+                simple_select_variables_by_checkbox(database, config)
+            )
         if not st.form_submit_button("Display statistics 📊"):
             selected_variables = [[] for _ in select_variable_config]
     return tuple(selected_variables)
@@ -343,7 +388,9 @@ def select_one_variable(
     selected_variable = None
     with st.form(select_variable_config.unique_form_title):
         selector = VariableSelector(database)
-        variables = selector.get_variables_to_select(select_variable_config.variable_types)
+        variables = selector.get_variables_to_select(
+            select_variable_config.variable_types
+        )
         variable_ids = [variable.id for variable in variables]
         selected_variables_id = st.selectbox(
             label="Select variable to display",
@@ -414,13 +461,19 @@ def download_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
     table = VariableTable(variables_statistics)
     csv_creator = CsvTable(table)
     csv_contents = csv_creator.dumps()
-    file_name = "descriptive_statistics" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
-    st.download_button(label="Download as CSV ⬇️ ", data=csv_contents, file_name=file_name)
+    file_name = (
+        "descriptive_statistics" + datetime.now().strftime("%d/%m/%Y_%H:%M:%S") + ".csv"
+    )
+    st.download_button(
+        label="Download as CSV ⬇️ ", data=csv_contents, file_name=file_name
+    )
 
 
 def plot_statistics(variables_statistics: Dict[BaseVariable, pd.DataFrame]):
     MAX_VARIABLES_TABLE = 100
-    for variables_statistics_chunk in batched_dict(variables_statistics, MAX_VARIABLES_TABLE):
+    for variables_statistics_chunk in batched_dict(
+        variables_statistics, MAX_VARIABLES_TABLE
+    ):
         table = VariableTable(variables_statistics_chunk)
         markdown_table = MarkdownTable(table)
         st.markdown(markdown_table.dumps(), unsafe_allow_html=True)
@@ -461,4 +514,6 @@ class AppLoader:
     @st.cache_resource(show_spinner="Loading main application & database...")
     def __load_app(_self) -> MelanomaPhdApp:
         custom_handlers = [StreamlitLogHandler()] if _self._log_trace else []
-        return create_melanoma_phd_app(log_level=logging.INFO, custom_handlers=custom_handlers)
+        return create_melanoma_phd_app(
+            log_level=logging.INFO, custom_handlers=custom_handlers
+        )
