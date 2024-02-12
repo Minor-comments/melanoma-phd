@@ -768,14 +768,19 @@ sections:
                 name: "PRmantenidavsPD"
                 type: boolean
             
-            - Clinical benefit vs PD:
-                id: "Clinical benefit vs PD"
-                name: "Clinical benefit vs PD"
+            - Primary resistance:
+                id: "Primary resistance"
+                name: "Primary resistance"
                 type: boolean
             
             - Clinical benefit mantenido vs PD:
                 id: "Clinical benefit mantenido vs PD"
                 name: "Clinical benefit mantenido vs PD"
+                type: boolean
+
+            - Prior PD1-Based therapy (Y/N):
+                id: "Prior PD1-Based therapy (Y/N)"
+                name: "Prior PD1-Based therapy (Y/N)"
                 type: boolean
 
             - Setting of prior PD1 (adjuvant/metastatic):
@@ -793,6 +798,11 @@ sections:
                 categories:
                     1: "<=3m"
                     2: ">3m"
+
+            - Prior Braf inhibitor (Y/N):
+                id: "Prior Braf inhibitor (Y/N)"
+                name: "Prior Braf inhibitor (Y/N)"
+                type: boolean
             
             - Setting of prior BRAFi (adjuvant/metastatic):
                 id: "Setting of prior BRAFi (adjuvant/metastatic)"
@@ -1799,6 +1809,41 @@ sections:
                 name: "N. HISTORIA"
                 type: categorical
                 selectable: false
+            - NATERA (Baseline):
+                id: "NATERA (Baseline)"
+                name: "NATERA (Baseline)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 3m (2-4):
+                id: "NATERA 3m (2-4)"
+                name: "NATERA 3m (2-4)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 6m (5-7):
+                id: "NATERA 6m (5-7)"
+                name: "NATERA 6m (5-7)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 9m (8-10):
+                id: "NATERA 9m (8-10)"
+                name: "NATERA 9m (8-10)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 12m (11-13):
+                id: "NATERA 12m (11-13)"
+                name: "NATERA 12m (11-13)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
 
     - LIMFyDNA_tiempo(18m-24m):
         name: "LIMFyDNA tiempo(18m-24m)"
@@ -1815,3 +1860,38 @@ sections:
                 name: "N. HISTORIA"
                 type: categorical
                 selectable: false
+            - NATERA 15m (14-16):
+                id: "NATERA 15m (14-16)"
+                name: "NATERA 15m (14-16)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 18m (17-19):
+                id: "NATERA 18m (17-19)"
+                name: "NATERA 18m (17-19)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 24m (20-28):
+                id: "NATERA 24m (20-28)"
+                name: "NATERA 24m (20-28)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 24m (20-28):
+                id: "NATERA 24m (20-28)"
+                name: "NATERA 24m (20-28)"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
+            - NATERA 29mandbeyond:
+                id: "NATERA 29mandbeyond"
+                name: "NATERA 29mandbeyond"
+                type: categorical
+                categories:
+                    0: "ne- ctDNA"
+                    1: "ve+ ctDNA"
