@@ -1181,14 +1181,6 @@ sections:
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
                 _iteration_type: IterationScalarVariable
-            - naïve(CD3+CD8+CD45A+)(1..10)Fluo:
-                id: "naïve(CD3+CD8+CD45A+)({N})Fluo"
-                name: "naïve(CD3+CD8+CD45A+)Fluo"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_selectable: true
-                _iteration_type: IterationScalarVariable
             - efectora (CD4+CCR7-CD45RO-) (1..10):
                 id: "efectora (CD4+CCR7-CD45RO-) ({N})"
                 name: "efectora (CD3+CD4+CCR7-CD45RO-)"
@@ -1196,22 +1188,6 @@ sections:
                 _iterated_selectable: false
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - naïve(CD3+CD4+CD45A+)(1..10)Fluo:
-                id: "naïve(CD3+CD4+CD45A+)({N})Fluo"
-                name: "naïve(CD3+CD4+CD45A+)Fluo"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_selectable: true
-                _iteration_type: IterationScalarVariable
-            - naïve(CD3+CD45A+)(1..10)Fluo:
-                id: "naïve(CD3+CD45A+)({N})Fluo"
-                name: "naïve(CD3+CD45A+)Fluo"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_selectable: true
                 _iteration_type: IterationScalarVariable
             - naïve(CD3+CD8+CCR7+CD45A+)(1..10):
                 id: "naïve(CD3+CD8+CCR7+CD45A+)({N})"
@@ -1400,38 +1376,6 @@ sections:
             - CD69+(1..10)Fluo:
                 id: "CD69+({N})Fluo"
                 name: "LT(CD3+CD69+)Fluo"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - PD1+(1..10):
-                id: "PD1+({N})"
-                name: "PD1+"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - PD1+(1..10)Fluo:
-                id: "PD1+({N})Fluo"
-                name: "PD1+Fluo"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - Ki67+(1..10):
-                id: "Ki67+({N})"
-                name: "Ki67+"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - Ki67+(1..10)Fluo:
-                id: "Ki67+({N})Fluo"
-                name: "Ki67+Fluo"
                 _iterated_type: iterated_scalar
                 _iterated_selectable: false
                 _iteration_selectable: true
@@ -1661,22 +1605,6 @@ sections:
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
                 _iteration_type: IterationScalarVariable
-            - PD1+ Abs(1..10):
-                id: "PD1+ Abs ({N})"
-                name: "PD1+ Abs"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
-            - Ki67+ Abs(1..10):
-                id: "Ki67+ Abs ({N})"
-                name: "Ki67+ Abs"
-                _iterated_type: iterated_scalar
-                _iterated_selectable: false
-                _iteration_selectable: true
-                _iteration_reference_variable_id: "TIEMPO IT{N}"
-                _iteration_type: IterationScalarVariable
             - MTM(1..10):
                 id: "MTM ({N})"
                 name: "MTM"
@@ -1685,7 +1613,7 @@ sections:
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
                 _iteration_type: IterationScalarVariable
-            - Tcm/Teff(1..10):
+            - Tcm/Teff(1..8):
                 id: "Tcm/Teff ({N})"
                 name: "Tcm/Teff"
                 _iterated_type: iterated_scalar
@@ -1693,7 +1621,7 @@ sections:
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
                 _iteration_type: IterationScalarVariable
-            - Teff/Treg(1..10):
+            - Teff/Treg(1..8):
                 id: "Teff/Treg ({N})"
                 name: "Teff/Treg"
                 _iterated_type: iterated_scalar
