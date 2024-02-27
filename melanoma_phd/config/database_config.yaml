@@ -934,7 +934,7 @@ sections:
                 _iteration_selectable: true
                 _iteration_type: IterationScalarVariable
             - T(CD3+)(1..10)Fluo:
-                id: "T(CD3+)({N})Fluo "
+                id: "T(CD3+)({N})Fluo"
                 name: "LT(CD3+)Fluo"
                 _iterated_type: iterated_scalar
                 _iterated_selectable: false

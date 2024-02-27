@@ -14,7 +14,9 @@ from packaging.version import parse as version_parse
 
 from melanoma_phd.config.AppConfig import AppConfig
 from melanoma_phd.config.IterationConfigGenerator import IterationConfigGenerator
-from melanoma_phd.database.AbstractPatientDatabaseView import AbstractPatientDatabaseView
+from melanoma_phd.database.AbstractPatientDatabaseView import (
+    AbstractPatientDatabaseView,
+)
 from melanoma_phd.database.DatabaseSheet import DatabaseSheet
 from melanoma_phd.database.filter.BaseFilter import BaseFilter
 from melanoma_phd.database.filter.PatientDataFilterer import PatientDataFilterer
@@ -26,9 +28,15 @@ from melanoma_phd.database.source.DriveFileRepository import (
 )
 from melanoma_phd.database.source.GoogleDriveService import GoogleDriveService
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
-from melanoma_phd.database.variable.IterationCategoricalVariable import IterationCategoricalVariable
-from melanoma_phd.database.variable.IterationScalarVariable import IterationScalarVariable
-from melanoma_phd.database.variable.ReferenceIterationVariable import ReferenceIterationVariable
+from melanoma_phd.database.variable.IterationCategoricalVariable import (
+    IterationCategoricalVariable,
+)
+from melanoma_phd.database.variable.IterationScalarVariable import (
+    IterationScalarVariable,
+)
+from melanoma_phd.database.variable.ReferenceIterationVariable import (
+    ReferenceIterationVariable,
+)
 from melanoma_phd.database.variable.VariableFactory import VariableFactory
 
 
@@ -234,7 +242,7 @@ class PatientDatabase(AbstractPatientDatabaseView):
         for sheet_name in sheet_names:
             sheet_dataframe: pd.DataFrame = pd.read_excel(
                 io=database_file, sheet_name=sheet_name
-            )
+            ).rename(columns=lambda col_name: col_name.strip())
             sheet_dataframe = sheet_dataframe.loc[
                 sheet_dataframe[self._index_variable_name].notna()
             ]
