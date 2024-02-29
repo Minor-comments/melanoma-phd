@@ -3,7 +3,10 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
-from melanoma_phd.database.variable.BaseVariable import BaseVariable, VariableStatisticalType
+from melanoma_phd.database.variable.BaseVariable import (
+    BaseVariable,
+    VariableStatisticalType,
+)
 from melanoma_phd.database.variable.BaseVariableConfig import BaseVariableConfig
 from melanoma_phd.database.variable.StatisticFieldName import StatisticFieldName
 
@@ -34,18 +37,25 @@ class CategoricalVariable(BaseVariable):
         return self.get_numeric(series=series, categories=categories)
 
     @classmethod
-    def get_original(cls, series: pd.Series, categories: Dict[Union[int, float], str]) -> pd.Series:
+    def get_original(
+        cls, series: pd.Series, categories: Dict[Union[int, float], str]
+    ) -> pd.Series:
         if str(series.dtype) not in ["object", "category"]:
             return series.map(
-                {int(value): name for value, name in categories.items()}, na_action="ignore"
+                {int(value): name for value, name in categories.items()},
+                na_action="ignore",
             )
         return series
 
     @classmethod
     def get_numeric(
-        cls, series: pd.Series, categories: Optional[Dict[Union[int, float], str]] = None
+        cls,
+        series: pd.Series,
+        categories: Optional[Dict[Union[int, float], str]] = None,
     ) -> pd.Series:
-        if not str(series.dtype).startswith("int") and not str(series.dtype).startswith("float"):
+        if not str(series.dtype).startswith("int") and not str(series.dtype).startswith(
+            "float"
+        ):
             unique = series.dropna().unique()
             if categories is not None:
                 if all(isinstance(value, (int, float)) for value in categories.keys()):
@@ -54,17 +64,22 @@ class CategoricalVariable(BaseVariable):
                             f"Categories {categories.values()} not including all categories from {unique}"
                         )
                     final_series = series.map(
-                        {name: int(value) for value, name in categories.items()}, na_action="ignore"
+                        {name: int(value) for value, name in categories.items()},
+                        na_action="ignore",
                     )
                 else:
-                    raise ValueError(f"Categories {categories.keys()} should all be numeric values")
+                    raise ValueError(
+                        f"Categories {categories.keys()} should all be numeric values"
+                    )
             final_series = series.map(
                 {value: i for i, value in enumerate(unique)}, na_action="ignore"
             )
             try:
                 return final_series.astype(int)
             except pd.errors.IntCastingNaNError:
-                print(f"Error converting {series.name} to int due to NaNs. Converting to float")
+                print(
+                    f"Error converting {series.name} to int due to NaNs. Converting to float"
+                )
                 return final_series.astype(float)
         return series
 
@@ -110,7 +125,9 @@ class CategoricalVariable(BaseVariable):
             new_column = f"_tmp_{self.id}"
             assert new_column not in dataframe.columns
 
-            group_by_list = [group_by] if isinstance(group_by, BaseVariable) else group_by
+            group_by_list = (
+                [group_by] if isinstance(group_by, BaseVariable) else group_by
+            )
             new_dataframe_data = {
                 group_by_variable.id: group_by_variable.get_series(dataframe=dataframe)
                 for group_by_variable in group_by_list
@@ -142,11 +159,13 @@ class CategoricalVariable(BaseVariable):
         rows: List[List[str]] = []
         for i in range(0, len(dataframe.index)):
             row_name = name if i == 0 else ""
-            value_name = str(dataframe.index[i]) if dataframe.index[i] != 0 or i != 0 else ""
+            value_name = (
+                str(dataframe.index[i]) if dataframe.index[i] != 0 or i != 0 else ""
+            )
             row = [
                 row_name,
                 value_name,
-                f"{dataframe.iloc[i][StatisticFieldName.COUNT.value]} ({dataframe.iloc[i][StatisticFieldName.PERCENTAGE.value]})",
+                f"{int(dataframe.iloc[i][StatisticFieldName.COUNT.value])} ({dataframe.iloc[i][StatisticFieldName.PERCENTAGE.value]})",
             ]
             rows.append(row)
         return rows

@@ -16,6 +16,7 @@ from melanoma_phd.database.filter.IterationCategoricalFilter import (
     IterationCategoricalFilter,
 )
 from melanoma_phd.database.filter.IterationScalarFilter import IterationScalarFilter
+from melanoma_phd.database.filter.NotEmptyVariableFilter import NotEmptyVariableFilter
 from melanoma_phd.database.PatientDatabase import PatientDatabase
 from melanoma_phd.database.PatientDatabaseView import PatientDatabaseView
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -24,6 +25,7 @@ from melanoma_phd.MelanomaPhdApp import MelanomaPhdApp, create_melanoma_phd_app
 from streamlit_app.filter.Filter import Filter
 from streamlit_app.filter.FilterSelection import FilterSelection
 from streamlit_app.filter.MultiSelectFilter import MultiSelectFilter
+from streamlit_app.filter.MultiSelectNotEmptyFilter import MultiSelectNotEmptyFilter
 from streamlit_app.filter.RangeInputFilter import RangeInputFilter
 from streamlit_app.logger.StreamlitLogHandler import StreamlitLogHandler
 from streamlit_app.table.CsvTable import CsvTable
@@ -167,6 +169,24 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
                     reference_variable=reference_iteration_variable
                 ),
             ),
+        ),
+        MultiSelectNotEmptyFilter(
+            label="IT temporalidad",
+            key_context=key_context,
+            filters=[
+                NotEmptyVariableFilter(variable=database.get_variable(variable_name))
+                for variable_name in [
+                    "IT baseline",
+                    "IT 3m",
+                    "IT 6m",
+                    "IT 9m",
+                    "IT 12m",
+                    "IT 15m",
+                    "IT 18m",
+                    "IT 24m",
+                    "IT 29mandbeyond",
+                ]
+            ],
         ),
     ]
     return filters
