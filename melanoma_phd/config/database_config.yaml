@@ -1703,24 +1703,24 @@ sections:
                 name: "BRAF non-mutant"
                 type: boolean
                 categories:
-                    0: "True"
-                    1: "False"
+                    0: "False"
+                    1: "True"
 
             - BRAFV600:
                 id: "BRAFV600"
                 name: "BRAFV600"
                 type: boolean
                 categories:
-                    0: "True"
-                    1: "False"
+                    0: "False"
+                    1: "True"
 
             - RAS mutant:
                 id: "RAS mutant"
                 name: "RAS mutant"
                 type: boolean
                 categories:
-                    0: "True"
-                    1: "False"
+                    0: "False"
+                    1: "True"
         
     - LIMFyDNA_tiempo_(Baseline-12m):
         name: "LIMFyDNA tiempo (Baseline-12m)"
