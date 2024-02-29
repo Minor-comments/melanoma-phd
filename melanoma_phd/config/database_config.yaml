@@ -1744,6 +1744,26 @@ sections:
                 categories:
                     0: "ne- ctDNA"
                     1: "ve+ ctDNA"
+            - IT baseline:
+                id: "IT baseline"
+                name: "IT baseline"
+                type: scalar
+            - IT 3m:
+                id: "IT 3m"
+                name: "IT 3m"
+                type: scalar
+            - IT 6m:
+                id: "IT 6m"
+                name: "IT 6m"
+                type: scalar
+            - IT 9m:
+                id: "IT 9m"
+                name: "IT 9m"
+                type: scalar
+            - IT 12m:
+                id: "IT 12m"
+                name: "IT 12m"
+                type: scalar
             - NATERA 3m (2-4):
                 id: "NATERA 3m (2-4)"
                 name: "NATERA 3m (2-4)"
@@ -1788,6 +1808,22 @@ sections:
                 name: "N. HISTORIA"
                 type: categorical
                 selectable: false
+            - IT 15m:
+                id: "IT 15m"
+                name: "IT 15m"
+                type: scalar
+            - IT 18m:
+                id: "IT 18m"
+                name: "IT 18m"
+                type: scalar
+            - IT 24m:
+                id: "IT 24m"
+                name: "IT 24m"
+                type: scalar
+            - IT 29mandbeyond:
+                id: "IT 29mandbeyond"
+                name: "IT 29mandbeyond"
+                type: scalar
             - NATERA 15m (14-16):
                 id: "NATERA 15m (14-16)"
                 name: "NATERA 15m (14-16)"
