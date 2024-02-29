@@ -5,15 +5,14 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "editor.formatOnSave": true,
-    "python.linting.enabled": true,
     "editor.codeActionsOnSave": [
         "source.organizeImports",
         "source.fixAll"
     ],
     "editor.defaultFormatter": "ms-python.python",
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": ["--line-length", "100"],
-    "isort.args": ["-l", "100"],
-    "python.linting.mypyCategorySeverity.error": "Information",
-    "python.linting.mypyEnabled": true,
+    "isort.args": ["-l", "100", "--profile", "black"],
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
 }
