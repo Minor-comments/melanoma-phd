@@ -325,6 +325,11 @@ sections:
                     8: "Anti-PDL1 based"
                     10: "Healthy volunteers"
 
+            - exact_ttm_current_type:
+                id: "TIPO EXACTO ACTUAL"
+                name: "TIPO EXACTO ACTUAL"
+                type: string
+
             - mantenimiento:
                 id: "MANTENIMIENTO"
                 name: "MANTENIMIENTO"

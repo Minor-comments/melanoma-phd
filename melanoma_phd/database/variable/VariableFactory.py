@@ -18,7 +18,9 @@ from melanoma_phd.database.variable.BooleanVariableStatic import (
     BooleanVariableStatic,
 )
 from melanoma_phd.database.variable.CategoricalVariable import CategoricalVariableConfig
-from melanoma_phd.database.variable.CategoricalVariableStatic import CategoricalVariableStatic
+from melanoma_phd.database.variable.CategoricalVariableStatic import (
+    CategoricalVariableStatic,
+)
 from melanoma_phd.database.variable.DateTimeVariable import DateTimeVariableConfig
 from melanoma_phd.database.variable.DateTimeVariableStatic import DateTimeVariableStatic
 from melanoma_phd.database.variable.IteratedCategoricalVariableStatic import (
@@ -43,8 +45,17 @@ from melanoma_phd.database.variable.ReferenceIterationVariable import (
 )
 from melanoma_phd.database.variable.ScalarVariable import ScalarVariableConfig
 from melanoma_phd.database.variable.ScalarVariableStatic import ScalarVariableStatic
-from melanoma_phd.database.variable.SurvivalVariable import SurvivalVariable, SurvivalVariableConfig
-from melanoma_phd.database.variable.VariableDynamicMixin import BaseDynamicVariableConfig
+from melanoma_phd.database.variable.StringVariable import (
+    StringVariable,
+    StringVariableConfig,
+)
+from melanoma_phd.database.variable.SurvivalVariable import (
+    SurvivalVariable,
+    SurvivalVariableConfig,
+)
+from melanoma_phd.database.variable.VariableDynamicMixin import (
+    BaseDynamicVariableConfig,
+)
 
 
 @dataclass
@@ -60,16 +71,21 @@ class VariableFactory:
                 class_type=ScalarVariableStatic, config_type=ScalarVariableConfig
             ),
             VariableType.CATEGORICAL.value: VariableFactoryClass(
-                class_type=CategoricalVariableStatic, config_type=CategoricalVariableConfig
+                class_type=CategoricalVariableStatic,
+                config_type=CategoricalVariableConfig,
             ),
             VariableType.BOOLEAN.value: VariableFactoryClass(
                 class_type=BooleanVariableStatic, config_type=BooleanVariableConfig
+            ),
+            VariableType.STRING.value: VariableFactoryClass(
+                class_type=StringVariable, config_type=StringVariableConfig
             ),
             VariableType.DATETIME.value: VariableFactoryClass(
                 class_type=DateTimeVariableStatic, config_type=DateTimeVariableConfig
             ),
             VariableType.ITERATED_SCALAR.value: VariableFactoryClass(
-                class_type=IteratedScalarVariableStatic, config_type=IteratedScalarVariableConfig
+                class_type=IteratedScalarVariableStatic,
+                config_type=IteratedScalarVariableConfig,
             ),
             VariableType.ITERATED_CATEGORICAL.value: VariableFactoryClass(
                 class_type=IteratedCategoricalVariableStatic,
@@ -79,16 +95,20 @@ class VariableFactory:
         # So far, use a known set of dyanmic variables to create
         dynamic_classes = [
             VariableFactoryClass(
-                class_type=ReferenceIterationVariable, config_type=ReferenceIterationVariableConfig
+                class_type=ReferenceIterationVariable,
+                config_type=ReferenceIterationVariableConfig,
             ),
             VariableFactoryClass(
-                class_type=IterationScalarVariable, config_type=IterationScalarVariableConfig
+                class_type=IterationScalarVariable,
+                config_type=IterationScalarVariableConfig,
             ),
             VariableFactoryClass(
                 class_type=IterationCategoricalVariable,
                 config_type=IterationCategoricalVariableConfig,
             ),
-            VariableFactoryClass(class_type=SurvivalVariable, config_type=SurvivalVariableConfig),
+            VariableFactoryClass(
+                class_type=SurvivalVariable, config_type=SurvivalVariableConfig
+            ),
         ]
         self._dynamic_classes: Dict[str, VariableFactoryClass] = {}
         for factory_class in dynamic_classes:
@@ -97,7 +117,9 @@ class VariableFactory:
     def create(self, dataframe: pd.DataFrame, type: str, **kwargs) -> BaseVariable:
         if type in self._static_classes:
             factory_class = self._static_classes[type]
-            new_variable = factory_class.class_type(config=factory_class.config_type(**kwargs))
+            new_variable = factory_class.class_type(
+                config=factory_class.config_type(**kwargs)
+            )
             new_variable.init_from_dataframe(dataframe)
             return new_variable
         else:
@@ -180,7 +202,9 @@ class VariableFactory:
             **kwargs,
         )
 
-    def create_from_series(self, dataframe: pd.DataFrame, id: str) -> Optional[BaseVariable]:
+    def create_from_series(
+        self, dataframe: pd.DataFrame, id: str
+    ) -> Optional[BaseVariable]:
         series = dataframe[id]
         create_boolean = lambda dataframe, id: self.create_from_config(
             dataframe=dataframe,

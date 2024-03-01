@@ -13,12 +13,14 @@ class VariableType(Enum):
     SCALAR = "scalar"
     CATEGORICAL = "categorical"
     BOOLEAN = "boolean"
+    STRING = "string"
     DATETIME = "datetime"
     ITERATED_SCALAR = "iterated_scalar"
     ITERATED_CATEGORICAL = "iterated_categorical"
 
 
 class VariableStatisticalType(Enum):
+    NONE = "non_statistical"
     SCALAR = "scalar"
     CATEGORICAL = "categorical"
     BOOLEAN = "boolean"
@@ -47,7 +49,9 @@ class BaseVariable(ABC):
     def init_from_dataframe(self, dataframe: pd.DataFrame) -> None:
         self._check_valid_id(dataframe)
         self.unique_id = (
-            f"{dataframe.name}.{self.id}" if hasattr(dataframe, "name") else f"{self.id}"
+            f"{dataframe.name}.{self.id}"
+            if hasattr(dataframe, "name")
+            else f"{self.id}"
         )
 
     @abstractmethod

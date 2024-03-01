@@ -13,7 +13,10 @@ class VariableSelector:
         self._database = database
 
     def get_variables_to_select(
-        self, variable_types: Optional[Union[Type[BaseVariable], List[Type[BaseVariable]]]] = None
+        self,
+        variable_types: Optional[
+            Union[Type[BaseVariable], List[Type[BaseVariable]]]
+        ] = None,
     ) -> List[BaseVariable]:
         if variable_types and isinstance(variable_types, Type):
             variable_types = [variable_types]
@@ -22,9 +25,14 @@ class VariableSelector:
             if all(
                 [
                     variable.selectable,
-                    any(isinstance(variable, variable_type) for variable_type in variable_types)
-                    if variable_types
-                    else True,
+                    (
+                        any(
+                            isinstance(variable, variable_type)
+                            for variable_type in variable_types
+                        )
+                        if variable_types
+                        else True
+                    ),
                 ]
             ):
                 variables_to_select.append(variable)
@@ -32,11 +40,17 @@ class VariableSelector:
 
     def select_variables(self, context_uid: str, variables: List[BaseVariable]) -> None:
         for variable in variables:
-            st.session_state[self.get_variable_persistent_key(context_uid, variable)] = True
+            st.session_state[
+                self.get_variable_persistent_key(context_uid, variable)
+            ] = True
 
-    def deselect_variables(self, context_uid: str, variables: List[BaseVariable]) -> None:
+    def deselect_variables(
+        self, context_uid: str, variables: List[BaseVariable]
+    ) -> None:
         for variable in variables:
-            st.session_state[self.get_variable_persistent_key(context_uid, variable)] = False
+            st.session_state[
+                self.get_variable_persistent_key(context_uid, variable)
+            ] = False
 
     @staticmethod
     def get_variable_persistent_key(context_uid: str, variable: BaseVariable) -> str:
@@ -45,11 +59,15 @@ class VariableSelector:
         )
 
     @staticmethod
-    def get_variable_persistent_key_from_uid(context_uid: str, variable_uid: str) -> str:
+    def get_variable_persistent_key_from_uid(
+        context_uid: str, variable_uid: str
+    ) -> str:
         return f"{context_uid}_{PersistentSessionState.persist_key(key=variable_uid)}"
 
     @staticmethod
-    def selected_variables_to_file(context_uid: str, variables: List[BaseVariable]) -> bytes:
+    def selected_variables_to_file(
+        context_uid: str, variables: List[BaseVariable]
+    ) -> bytes:
         return json.dumps(
             {
                 f"{context_uid}_selected_variables_uids": [
@@ -62,15 +80,18 @@ class VariableSelector:
     def get_selected_variables_from_file(
         context_uid: str, file_contents: bytes, variables: List[BaseVariable]
     ) -> List[BaseVariable]:
-        loaded_variables = json.loads(file_contents.decode("utf-8"))[
-            f"{context_uid}_selected_variables_uids"
+        loaded_variables = json.loads(file_contents.decode("utf-8"))
+        loaded_variables = loaded_variables[f"{context_uid}_selected_variables_uids"]
+        return [
+            variable for variable in variables if variable.unique_id in loaded_variables
         ]
-        return [variable for variable in variables if variable.unique_id in loaded_variables]
 
     @staticmethod
     def select_variables_from_file(context_uid: str, file_contents: str) -> None:
         file_json = json.loads(file_contents)
         for variable_uid in file_json[f"{context_uid}_selected_variables_uids"]:
             st.session_state[
-                VariableSelector.get_variable_persistent_key_from_uid(context_uid, variable_uid)
+                VariableSelector.get_variable_persistent_key_from_uid(
+                    context_uid, variable_uid
+                )
             ] = True
