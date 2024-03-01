@@ -43,7 +43,7 @@ class SelectVariableConfig:
 
 @st.cache_data
 def dataframe_to_csv(df: pd.DataFrame) -> bytes:
-    return df.to_csv(index=False, sep=",", decimal=",", float_format="%.2f").encode(
+    return df.to_csv(index=True, sep=",", decimal=",", float_format="%.2f").encode(
         "utf-8"
     )
 
@@ -426,7 +426,10 @@ def select_variables_by_multiselect(
     database: PatientDatabase, select_variable_config: SelectVariableConfig
 ) -> List[BaseVariable]:
     selected_variables = []
-    variables = database.get_variables_by_type(select_variable_config.variable_types)
+    variables: List[BaseVariable] = database.get_variables_by_type(
+        select_variable_config.variable_types
+    )
+    variables.remove(database.index_variable)
     uploaded_file = st.file_uploader(
         label=f"Upload a filtered dataframe variable selection ⬆️",
         type=["json"],

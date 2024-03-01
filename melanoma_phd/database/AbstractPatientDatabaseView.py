@@ -22,6 +22,13 @@ class AbstractPatientDatabaseView(ABC):
         pass
 
     @property
+    def index_variable(self) -> BaseVariable:
+        for variable in self.variables:
+            if variable.id == self.dataframe.index.name:
+                return variable
+        raise ValueError(f"No variable index found!")
+
+    @property
     def patient_ids(self) -> List[int]:
         return list(self.dataframe.index.values)
 
@@ -32,7 +39,9 @@ class AbstractPatientDatabaseView(ABC):
         if patient_ids:
             return [self.get_patient(patient_id) for patient_id in patient_ids]
         else:
-            return [Patient(int(index), row) for index, row in self.dataframe.iterrows()]
+            return [
+                Patient(int(index), row) for index, row in self.dataframe.iterrows()
+            ]
 
     def get_variable(self, variable_id: str) -> BaseVariable:
         for variable in self.variables:
