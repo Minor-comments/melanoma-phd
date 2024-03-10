@@ -1724,6 +1724,34 @@ sections:
                     0: decrease
                     1: increase
                     2: always negative
+            - ctDNABaselineto3m only increase:
+                id: "ctDNABaselineto3m only increase"
+                name: "ctDNABaselineto3m only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNABaselineto6m only increase:
+                id: "ctDNABaselineto6m only increase"
+                name: "ctDNABaselineto6m only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNA3to6m only increase:
+                id: "ctDNA3to6m only increase"
+                name: "ctDNA3to6m only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNA6tobeyond only increase:
+                id: "ctDNA6tobeyond only increase"
+                name: "ctDNA6tobeyond only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
 
     - radiological_tests_database:
         name: "PRUEBAS RADIOLÓGICAS"
