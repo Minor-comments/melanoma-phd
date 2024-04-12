@@ -1962,4 +1962,12 @@ sections:
                 categories:
                     0: "no"
                     1: "yes increase"
+    
+    - Indice articuloIPI-NIVO:
+        name: "Indice articuloIPI-NIVO"
+        sheets:
+            - "Indice articuloIPI-NIVO"
+        variables:
+
+    
 
