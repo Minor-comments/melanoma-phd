@@ -1634,124 +1634,6 @@ sections:
                 _iteration_selectable: true
                 _iteration_reference_variable_id: "TIEMPO IT{N}"
                 _iteration_type: IterationScalarVariable
-            - ctDNA evol:
-                id: "ctDNA evol"
-                name: "ctDNA evol"
-                type: categorical
-                categories:
-                    1: "siempre positivo"
-                    2: "siempre negativo"
-                    3: "aumento"
-                    4: "disminución sin negativización"
-                    5: "disminución hasta negativización"
-                    6: "disminución con posterior aumento"
-            - ctDNA evol simplif: 
-                id: "ctDNA evol simplif"
-                name: "ctDNA evol simplif"
-                type: boolean
-                categories:
-                    0: 1+3+6
-                    1: 2+4+5
-            - ctDNA decreasing time:
-                id: "ctDNA decreasing time"
-                name: "ctDNA decreasing time"
-                type: scalar
-            - ctDNABaseline75todos natera:
-                id: "ctDNABaseline75todos natera"
-                name: "ctDNABaseline75todos natera"
-                type: boolean
-                categories:
-                    0: below percentile 75
-                    1: equal or above
-            - ctDNABaseline75primeraL:
-                id: "ctDNABaseline75primeraL"
-                name: "ctDNABaseline75primeraL"
-                type: boolean
-                categories:
-                    0: below percentile 75
-                    1: equal or above
-            - ctDNABaseline75antiPD1previo:
-                id: "ctDNABaseline75antiPD1previo"
-                name: "ctDNABaseline75antiPD1previo"
-                type: boolean
-                categories:
-                    0: below percentile 75
-                    1: equal or above
-            - ctDNABaseline75BRAF/MEKprevio:
-                id: "ctDNABaseline75BRAF/MEKprevio"
-                name: "ctDNABaseline75BRAF/MEKprevio"
-                type: boolean
-                categories:
-                    0: below percentile 75
-                    1: equal or above
-            - ctDNABaselineto3m:
-                id: "ctDNABaselineto3m"
-                name: "ctDNABaselineto3m"
-                type: categorical
-                categories:
-                    0: decrease
-                    1: increase
-                    2: always negative
-            - ctDNABaselineto6m:
-                id: "ctDNABaselineto6m"
-                name: "ctDNABaselineto6m"
-                type: categorical
-                categories:
-                    0: decrease
-                    1: increase
-                    2: always negative
-            - ctDNA3to6m:
-                id: "ctDNA3to6m"
-                name: "ctDNA3to6m"
-                type: categorical
-                categories:
-                    0: decrease
-                    1: increase
-                    2: always negative
-            - ctDNA6tobeyond:
-                id: "ctDNA6tobeyond"
-                name: "ctDNA6tobeyond"
-                type: categorical
-                categories:
-                    0: decrease
-                    1: increase
-                    2: always negative
-            - ctDNA3to6m:
-                id: "ctDNA3to6m"
-                name: "ctDNA3to6m"
-                type: categorical
-                categories:
-                    0: decrease
-                    1: increase
-                    2: always negative
-            - ctDNABaselineto3m only increase:
-                id: "ctDNABaselineto3m only increase"
-                name: "ctDNABaselineto3m only increase"
-                type: boolean
-                categories:
-                    0: "no"
-                    1: "yes increase"
-            - ctDNABaselineto6m only increase:
-                id: "ctDNABaselineto6m only increase"
-                name: "ctDNABaselineto6m only increase"
-                type: boolean
-                categories:
-                    0: "no"
-                    1: "yes increase"
-            - ctDNA3to6m only increase:
-                id: "ctDNA3to6m only increase"
-                name: "ctDNA3to6m only increase"
-                type: boolean
-                categories:
-                    0: "no"
-                    1: "yes increase"
-            - ctDNA6tobeyond only increase:
-                id: "ctDNA6tobeyond only increase"
-                name: "ctDNA6tobeyond only increase"
-                type: boolean
-                categories:
-                    0: "no"
-                    1: "yes increase"
 
     - radiological_tests_database:
         name: "PRUEBAS RADIOLÓGICAS"
@@ -1957,3 +1839,127 @@ sections:
                 categories:
                     0: "ne- ctDNA"
                     1: "ve+ ctDNA"
+    - Número muestras ctDNAylimfos:
+        name: "Número muestras ctDNAylimfos"
+        sheets:
+            - "Número muestras ctDNAylimfos"
+        variables:
+            - ctDNA evol:
+                id: "ctDNA evol"
+                name: "ctDNA evol"
+                type: categorical
+                categories:
+                    1: "siempre positivo"
+                    2: "siempre negativo"
+                    3: "aumento"
+                    4: "disminución sin negativización"
+                    5: "disminución hasta negativización"
+                    6: "disminución con posterior aumento"
+            - ctDNA evol simplif: 
+                id: "ctDNA evol simplif"
+                name: "ctDNA evol simplif"
+                type: boolean
+                categories:
+                    0: 1+3+6
+                    1: 2+4+5
+            - ctDNA decreasing time:
+                id: "ctDNA decreasing time"
+                name: "ctDNA decreasing time"
+                type: scalar
+            - ctDNABaseline75todos natera:
+                id: "ctDNABaseline75todos natera"
+                name: "ctDNABaseline75todos natera"
+                type: boolean
+                categories:
+                    0: below percentile 75
+                    1: equal or above
+            - ctDNABaseline75primeraL:
+                id: "ctDNABaseline75primeraL"
+                name: "ctDNABaseline75primeraL"
+                type: boolean
+                categories:
+                    0: below percentile 75
+                    1: equal or above
+            - ctDNABaseline75antiPD1previo:
+                id: "ctDNABaseline75antiPD1previo"
+                name: "ctDNABaseline75antiPD1previo"
+                type: boolean
+                categories:
+                    0: below percentile 75
+                    1: equal or above
+            - ctDNABaseline75BRAF/MEKprevio:
+                id: "ctDNABaseline75BRAF/MEKprevio"
+                name: "ctDNABaseline75BRAF/MEKprevio"
+                type: boolean
+                categories:
+                    0: below percentile 75
+                    1: equal or above
+            - ctDNABaselineto3m:
+                id: "ctDNABaselineto3m"
+                name: "ctDNABaselineto3m"
+                type: categorical
+                categories:
+                    0: decrease
+                    1: increase
+                    2: always negative
+            - ctDNABaselineto6m:
+                id: "ctDNABaselineto6m"
+                name: "ctDNABaselineto6m"
+                type: categorical
+                categories:
+                    0: decrease
+                    1: increase
+                    2: always negative
+            - ctDNA3to6m:
+                id: "ctDNA3to6m"
+                name: "ctDNA3to6m"
+                type: categorical
+                categories:
+                    0: decrease
+                    1: increase
+                    2: always negative
+            - ctDNA6tobeyond:
+                id: "ctDNA6tobeyond"
+                name: "ctDNA6tobeyond"
+                type: categorical
+                categories:
+                    0: decrease
+                    1: increase
+                    2: always negative
+            - ctDNA3to6m:
+                id: "ctDNA3to6m"
+                name: "ctDNA3to6m"
+                type: categorical
+                categories:
+                    0: decrease
+                    1: increase
+                    2: always negative
+            - ctDNABaselineto3m only increase:
+                id: "ctDNABaselineto3m only increase"
+                name: "ctDNABaselineto3m only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNABaselineto6m only increase:
+                id: "ctDNABaselineto6m only increase"
+                name: "ctDNABaselineto6m only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNA3to6m only if increase:
+                id: "ctDNA3to6m only if increase"
+                name: "ctDNA3to6m only if increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+            - ctDNA6tobeyond only increase:
+                id: "ctDNA6tobeyond only increase"
+                name: "ctDNA6tobeyond only increase"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes increase"
+
