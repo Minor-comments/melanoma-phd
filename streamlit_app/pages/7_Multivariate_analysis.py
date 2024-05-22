@@ -1,3 +1,4 @@
+import math
 import os
 import sys
 from typing import List, Type, cast
@@ -7,7 +8,9 @@ import pandas as pd
 import streamlit as st
 
 # workaround for Streamlit Cloud for importing `melanoma_phd` module correctly
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # isort: skip
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)  # isort: skip
 from melanoma_phd.database.statistics.CatboostModel import CatboostModel
 from melanoma_phd.database.statistics.PreProcessor import NanTreatment, PreProcessor
 from melanoma_phd.database.variable.BaseVariable import BaseVariable
@@ -28,7 +31,9 @@ def concat_variables(
     df: pd.DataFrame, variables: List[BaseVariable], variable_type: Type[BaseVariable]
 ) -> pd.DataFrame:
     variables_data = [
-        variable.get_series(df) for variable in variables if isinstance(variable, variable_type)
+        variable.get_series(df)
+        for variable in variables
+        if isinstance(variable, variable_type)
     ]
     if len(variables_data) > 0:
         return pd.concat(
@@ -37,6 +42,38 @@ def concat_variables(
         )
     else:
         return pd.DataFrame(None, index=df.index)
+
+
+def calculate_default_learning_rate(
+    dataset_lenght: int, iterations: int, task_type: str
+) -> float:
+    """Formula and constants from Catboost codebase (https://github.com/catboost/catboost/blob/a17aed2b2c01c343cea1bb2a1908ee9e6792efd2/catboost/libs/train_lib/options_helper.cpp#L261)"""
+    constants = {
+        "GPU": (0.04, -3.226, -0.488, 0.758),
+        "CPU": (0.246, -5.127, -0.451, 0.978),
+    }
+
+    dataset_size_coeff, dataset_size_const, iter_count_coeff, iter_count_const = (
+        constants[task_type]
+    )
+    custom_iteration_constant = math.exp(
+        iter_count_coeff * math.log(iterations) + iter_count_const
+    )
+    default_iteration_constant = math.exp(
+        iter_count_coeff * math.log(1000) + iter_count_const
+    )
+    default_learning_rate = math.exp(
+        dataset_size_coeff * math.log(dataset_lenght) + dataset_size_const
+    )
+    return round(
+        min(
+            default_learning_rate
+            * custom_iteration_constant
+            / default_iteration_constant,
+            0.5,
+        ),
+        6,
+    )
 
 
 if __name__ == "__main__":
@@ -68,44 +105,91 @@ if __name__ == "__main__":
             ),
         )
 
-        N_FOLDS = 5
-        SEED = 42
+        with st.popover("Training options", use_container_width=True):
+            N_FOLDS = 5
+            SEED = 42
 
-        st.subheader("Training options")
-        N_FOLDS = st.slider("Number of folds", value=5, min_value=1, max_value=10)
-        SEED = st.slider("Seed", value=42, min_value=1, max_value=100)
-        iterations = st.slider("Number of iterations", value=300, min_value=1, max_value=5000)
-        depth = st.slider("Depth", value=3, min_value=1, max_value=10)
-        od_pval = st.select_slider(
-            "Overfit detector - p-value", options=np.logspace(-10, 2, 12, base=10), value=0.001
-        )
-        od_wait = st.slider(
-            "Overfit detector - wait iterations", value=50, min_value=1, max_value=500
-        )
+            N_FOLDS = st.slider("Number of folds", value=5, min_value=1, max_value=10)
+            SEED = st.slider("Seed", value=42, min_value=1, max_value=100)
+            grid_search = st.checkbox("Grid search", value=False, disabled=True)
+            if grid_search:
+                pass
+            else:
+                iterations = st.slider(
+                    "Number of iterations", value=300, min_value=1, max_value=5000
+                )
+                learning_rate_percentage = st.slider(
+                    "Learning rate diff percentage from default",
+                    min_value=-100,
+                    max_value=100,
+                    value=0,
+                )
+                depth = st.slider("Depth", value=3, min_value=1, max_value=10)
+                l2_leaf_reg = st.select_slider(
+                    "L2 leaf reg", options=[3, 1, 5, 10, 100]
+                )
+                border_count = st.select_slider(
+                    "Border count", options=[32, 4, 8, 16, 64, 128, 254]
+                )
+                od_pval = st.select_slider(
+                    "Overfit detector - p-value",
+                    options=np.logspace(-10, 2, 13, base=10),
+                    value=1e-03,
+                )
+                od_wait = st.slider(
+                    "Overfit detector - wait iterations",
+                    value=50,
+                    min_value=1,
+                    max_value=500,
+                )
+                task_type = st.selectbox("Task type", options=["CPU", "GPU"], index=0)
 
-        model_params = dict(
-            od_pval=od_pval,
-            od_wait=od_wait,
-            iterations=iterations,
-            depth=depth,
-            eval_metric="AUC",
-        )
+                default_learning_rate = calculate_default_learning_rate(
+                    dataset_lenght=len(filtered_df),
+                    iterations=iterations,
+                    task_type=task_type,
+                )
+                learning_rate = default_learning_rate * (
+                    1 + learning_rate_percentage / 100
+                )
+
+                model_params = dict(
+                    iterations=iterations,
+                    learning_rate=learning_rate,
+                    depth=depth,
+                    l2_leaf_reg=l2_leaf_reg,
+                    border_count=border_count,  # Review if use target_border in case of binary
+                    od_pval=od_pval,
+                    od_wait=od_wait,
+                    task_type=task_type,
+                    eval_metric="AUC",
+                )
 
         if independent_variables and target_variables:
             preprocessor = PreProcessor(
                 transform_floats=True,
-                substring_transform_columns=["Fluo", "Abs", "Tcm/Teff", "Teff/Treg", "EDAD"],
+                substring_transform_columns=[
+                    "Fluo",
+                    "Abs",
+                    "Tcm/Teff",
+                    "Teff/Treg",
+                    "EDAD",
+                ],
             )
 
             numerical_independent_df = preprocessor.preprocess(
                 concat_variables(filtered_df, independent_variables, ScalarVariable)
             )
             categorical_independent_df = preprocessor.preprocess(
-                concat_variables(filtered_df, independent_variables, CategoricalVariable),
+                concat_variables(
+                    filtered_df, independent_variables, CategoricalVariable
+                ),
                 nan_treatment=NanTreatment.KEEP_AS_VALID_VALUE,
             )
             independent_df = pd.concat(
-                [numerical_independent_df, categorical_independent_df], axis=1, join="inner"
+                [numerical_independent_df, categorical_independent_df],
+                axis=1,
+                join="inner",
             )
 
             for target_variable in target_variables:
@@ -124,7 +208,9 @@ if __name__ == "__main__":
                 model = CatboostModel(
                     kfolds=N_FOLDS,
                     random_state=SEED,
-                    categorical_independent_columns=list(categorical_independent_df.columns),
+                    categorical_independent_columns=list(
+                        categorical_independent_df.columns
+                    ),
                     **model_params,
                 )
                 results = model.fit(

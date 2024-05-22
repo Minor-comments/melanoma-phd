@@ -7,7 +7,7 @@ pandas-stubs
 types-PyYAML
 
 # streamlit
-streamlit >= 1.18.1
+streamlit >= 1.34.0
 openpyxl
 plotly >= 4.8
 matplotlib
