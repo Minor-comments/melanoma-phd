@@ -1701,7 +1701,28 @@ sections:
                 categories:
                     0: "False"
                     1: "True"
-        
+    - BASE cfDNA Juan Anton:
+        name: "BASE cfDNA Juan Anton"
+        sheets:
+            - "BASE cfDNA Juan Anton"
+        variables:
+            - n. patient:
+                id: "N. PACIENTE"
+                name: "N. PACIENTE"
+                type: categorical
+                selectable: false
+            - n. historic:
+                id: "N. HISTORIA"
+                name: "N. HISTORIA"
+                type: categorical
+                selectable: false
+            - GRUPO con cfDNA:
+                id: "GRUPO con cfDNA"
+                name: "GRUPO con cfDNA"
+                type: boolean
+                categories:
+                    0: "no"
+                    1: "yes"
     - LIMFyDNA_tiempo_(Baseline-12m):
         name: "LIMFyDNA tiempo (Baseline-12m)"
         sheets:

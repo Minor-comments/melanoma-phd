@@ -188,6 +188,10 @@ def create_filters(key_context: str, database: PatientDatabase) -> List[Filter]:
                 ]
             ],
         ),
+        MultiSelectFilter(
+            key_context=key_context,
+            filter=CategoricalFilter(database.get_variable("GRUPO con cfDNA")),
+        ),
     ]
     return filters
 
