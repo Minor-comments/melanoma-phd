@@ -1990,5 +1990,11 @@ sections:
             - "Indice articuloIPI-NIVO"
         variables:
 
+    - RECISTportemporalidad:
+        name: "RECISTportemporalidad"
+        sheets:
+            - "RECISTportemporalidad"
+        variables:
+
     
 
