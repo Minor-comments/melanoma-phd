@@ -213,14 +213,15 @@ class VariableFactory:
                 id=id, name=id, selectable=True, categories={0: "No", 1: "Sí"}
             ),
         )
-        if is_datetime64_any_dtype(series) or is_datetime64tz_dtype(series):
+        series_drop_na = series.dropna()
+        if is_datetime64_any_dtype(series_drop_na) or is_datetime64tz_dtype(series_drop_na):
             return self.create_from_config(
                 dataframe=dataframe,
                 type=VariableType.DATETIME.value,
                 config=DateTimeVariableConfig(id=id, name=id, selectable=True),
             )
-        elif is_float_dtype(series) or is_integer_dtype(series):
-            if set(series.dropna().unique()) == set([0, 1]):
+        elif is_float_dtype(series_drop_na) or is_integer_dtype(series_drop_na):
+            if set(series_drop_na.unique()) == set([0, 1]):
                 return create_boolean(
                     dataframe=dataframe,
                     id=id,
@@ -231,15 +232,17 @@ class VariableFactory:
                     type=VariableType.SCALAR.value,
                     config=ScalarVariableConfig(id=id, name=id, selectable=True),
                 )
-        elif is_string_dtype(series):
+        elif is_string_dtype(series_drop_na):
             return self.create_from_config(
                 dataframe=dataframe,
                 type=VariableType.CATEGORICAL.value,
                 config=CategoricalVariableConfig(id=id, name=id, selectable=True),
             )
-        elif is_bool_dtype(series):
+        elif is_bool_dtype(series_drop_na):
             return create_boolean(
                 dataframe=dataframe,
                 id=id,
             )
+        else:
+            print(f"Error: Could not create a variable '{id}' from series with type {series.dtype}")
         return None
