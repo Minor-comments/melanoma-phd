@@ -1860,6 +1860,16 @@ sections:
                 categories:
                     0: "ne- ctDNA"
                     1: "ve+ ctDNA"
+    - LDHportemporalidad:
+        name: "LDHportemporalidad"
+        sheets:
+            - "LDHportemporalidad"
+        variables:
+    - Hemogramaportemporalidad:
+        name: "Hemogramaportemporalidad"
+        sheets:
+            - "Hemogramaportemporalidad"
+        variables:
     - Número muestras ctDNAylimfos:
         name: "Número muestras ctDNAylimfos"
         sheets:
